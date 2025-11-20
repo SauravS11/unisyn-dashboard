@@ -9,14 +9,15 @@ const Welcome = () => {
   const features = [
     {
       icon: Briefcase,
-      title: "Create Deals",
-      description: "Streamline deal creation and management with intelligent workflows",
-      onClick: () => navigate("/deals/create"),
+      title: "View All Deals",
+      description: "Access and manage all your M&A deals in one central location",
+      onClick: () => navigate("/deals"),
     },
     {
       icon: FileSearch,
-      title: "Manage Due Diligence",
-      description: "Centralise documentation and track progress in real-time",
+      title: "Create New Deal",
+      description: "Start a new deal with intelligent workflows and documentation",
+      onClick: () => navigate("/deals/create"),
     },
     {
       icon: Users,
