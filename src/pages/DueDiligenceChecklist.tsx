@@ -6,9 +6,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { ChevronRight, Upload, ChevronLeft } from "lucide-react";
-import { useState } from "react";
+import { ChevronRight, Upload, ChevronLeft, File, X } from "lucide-react";
+import { useState, useRef } from "react";
 import { Progress } from "@/components/ui/progress";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import unisynLogo from "@/assets/unisyn-logo.png";
 
 interface ChecklistItem {
@@ -19,6 +21,7 @@ interface ChecklistItem {
   assignedName: string;
   assignedEmail: string;
   assignedRole: string;
+  uploadedFiles: { name: string; path: string }[];
 }
 
 interface ChecklistSection {
@@ -239,7 +242,10 @@ const checklistData: ChecklistSection[] = [
 ];
 
 const DueDiligenceChecklist = () => {
+  const { toast } = useToast();
+  const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
+  const [uploadingFiles, setUploadingFiles] = useState<Record<string, boolean>>({});
   const [checklist, setChecklist] = useState<Record<string, ChecklistItem>>(() => {
     const initial: Record<string, ChecklistItem> = {};
     checklistData.forEach((section) => {
@@ -253,6 +259,7 @@ const DueDiligenceChecklist = () => {
           assignedName: "",
           assignedEmail: "",
           assignedRole: "",
+          uploadedFiles: [],
         };
       });
     });
@@ -293,8 +300,87 @@ const DueDiligenceChecklist = () => {
   };
 
   const handleFileUpload = (id: string) => {
-    // File upload logic here
-    console.log("Upload file for:", id);
+    fileInputRefs.current[id]?.click();
+  };
+
+  const handleFileChange = async (id: string, event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploadingFiles((prev) => ({ ...prev, [id]: true }));
+
+    try {
+      const file = files[0];
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${id}-${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('deal-documents')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // Add file to checklist item
+      setChecklist((prev) => ({
+        ...prev,
+        [id]: {
+          ...prev[id],
+          uploadedFiles: [
+            ...prev[id].uploadedFiles,
+            { name: file.name, path: filePath },
+          ],
+        },
+      }));
+
+      toast({
+        title: "File uploaded successfully",
+        description: `${file.name} has been uploaded.`,
+      });
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      toast({
+        title: "Upload failed",
+        description: "There was an error uploading your file. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setUploadingFiles((prev) => ({ ...prev, [id]: false }));
+      // Reset the input
+      if (fileInputRefs.current[id]) {
+        fileInputRefs.current[id]!.value = '';
+      }
+    }
+  };
+
+  const handleFileRemove = async (itemId: string, filePath: string) => {
+    try {
+      const { error } = await supabase.storage
+        .from('deal-documents')
+        .remove([filePath]);
+
+      if (error) throw error;
+
+      setChecklist((prev) => ({
+        ...prev,
+        [itemId]: {
+          ...prev[itemId],
+          uploadedFiles: prev[itemId].uploadedFiles.filter((f) => f.path !== filePath),
+        },
+      }));
+
+      toast({
+        title: "File removed",
+        description: "The file has been removed successfully.",
+      });
+    } catch (error) {
+      console.error('Error removing file:', error);
+      toast({
+        title: "Remove failed",
+        description: "There was an error removing the file. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -388,6 +474,15 @@ const DueDiligenceChecklist = () => {
                     key={itemId}
                     className="backdrop-blur-xl bg-background/40 border border-border/50 rounded-lg p-5 space-y-4"
                   >
+                    {/* Hidden file input */}
+                    <input
+                      ref={(el) => (fileInputRefs.current[itemId] = el)}
+                      type="file"
+                      className="hidden"
+                      onChange={(e) => handleFileChange(itemId, e)}
+                      accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.zip"
+                    />
+
                     {/* Item Header with Checkbox */}
                     <div className="flex items-start gap-3">
                       <Checkbox
@@ -404,11 +499,40 @@ const DueDiligenceChecklist = () => {
                         variant="outline"
                         className="bg-background/50 border-border/50 hover:bg-primary/10 hover:border-primary/50"
                         onClick={() => handleFileUpload(itemId)}
+                        disabled={uploadingFiles[itemId]}
                       >
                         <Upload className="h-4 w-4 mr-2" />
-                        Upload
+                        {uploadingFiles[itemId] ? "Uploading..." : "Upload"}
                       </Button>
                     </div>
+
+                    {/* Uploaded Files List */}
+                    {itemData.uploadedFiles.length > 0 && (
+                      <div className="space-y-2">
+                        <Label className="text-xs text-muted-foreground">Uploaded Files</Label>
+                        <div className="space-y-2">
+                          {itemData.uploadedFiles.map((file, fileIndex) => (
+                            <div
+                              key={fileIndex}
+                              className="flex items-center justify-between bg-background/50 border border-border/40 rounded-md px-3 py-2"
+                            >
+                              <div className="flex items-center gap-2">
+                                <File className="h-4 w-4 text-primary" />
+                                <span className="text-sm">{file.name}</span>
+                              </div>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-6 w-6 p-0 hover:bg-destructive/10 hover:text-destructive"
+                                onClick={() => handleFileRemove(itemId, file.path)}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
                     {/* Notes Field */}
                     <div className="space-y-2">
