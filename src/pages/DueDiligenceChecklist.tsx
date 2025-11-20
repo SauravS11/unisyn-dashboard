@@ -19,10 +19,13 @@ interface ChecklistItem {
   text: string;
   checked: boolean;
   notes: string;
-  assignedName: string;
-  assignedEmail: string;
-  assignedRole: string;
   uploadedFiles: { name: string; path: string }[];
+}
+
+interface SectionSpecialist {
+  name: string;
+  email: string;
+  role: string;
 }
 
 interface ChecklistSection {
@@ -258,12 +261,21 @@ const DueDiligenceChecklist = () => {
           text: item,
           checked: false,
           notes: "",
-          assignedName: "",
-          assignedEmail: "",
-          assignedRole: "",
           uploadedFiles: [],
         };
       });
+    });
+    return initial;
+  });
+
+  const [sectionSpecialists, setSectionSpecialists] = useState<Record<string, SectionSpecialist>>(() => {
+    const initial: Record<string, SectionSpecialist> = {};
+    checklistData.forEach((section) => {
+      initial[section.id] = {
+        name: "",
+        email: "",
+        role: "",
+      };
     });
     return initial;
   });
@@ -298,6 +310,13 @@ const DueDiligenceChecklist = () => {
     setChecklist((prev) => ({
       ...prev,
       [id]: { ...prev[id], [field]: value },
+    }));
+  };
+
+  const handleSectionSpecialistChange = (sectionId: string, field: keyof SectionSpecialist, value: string) => {
+    setSectionSpecialists((prev) => ({
+      ...prev,
+      [sectionId]: { ...prev[sectionId], [field]: value },
     }));
   };
 
@@ -474,6 +493,61 @@ const DueDiligenceChecklist = () => {
           </CardHeader>
 
           <CardContent className="pt-8">
+            {/* Section Specialist Assignment */}
+            <div className="backdrop-blur-xl bg-primary/5 border-2 border-primary/20 rounded-lg p-5 mb-6">
+              <Label className="text-sm font-semibold text-primary mb-4 block">Section Specialist</Label>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor={`section-${currentSection.id}-name`} className="text-xs">
+                    Name
+                  </Label>
+                  <Input
+                    id={`section-${currentSection.id}-name`}
+                    placeholder="Specialist name"
+                    value={sectionSpecialists[currentSection.id].name}
+                    onChange={(e) => handleSectionSpecialistChange(currentSection.id, "name", e.target.value)}
+                    className="bg-background/50 border-border/40 text-sm"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor={`section-${currentSection.id}-email`} className="text-xs">
+                    Email
+                  </Label>
+                  <Input
+                    id={`section-${currentSection.id}-email`}
+                    type="email"
+                    placeholder="email@example.com"
+                    value={sectionSpecialists[currentSection.id].email}
+                    onChange={(e) => handleSectionSpecialistChange(currentSection.id, "email", e.target.value)}
+                    className="bg-background/50 border-border/40 text-sm"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor={`section-${currentSection.id}-role`} className="text-xs">
+                    Role
+                  </Label>
+                  <Select
+                    value={sectionSpecialists[currentSection.id].role}
+                    onValueChange={(value) => handleSectionSpecialistChange(currentSection.id, "role", value)}
+                  >
+                    <SelectTrigger className="bg-background/50 border-border/40 text-sm">
+                      <SelectValue placeholder="Select role" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border-border/50">
+                      <SelectItem value="financial-advisor">Financial Advisor</SelectItem>
+                      <SelectItem value="legal-advisor">Legal Advisor</SelectItem>
+                      <SelectItem value="tax-specialist">Tax Specialist</SelectItem>
+                      <SelectItem value="compliance-officer">Compliance Officer</SelectItem>
+                      <SelectItem value="it-specialist">IT Specialist</SelectItem>
+                      <SelectItem value="hr-specialist">HR Specialist</SelectItem>
+                      <SelectItem value="environmental-consultant">Environmental Consultant</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+
             {/* Section Items */}
             <div className="space-y-4">
               {currentSection.items.map((item, index) => {
@@ -557,61 +631,6 @@ const DueDiligenceChecklist = () => {
                         onChange={(e) => handleFieldChange(itemId, "notes", e.target.value)}
                         className="bg-background/50 border-border/40 min-h-[60px] text-sm"
                       />
-                    </div>
-
-                    {/* Assign Specialist Section */}
-                    <div className="border-t border-border/40 pt-4">
-                      <Label className="text-xs text-muted-foreground mb-3 block">Assign Specialist</Label>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <div className="space-y-1">
-                          <Label htmlFor={`${itemId}-name`} className="text-xs">
-                            Name
-                          </Label>
-                          <Input
-                            id={`${itemId}-name`}
-                            placeholder="Specialist name"
-                            value={itemData.assignedName}
-                            onChange={(e) => handleFieldChange(itemId, "assignedName", e.target.value)}
-                            className="bg-background/50 border-border/40 text-sm"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label htmlFor={`${itemId}-email`} className="text-xs">
-                            Email
-                          </Label>
-                          <Input
-                            id={`${itemId}-email`}
-                            type="email"
-                            placeholder="email@example.com"
-                            value={itemData.assignedEmail}
-                            onChange={(e) => handleFieldChange(itemId, "assignedEmail", e.target.value)}
-                            className="bg-background/50 border-border/40 text-sm"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label htmlFor={`${itemId}-role`} className="text-xs">
-                            Role
-                          </Label>
-                          <Select
-                            value={itemData.assignedRole}
-                            onValueChange={(value) => handleFieldChange(itemId, "assignedRole", value)}
-                          >
-                            <SelectTrigger className="bg-background/50 border-border/40 text-sm">
-                              <SelectValue placeholder="Select role" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-card border-border/50">
-                              <SelectItem value="financial-advisor">Financial Advisor</SelectItem>
-                              <SelectItem value="legal-advisor">Legal Advisor</SelectItem>
-                              <SelectItem value="tax-specialist">Tax Specialist</SelectItem>
-                              <SelectItem value="compliance-officer">Compliance Officer</SelectItem>
-                              <SelectItem value="it-specialist">IT Specialist</SelectItem>
-                              <SelectItem value="hr-specialist">HR Specialist</SelectItem>
-                              <SelectItem value="environmental-consultant">Environmental Consultant</SelectItem>
-                              <SelectItem value="other">Other</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
                     </div>
                   </div>
                 );
