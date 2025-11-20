@@ -253,7 +253,7 @@ const DealDashboard = () => {
           </Card>
 
           <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-xl">
-            <CardContent className="pt-6">
+            <CardContent className="flex items-center justify-center min-h-[120px]">
               <div className="text-center">
                 <div className="text-3xl font-bold text-primary mb-1">{highPriorityTasks}</div>
                 <div className="text-sm text-muted-foreground">High Priority</div>
