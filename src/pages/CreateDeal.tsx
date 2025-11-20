@@ -54,31 +54,8 @@ const CreateDeal = () => {
 
       {/* Header */}
       <div className="relative z-10 border-b border-border/50 bg-background/80 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink href="/welcome" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Home
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator>
-                <ChevronRight className="h-4 w-4" />
-              </BreadcrumbSeparator>
-              <BreadcrumbItem>
-                <BreadcrumbLink href="/deals" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Deals
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator>
-                <ChevronRight className="h-4 w-4" />
-              </BreadcrumbSeparator>
-              <BreadcrumbItem>
-                <BreadcrumbPage className="text-foreground font-medium">Create Deal</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-          <img src={unisynLogo} alt="UniSyn Technology" className="w-24 h-auto" />
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-center">
+          <img src={unisynLogo} alt="UniSyn Technology" className="w-32 h-auto" />
         </div>
       </div>
 
