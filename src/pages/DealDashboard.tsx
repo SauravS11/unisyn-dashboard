@@ -1,9 +1,13 @@
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { ChevronRight, Paperclip, AlertCircle, CheckCircle2, Clock } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import unisynLogo from "@/assets/unisyn-logo.png";
 
 interface Task {
@@ -14,7 +18,7 @@ interface Task {
   assignedName: string;
   assignedEmail: string;
   status: "pending" | "in-progress" | "completed";
-  dueDate: string;
+  dueDate: string | null;
   hasAttachment: boolean;
 }
 
@@ -24,77 +28,116 @@ interface Category {
   tasks: Task[];
 }
 
-// Mock data - in real app this would come from the checklist
-const categories: Category[] = [
-  {
-    id: "A",
-    title: "HISTORICAL FINANCIALS",
-    tasks: [
-      {
-        id: "A-1",
-        code: "A1",
-        title: "Audited financial statements for the last 3 years",
-        priority: "high",
-        assignedName: "John Smith",
-        assignedEmail: "john@example.com",
-        status: "completed",
-        dueDate: "2025-12-15",
-        hasAttachment: true,
-      },
-      {
-        id: "A-2",
-        code: "A2",
-        title: "Management accounts for the current year",
-        priority: "high",
-        assignedName: "Sarah Johnson",
-        assignedEmail: "sarah@example.com",
-        status: "in-progress",
-        dueDate: "2025-12-20",
-        hasAttachment: false,
-      },
-      {
-        id: "A-3",
-        code: "A3",
-        title: "Breakdown of revenue streams",
-        priority: "medium",
-        assignedName: "",
-        assignedEmail: "",
-        status: "pending",
-        dueDate: "2025-12-25",
-        hasAttachment: false,
-      },
-    ],
-  },
-  {
-    id: "B",
-    title: "FORECASTING & FINANCIAL MODELS",
-    tasks: [
-      {
-        id: "B-1",
-        code: "B1",
-        title: "Financial forecast model (3–5 years)",
-        priority: "high",
-        assignedName: "Mike Chen",
-        assignedEmail: "mike@example.com",
-        status: "pending",
-        dueDate: "2025-12-18",
-        hasAttachment: false,
-      },
-    ],
-  },
-];
-
 const DealDashboard = () => {
-  const dealName = "TechCorp Acquisition";
+  const { id: dealId } = useParams<{ id: string }>();
+  const { toast } = useToast();
+  const [dealName, setDealName] = useState<string>("Loading...");
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDealData = async () => {
+      if (!dealId) return;
+
+      try {
+        // Fetch deal information
+        const { data: dealData, error: dealError } = await supabase
+          .from('deals')
+          .select('name')
+          .eq('id', dealId)
+          .single();
+
+        if (dealError) throw dealError;
+        setDealName(dealData.name);
+
+        // Fetch categories with their tasks and specialists
+        const { data: categoriesData, error: categoriesError } = await supabase
+          .from('deal_categories')
+          .select(`
+            id,
+            title,
+            category_code,
+            category_order
+          `)
+          .eq('deal_id', dealId)
+          .order('category_order');
+
+        if (categoriesError) throw categoriesError;
+
+        // Fetch tasks for all categories
+        const categoryIds = categoriesData.map(cat => cat.id);
+        const { data: tasksData, error: tasksError } = await supabase
+          .from('deal_tasks')
+          .select('*')
+          .in('category_id', categoryIds)
+          .order('task_order');
+
+        if (tasksError) throw tasksError;
+
+        // Fetch specialists for all categories
+        const { data: specialistsData, error: specialistsError } = await supabase
+          .from('deal_specialists')
+          .select('*')
+          .in('category_id', categoryIds);
+
+        if (specialistsError) throw specialistsError;
+
+        // Build categories with tasks
+        const categoriesWithTasks: Category[] = categoriesData.map(category => {
+          const categoryTasks = tasksData.filter(task => task.category_id === category.id);
+          const specialist = specialistsData.find(s => s.category_id === category.id);
+
+          return {
+            id: category.category_code,
+            title: category.title,
+            tasks: categoryTasks.map(task => ({
+              id: task.id,
+              code: task.task_code,
+              title: task.title,
+              priority: task.priority as "high" | "medium" | "low",
+              assignedName: specialist?.name || "",
+              assignedEmail: specialist?.email || "",
+              status: task.status as "pending" | "in-progress" | "completed",
+              dueDate: task.due_date,
+              hasAttachment: task.has_attachment,
+            })),
+          };
+        });
+
+        setCategories(categoriesWithTasks);
+      } catch (error) {
+        console.error('Error fetching deal data:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load deal data. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDealData();
+  }, [dealId, toast]);
   
   // Calculate stats
   const allTasks = categories.flatMap((cat) => cat.tasks);
   const completedTasks = allTasks.filter((t) => t.status === "completed").length;
-  const totalTasks = allTasks.length;
+  const totalTasks = allTasks.length || 1; // Prevent division by zero
   const readinessScore = Math.round((completedTasks / totalTasks) * 100);
   const openTasks = allTasks.filter((t) => t.status !== "completed").length;
   const highPriorityTasks = allTasks.filter((t) => t.priority === "high" && t.status !== "completed").length;
   const specialistsAssigned = new Set(allTasks.filter((t) => t.assignedName).map((t) => t.assignedEmail)).size;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 p-8 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-lg text-muted-foreground">Loading deal data...</div>
+        </div>
+      </div>
+    );
+  }
 
   const getCategoryCompletion = (category: Category) => {
     const completed = category.tasks.filter((t) => t.status === "completed").length;
