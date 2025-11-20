@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { Paperclip, ChevronLeft, ChevronRight, X, Upload, File } from "lucide-re
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import unisynLogo from "@/assets/unisyn-logo.png";
+import { toast as sonnerToast } from "sonner";
 
 interface ChecklistItem {
   id: string;
@@ -283,6 +284,18 @@ const DueDiligenceChecklist = () => {
   const isFirstSection = currentSectionIndex === 0;
   const isLastSection = currentSectionIndex === checklistData.length - 1;
   const progressPercentage = ((currentSectionIndex + 1) / checklistData.length) * 100;
+
+  // Check authentication on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        sonnerToast.error("Please sign in to access the checklist");
+        navigate("/");
+      }
+    };
+    checkAuth();
+  }, [navigate]);
 
   const goToNextSection = () => {
     if (!isLastSection) {
