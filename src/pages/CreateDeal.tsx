@@ -266,10 +266,10 @@ const CreateDeal = () => {
               </div>
 
               {/* Submit Button */}
-              <div className="flex justify-end pt-6 border-t border-border/50">
+              <div className="flex justify-center pt-6 border-t border-border/50">
                 <Button 
                   type="submit" 
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 font-semibold shadow-lg hover:shadow-xl transition-all"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 font-semibold shadow-lg hover:shadow-xl transition-all rounded-2xl"
                 >
                   Continue to Checklist
                 </Button>
