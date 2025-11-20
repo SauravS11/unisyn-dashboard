@@ -1,17 +1,17 @@
+import { useState, useRef } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { ChevronRight, Upload, ChevronLeft, File, X } from "lucide-react";
-import { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import { Progress } from "@/components/ui/progress";
-import { supabase } from "@/integrations/supabase/client";
+import { Paperclip, ChevronLeft, ChevronRight, X, Upload, File } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import unisynLogo from "@/assets/unisyn-logo.png";
 
 interface ChecklistItem {
@@ -169,78 +169,76 @@ const checklistData: ChecklistSection[] = [
       "Policy schedules",
       "Premium payment proof",
       "List of insurance claims (5 years)",
-      "Outstanding claims",
-      "Coverage gaps",
-      "Key-man insurance (if applicable)",
+      "Broker agreements",
+      "Claims procedures",
     ],
   },
   {
     id: "J",
-    title: "REGULATORY & LICENCES",
+    title: "OPERATIONS & PROCESSES",
     items: [
-      "Industry-specific licences",
-      "Operational permits",
-      "Health & safety compliance",
-      "Environmental compliance",
-      "Industry regulatory filings",
-      "Non-compliance notices",
-      "Expired or pending renewals",
+      "Standard operating procedures",
+      "Quality control processes",
+      "Health & safety policies",
+      "ISO certifications",
+      "Supplier relationships",
+      "Production schedules",
+      "Logistics & distribution",
+      "Technology systems overview",
+      "Software licenses & subscriptions",
+      "Website analytics",
     ],
   },
   {
     id: "K",
-    title: "LITIGATION & DISPUTES",
+    title: "CUSTOMER & REVENUE",
     items: [
-      "Current litigation matters",
-      "Previous legal disputes (5 years)",
-      "Settlement agreements",
-      "Legal opinions obtained",
-      "Threatened or pending litigation",
-      "Regulatory investigations",
-      "Internal investigations",
-      "Correspondence with legal counsel",
+      "Customer concentration analysis",
+      "Customer retention rates",
+      "Customer satisfaction data",
+      "Marketing strategy",
+      "Sales pipeline analysis",
+      "Pricing strategy documentation",
+      "Product roadmap",
+      "Competitive analysis",
     ],
   },
   {
     id: "L",
-    title: "TECHNOLOGY",
+    title: "LITIGATION & DISPUTES",
     items: [
-      "Full technology stack overview",
-      "Software & system licences",
-      "IT infrastructure documentation",
-      "Cybersecurity policies",
-      "Data protection compliance (POPIA)",
-      "Backup & recovery procedures",
-      "System architecture diagrams",
-      "Vendor contracts (IT services)",
-      "Admin access list",
-      "Technology risks or issues",
+      "List of ongoing litigation",
+      "Legal threats or disputes",
+      "Arbitration proceedings",
+      "Regulatory investigations",
+      "Settlement agreements",
+      "Letters of demand",
     ],
   },
   {
     id: "M",
-    title: "OTHER",
+    title: "TAX & STATUTORY",
     items: [
-      "Marketing materials",
-      "Branding assets",
-      "Market reports",
-      "Business plans",
-      "Operational manuals",
-      "Product documentation",
-      "Press releases",
-      "Customer testimonials",
-      "Industry certifications",
+      "Corporate income tax returns (3 years)",
+      "VAT returns",
+      "PAYE compliance records",
+      "UIF & SDL returns",
+      "Skills development levy",
+      "BEE compliance documents",
+      "Tax clearance certificate",
+      "Transfer pricing documentation",
     ],
   },
   {
     id: "N",
-    title: "ADDITIONAL INFORMATION",
+    title: "ENVIRONMENTAL & SOCIAL",
     items: [
-      "Any relevant documents not covered above",
-      "Any red flags identified by the seller",
-      "Any buyer-requested documents",
-      "Additional explanation notes",
-      "Future plans or projections",
+      "Environmental impact assessments",
+      "Water use licenses",
+      "Waste management permits",
+      "Carbon footprint reporting",
+      "Sustainability initiatives",
+      "CSR programmes",
     ],
   },
 ];
@@ -248,6 +246,7 @@ const checklistData: ChecklistSection[] = [
 const DueDiligenceChecklist = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { id: dealId } = useParams<{ id: string }>();
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
   const [uploadingFiles, setUploadingFiles] = useState<Record<string, boolean>>({});
@@ -320,13 +319,105 @@ const DueDiligenceChecklist = () => {
     }));
   };
 
-  const handleSubmit = () => {
-    // Save checklist data and navigate to dashboard
-    toast({
-      title: "Checklist submitted",
-      description: "Your due diligence checklist has been submitted successfully.",
-    });
-    navigate("/deals/new-deal/dashboard");
+  const handleSubmit = async () => {
+    if (!dealId) {
+      toast({
+        title: "Error",
+        description: "Deal ID is missing.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to submit the checklist.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Save each category and its tasks
+      for (let sectionIndex = 0; sectionIndex < checklistData.length; sectionIndex++) {
+        const section = checklistData[sectionIndex];
+        
+        // Create or update category
+        const { data: categoryData, error: categoryError } = await supabase
+          .from('deal_categories')
+          .upsert({
+            deal_id: dealId,
+            title: section.title,
+            category_code: section.id,
+            category_order: sectionIndex + 1,
+          }, {
+            onConflict: 'deal_id,category_code',
+          })
+          .select()
+          .single();
+
+        if (categoryError) throw categoryError;
+
+        // Save specialist if provided
+        const specialist = sectionSpecialists[section.id];
+        if (specialist.name && specialist.email) {
+          const { error: specialistError } = await supabase
+            .from('deal_specialists')
+            .upsert({
+              deal_id: dealId,
+              category_id: categoryData.id,
+              name: specialist.name,
+              email: specialist.email,
+              role: specialist.role || 'Specialist',
+            }, {
+              onConflict: 'deal_id,category_id',
+            });
+
+          if (specialistError) throw specialistError;
+        }
+
+        // Save tasks for this category
+        for (let itemIndex = 0; itemIndex < section.items.length; itemIndex++) {
+          const itemId = `${section.id}-${itemIndex}`;
+          const checklistItem = checklist[itemId];
+
+          const { error: taskError } = await supabase
+            .from('deal_tasks')
+            .upsert({
+              category_id: categoryData.id,
+              title: checklistItem.text,
+              task_code: itemId,
+              task_order: itemIndex + 1,
+              checked: checklistItem.checked,
+              notes: checklistItem.notes || null,
+              has_attachment: checklistItem.uploadedFiles.length > 0,
+              status: checklistItem.checked ? 'completed' : 'pending',
+              priority: itemIndex < 3 ? 'high' : 'medium', // First 3 items are high priority
+            }, {
+              onConflict: 'category_id,task_code',
+            });
+
+          if (taskError) throw taskError;
+        }
+      }
+
+      toast({
+        title: "Checklist submitted",
+        description: "Your due diligence checklist has been submitted successfully.",
+      });
+      
+      navigate(`/deals/${dealId}/dashboard`);
+    } catch (error) {
+      console.error('Error submitting checklist:', error);
+      toast({
+        title: "Error",
+        description: "Failed to submit checklist. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleFileUpload = (id: string) => {
