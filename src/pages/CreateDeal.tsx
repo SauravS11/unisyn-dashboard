@@ -139,7 +139,7 @@ const CreateDeal = () => {
                   <Label htmlFor="timeline" className="text-sm font-medium">
                     Timeline <span className="text-primary">*</span>
                   </Label>
-                  <Popover>
+                  <Popover modal={true}>
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
@@ -152,7 +152,7 @@ const CreateDeal = () => {
                         {formData.timeline ? format(formData.timeline, "PPP") : <span>Select target date</span>}
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 backdrop-blur-xl bg-card/95 border-border/50 shadow-2xl" align="start">
+                    <PopoverContent className="w-auto p-0 backdrop-blur-xl bg-card/95 border-border/50 shadow-2xl" align="center" sideOffset={8}>
                       <Calendar
                         mode="single"
                         selected={formData.timeline}
