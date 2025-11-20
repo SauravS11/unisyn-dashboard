@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { ChevronRight, Upload, ChevronLeft, File, X } from "lucide-react";
 import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -243,6 +244,7 @@ const checklistData: ChecklistSection[] = [
 
 const DueDiligenceChecklist = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
   const [uploadingFiles, setUploadingFiles] = useState<Record<string, boolean>>({});
@@ -297,6 +299,15 @@ const DueDiligenceChecklist = () => {
       ...prev,
       [id]: { ...prev[id], [field]: value },
     }));
+  };
+
+  const handleSubmit = () => {
+    // Save checklist data and navigate to dashboard
+    toast({
+      title: "Checklist submitted",
+      description: "Your due diligence checklist has been submitted successfully.",
+    });
+    navigate("/deals/new-deal/dashboard");
   };
 
   const handleFileUpload = (id: string) => {
@@ -624,7 +635,10 @@ const DueDiligenceChecklist = () => {
               </Button>
 
               {isLastSection ? (
-                <Button className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 font-semibold shadow-lg hover:shadow-xl transition-all">
+                <Button 
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 font-semibold shadow-lg hover:shadow-xl transition-all"
+                  onClick={handleSubmit}
+                >
                   Submit Checklist
                 </Button>
               ) : (
