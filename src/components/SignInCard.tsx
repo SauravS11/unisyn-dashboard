@@ -3,8 +3,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export const SignInCard = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -12,6 +14,7 @@ export const SignInCard = () => {
     e.preventDefault();
     // Handle sign in logic here
     console.log("Sign in:", { email, password });
+    navigate("/welcome");
   };
 
   return (
