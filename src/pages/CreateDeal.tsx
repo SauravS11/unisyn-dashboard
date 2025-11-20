@@ -4,8 +4,12 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import { useState } from "react";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 import unisynLogo from "@/assets/unisyn-logo.png";
 
 const CreateDeal = () => {
@@ -14,7 +18,7 @@ const CreateDeal = () => {
     buyer: "",
     seller: "",
     dealValue: "",
-    timeline: "",
+    timeline: undefined as Date | undefined,
     industry: "",
     dealStage: "",
     leadAdvisor: "",
@@ -27,7 +31,7 @@ const CreateDeal = () => {
     // Navigate to checklist page
   };
 
-  const handleChange = (field: string, value: string) => {
+  const handleChange = (field: string, value: string | Date | undefined) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -155,14 +159,32 @@ const CreateDeal = () => {
                   <Label htmlFor="timeline" className="text-sm font-medium">
                     Timeline <span className="text-primary">*</span>
                   </Label>
-                  <Input
-                    id="timeline"
-                    placeholder="e.g., Q2 2025"
-                    value={formData.timeline}
-                    onChange={(e) => handleChange("timeline", e.target.value)}
-                    required
-                    className="bg-background/50 border-border/50"
-                  />
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal bg-background/50 border-border/50 hover:bg-background/70",
+                          !formData.timeline && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {formData.timeline ? format(formData.timeline, "PPP") : <span>Select target date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 backdrop-blur-xl bg-card/95 border-border/50 shadow-2xl" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={formData.timeline}
+                        onSelect={(date) => handleChange("timeline", date)}
+                        disabled={(date) =>
+                          date < new Date() || date > new Date("2035-12-31")
+                        }
+                        initialFocus
+                        className={cn("p-3 pointer-events-auto")}
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
 
                 {/* Industry */}
