@@ -3,8 +3,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export const SignUpCard = () => {
+  const navigate = useNavigate();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [firmName, setFirmName] = useState("");
@@ -19,6 +21,7 @@ export const SignUpCard = () => {
     }
     // Handle sign up logic here
     console.log("Sign up:", { fullName, email, firmName, password });
+    navigate("/welcome");
   };
 
   return (
