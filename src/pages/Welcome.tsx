@@ -1,13 +1,17 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import unisynLogo from "@/assets/unisyn-logo.png";
 import { Briefcase, FileSearch, Users } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Welcome = () => {
+  const navigate = useNavigate();
+
   const features = [
     {
       icon: Briefcase,
       title: "Create Deals",
       description: "Streamline deal creation and management with intelligent workflows",
+      onClick: () => navigate("/deals/create"),
     },
     {
       icon: FileSearch,
@@ -68,8 +72,9 @@ const Welcome = () => {
             return (
               <Card 
                 key={index}
-                className="backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl hover:shadow-primary/10 transition-all duration-300 hover:-translate-y-1 group"
+                className="backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl hover:shadow-primary/10 transition-all duration-300 hover:-translate-y-1 group cursor-pointer"
                 style={{ animationDelay: `${index * 100}ms` }}
+                onClick={feature.onClick}
               >
                 <CardHeader className="space-y-4">
                   <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center group-hover:from-primary/20 group-hover:to-primary/10 transition-all duration-300">
