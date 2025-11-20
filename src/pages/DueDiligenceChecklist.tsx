@@ -1,5 +1,4 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,8 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { ChevronRight, Upload } from "lucide-react";
+import { ChevronRight, Upload, ChevronLeft } from "lucide-react";
 import { useState } from "react";
+import { Progress } from "@/components/ui/progress";
 import unisynLogo from "@/assets/unisyn-logo.png";
 
 interface ChecklistItem {
@@ -239,6 +239,7 @@ const checklistData: ChecklistSection[] = [
 ];
 
 const DueDiligenceChecklist = () => {
+  const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
   const [checklist, setChecklist] = useState<Record<string, ChecklistItem>>(() => {
     const initial: Record<string, ChecklistItem> = {};
     checklistData.forEach((section) => {
@@ -257,6 +258,25 @@ const DueDiligenceChecklist = () => {
     });
     return initial;
   });
+
+  const currentSection = checklistData[currentSectionIndex];
+  const isFirstSection = currentSectionIndex === 0;
+  const isLastSection = currentSectionIndex === checklistData.length - 1;
+  const progressPercentage = ((currentSectionIndex + 1) / checklistData.length) * 100;
+
+  const goToNextSection = () => {
+    if (!isLastSection) {
+      setCurrentSectionIndex((prev) => prev + 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const goToPreviousSection = () => {
+    if (!isFirstSection) {
+      setCurrentSectionIndex((prev) => prev - 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   const handleCheckChange = (id: string, checked: boolean) => {
     setChecklist((prev) => ({
@@ -325,147 +345,173 @@ const DueDiligenceChecklist = () => {
       <div className="relative z-10 max-w-7xl mx-auto px-6 py-12">
         <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl">
           <CardHeader className="border-b border-border/50 pb-6">
-            <CardTitle className="text-3xl font-bold tracking-tight">
-              Pre–Due Diligence <span className="text-primary">Checklist</span>
-            </CardTitle>
-            <p className="text-muted-foreground mt-2">
-              Complete all required documentation and assign specialists to each section
-            </p>
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <CardTitle className="text-3xl font-bold tracking-tight">
+                  Pre–Due Diligence <span className="text-primary">Checklist</span>
+                </CardTitle>
+                <p className="text-muted-foreground mt-2">
+                  Complete all required documentation and assign specialists to each section
+                </p>
+              </div>
+              <div className="text-right">
+                <div className="text-sm text-muted-foreground mb-1">
+                  Section {currentSectionIndex + 1} of {checklistData.length}
+                </div>
+                <Progress value={progressPercentage} className="w-32 h-2" />
+              </div>
+            </div>
+
+            {/* Current Section Header */}
+            <div className="flex items-center gap-3 pt-4">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <span className="text-primary font-bold text-lg">{currentSection.id}</span>
+              </div>
+              <div>
+                <h2 className="font-semibold text-2xl">{currentSection.title}</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {currentSection.items.length} items to complete
+                </p>
+              </div>
+            </div>
           </CardHeader>
+
           <CardContent className="pt-8">
-            <Accordion type="multiple" className="space-y-4">
-              {checklistData.map((section) => (
-                <AccordionItem
-                  key={section.id}
-                  value={section.id}
-                  className="backdrop-blur-xl bg-background/40 border border-border/50 rounded-lg overflow-hidden"
-                >
-                  <AccordionTrigger className="px-6 py-4 hover:bg-background/60 transition-colors hover:no-underline">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                        <span className="text-primary font-bold">{section.id}</span>
-                      </div>
-                      <span className="font-semibold text-lg">{section.title}</span>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="px-6 pb-4">
-                    <div className="space-y-6 pt-4">
-                      {section.items.map((item, index) => {
-                        const itemId = `${section.id}-${index}`;
-                        const itemData = checklist[itemId];
+            {/* Section Items */}
+            <div className="space-y-6">
+              {currentSection.items.map((item, index) => {
+                const itemId = `${currentSection.id}-${index}`;
+                const itemData = checklist[itemId];
 
-                        return (
-                          <div
-                            key={itemId}
-                            className="backdrop-blur-xl bg-card/40 border border-border/40 rounded-lg p-4 space-y-4"
+                return (
+                  <div
+                    key={itemId}
+                    className="backdrop-blur-xl bg-background/40 border border-border/50 rounded-lg p-5 space-y-4"
+                  >
+                    {/* Item Header with Checkbox */}
+                    <div className="flex items-start gap-3">
+                      <Checkbox
+                        id={itemId}
+                        checked={itemData.checked}
+                        onCheckedChange={(checked) => handleCheckChange(itemId, checked as boolean)}
+                        className="mt-1"
+                      />
+                      <Label htmlFor={itemId} className="flex-1 text-sm font-medium leading-relaxed cursor-pointer">
+                        {item}
+                      </Label>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="bg-background/50 border-border/50 hover:bg-primary/10 hover:border-primary/50"
+                        onClick={() => handleFileUpload(itemId)}
+                      >
+                        <Upload className="h-4 w-4 mr-2" />
+                        Upload
+                      </Button>
+                    </div>
+
+                    {/* Notes Field */}
+                    <div className="space-y-2">
+                      <Label htmlFor={`${itemId}-notes`} className="text-xs text-muted-foreground">
+                        Notes
+                      </Label>
+                      <Textarea
+                        id={`${itemId}-notes`}
+                        placeholder="Add notes or comments..."
+                        value={itemData.notes}
+                        onChange={(e) => handleFieldChange(itemId, "notes", e.target.value)}
+                        className="bg-background/50 border-border/40 min-h-[60px] text-sm"
+                      />
+                    </div>
+
+                    {/* Assign Specialist Section */}
+                    <div className="border-t border-border/40 pt-4">
+                      <Label className="text-xs text-muted-foreground mb-3 block">Assign Specialist</Label>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div className="space-y-1">
+                          <Label htmlFor={`${itemId}-name`} className="text-xs">
+                            Name
+                          </Label>
+                          <Input
+                            id={`${itemId}-name`}
+                            placeholder="Specialist name"
+                            value={itemData.assignedName}
+                            onChange={(e) => handleFieldChange(itemId, "assignedName", e.target.value)}
+                            className="bg-background/50 border-border/40 text-sm"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label htmlFor={`${itemId}-email`} className="text-xs">
+                            Email
+                          </Label>
+                          <Input
+                            id={`${itemId}-email`}
+                            type="email"
+                            placeholder="email@example.com"
+                            value={itemData.assignedEmail}
+                            onChange={(e) => handleFieldChange(itemId, "assignedEmail", e.target.value)}
+                            className="bg-background/50 border-border/40 text-sm"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label htmlFor={`${itemId}-role`} className="text-xs">
+                            Role
+                          </Label>
+                          <Select
+                            value={itemData.assignedRole}
+                            onValueChange={(value) => handleFieldChange(itemId, "assignedRole", value)}
                           >
-                            {/* Item Header with Checkbox */}
-                            <div className="flex items-start gap-3">
-                              <Checkbox
-                                id={itemId}
-                                checked={itemData.checked}
-                                onCheckedChange={(checked) => handleCheckChange(itemId, checked as boolean)}
-                                className="mt-1"
-                              />
-                              <Label htmlFor={itemId} className="flex-1 text-sm font-medium leading-relaxed cursor-pointer">
-                                {item}
-                              </Label>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="bg-background/50 border-border/50 hover:bg-primary/10 hover:border-primary/50"
-                                onClick={() => handleFileUpload(itemId)}
-                              >
-                                <Upload className="h-4 w-4 mr-2" />
-                                Upload
-                              </Button>
-                            </div>
-
-                            {/* Notes Field */}
-                            <div className="space-y-2">
-                              <Label htmlFor={`${itemId}-notes`} className="text-xs text-muted-foreground">
-                                Notes
-                              </Label>
-                              <Textarea
-                                id={`${itemId}-notes`}
-                                placeholder="Add notes or comments..."
-                                value={itemData.notes}
-                                onChange={(e) => handleFieldChange(itemId, "notes", e.target.value)}
-                                className="bg-background/50 border-border/40 min-h-[60px] text-sm"
-                              />
-                            </div>
-
-                            {/* Assign Specialist Section */}
-                            <div className="border-t border-border/40 pt-4">
-                              <Label className="text-xs text-muted-foreground mb-3 block">Assign Specialist</Label>
-                              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                                <div className="space-y-1">
-                                  <Label htmlFor={`${itemId}-name`} className="text-xs">
-                                    Name
-                                  </Label>
-                                  <Input
-                                    id={`${itemId}-name`}
-                                    placeholder="Specialist name"
-                                    value={itemData.assignedName}
-                                    onChange={(e) => handleFieldChange(itemId, "assignedName", e.target.value)}
-                                    className="bg-background/50 border-border/40 text-sm"
-                                  />
-                                </div>
-                                <div className="space-y-1">
-                                  <Label htmlFor={`${itemId}-email`} className="text-xs">
-                                    Email
-                                  </Label>
-                                  <Input
-                                    id={`${itemId}-email`}
-                                    type="email"
-                                    placeholder="email@example.com"
-                                    value={itemData.assignedEmail}
-                                    onChange={(e) => handleFieldChange(itemId, "assignedEmail", e.target.value)}
-                                    className="bg-background/50 border-border/40 text-sm"
-                                  />
-                                </div>
-                                <div className="space-y-1">
-                                  <Label htmlFor={`${itemId}-role`} className="text-xs">
-                                    Role
-                                  </Label>
-                                  <Select
-                                    value={itemData.assignedRole}
-                                    onValueChange={(value) => handleFieldChange(itemId, "assignedRole", value)}
-                                  >
-                                    <SelectTrigger className="bg-background/50 border-border/40 text-sm">
-                                      <SelectValue placeholder="Select role" />
-                                    </SelectTrigger>
-                                    <SelectContent className="bg-card border-border/50">
-                                      <SelectItem value="financial-advisor">Financial Advisor</SelectItem>
-                                      <SelectItem value="legal-advisor">Legal Advisor</SelectItem>
-                                      <SelectItem value="tax-specialist">Tax Specialist</SelectItem>
-                                      <SelectItem value="compliance-officer">Compliance Officer</SelectItem>
-                                      <SelectItem value="it-specialist">IT Specialist</SelectItem>
-                                      <SelectItem value="hr-specialist">HR Specialist</SelectItem>
-                                      <SelectItem value="environmental-consultant">Environmental Consultant</SelectItem>
-                                      <SelectItem value="other">Other</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
+                            <SelectTrigger className="bg-background/50 border-border/40 text-sm">
+                              <SelectValue placeholder="Select role" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-card border-border/50">
+                              <SelectItem value="financial-advisor">Financial Advisor</SelectItem>
+                              <SelectItem value="legal-advisor">Legal Advisor</SelectItem>
+                              <SelectItem value="tax-specialist">Tax Specialist</SelectItem>
+                              <SelectItem value="compliance-officer">Compliance Officer</SelectItem>
+                              <SelectItem value="it-specialist">IT Specialist</SelectItem>
+                              <SelectItem value="hr-specialist">HR Specialist</SelectItem>
+                              <SelectItem value="environmental-consultant">Environmental Consultant</SelectItem>
+                              <SelectItem value="other">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
                     </div>
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
+                  </div>
+                );
+              })}
+            </div>
 
-            {/* Action Buttons */}
-            <div className="flex justify-between mt-8 pt-6 border-t border-border/50">
+            {/* Navigation Buttons */}
+            <div className="flex justify-between items-center mt-8 pt-6 border-t border-border/50">
+              <Button
+                variant="outline"
+                className="border-border/50"
+                onClick={goToPreviousSection}
+                disabled={isFirstSection}
+              >
+                <ChevronLeft className="h-4 w-4 mr-2" />
+                Previous Section
+              </Button>
+
               <Button variant="outline" className="border-border/50">
                 Save Draft
               </Button>
-              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 font-semibold shadow-lg hover:shadow-xl transition-all">
-                Submit Checklist
-              </Button>
+
+              {isLastSection ? (
+                <Button className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 font-semibold shadow-lg hover:shadow-xl transition-all">
+                  Submit Checklist
+                </Button>
+              ) : (
+                <Button
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all"
+                  onClick={goToNextSection}
+                >
+                  Next Section
+                  <ChevronRight className="h-4 w-4 ml-2" />
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>
