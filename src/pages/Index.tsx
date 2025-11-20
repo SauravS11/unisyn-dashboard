@@ -1,8 +1,11 @@
 import { SignInCard } from "@/components/SignInCard";
 import { SignUpCard } from "@/components/SignUpCard";
 import unisynLogo from "@/assets/unisyn-logo.png";
+import { useState } from "react";
 
 const Index = () => {
+  const [activeTab, setActiveTab] = useState<"signin" | "signup">("signin");
+
   return (
     <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-background via-background to-muted">
       {/* Geometric Background Pattern */}
@@ -23,7 +26,7 @@ const Index = () => {
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-12">
         {/* Logo with Glow */}
-        <div className="mb-12 relative">
+        <div className="mb-8 relative">
           <div className="absolute inset-0 bg-primary/15 blur-3xl rounded-full scale-150" />
           <img 
             src={unisynLogo} 
@@ -32,13 +35,60 @@ const Index = () => {
           />
         </div>
 
-        {/* Auth Cards */}
-        <div className="grid md:grid-cols-2 gap-8 w-full max-w-5xl">
-          <div className="flex justify-center">
-            <SignInCard />
+        {/* Tab Navigation */}
+        <div className="mb-8 relative w-full max-w-md backdrop-blur-xl bg-card/60 border-border/50 rounded-full p-1.5 shadow-lg">
+          <div className="relative flex">
+            {/* Sliding Background */}
+            <div 
+              className="absolute top-0 bottom-0 left-0 w-1/2 bg-primary rounded-full transition-transform duration-300 ease-out shadow-lg"
+              style={{
+                transform: activeTab === "signup" ? "translateX(100%)" : "translateX(0)",
+              }}
+            />
+            
+            {/* Sign In Tab */}
+            <button
+              onClick={() => setActiveTab("signin")}
+              className={`relative z-10 flex-1 py-3 px-6 rounded-full font-semibold transition-colors duration-300 ${
+                activeTab === "signin" 
+                  ? "text-primary-foreground" 
+                  : "text-foreground hover:text-foreground/70"
+              }`}
+            >
+              Sign In
+            </button>
+            
+            {/* Sign Up Tab */}
+            <button
+              onClick={() => setActiveTab("signup")}
+              className={`relative z-10 flex-1 py-3 px-6 rounded-full font-semibold transition-colors duration-300 ${
+                activeTab === "signup" 
+                  ? "text-primary-foreground" 
+                  : "text-foreground hover:text-foreground/70"
+              }`}
+            >
+              Sign Up
+            </button>
           </div>
-          <div className="flex justify-center">
-            <SignUpCard />
+        </div>
+
+        {/* Auth Form */}
+        <div className="w-full max-w-md">
+          <div className="relative">
+            <div 
+              className={`transition-opacity duration-300 ${
+                activeTab === "signin" ? "opacity-100" : "opacity-0 absolute inset-0 pointer-events-none"
+              }`}
+            >
+              <SignInCard />
+            </div>
+            <div 
+              className={`transition-opacity duration-300 ${
+                activeTab === "signup" ? "opacity-100" : "opacity-0 absolute inset-0 pointer-events-none"
+              }`}
+            >
+              <SignUpCard />
+            </div>
           </div>
         </div>
 
