@@ -7,12 +7,14 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbP
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { ChevronRight, CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import unisynLogo from "@/assets/unisyn-logo.png";
 
 const CreateDeal = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     dealName: "",
     buyer: "",
@@ -28,7 +30,8 @@ const CreateDeal = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Deal created:", formData);
-    // Navigate to checklist page
+    // Navigate to checklist page with deal ID (for now using a placeholder)
+    navigate("/deals/new-deal/checklist");
   };
 
   const handleChange = (field: string, value: string | Date | undefined) => {
