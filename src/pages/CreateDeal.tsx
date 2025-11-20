@@ -80,7 +80,7 @@ const CreateDeal = () => {
         <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl">
           <CardHeader className="border-b border-border/50 pb-6">
             <CardTitle className="text-3xl font-bold tracking-tight">
-              New Deal
+              New <span className="text-primary">Deal</span>
             </CardTitle>
             <p className="text-muted-foreground mt-2">
               Enter the details for your new M&A transaction
