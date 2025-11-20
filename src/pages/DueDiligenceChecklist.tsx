@@ -464,7 +464,7 @@ const DueDiligenceChecklist = () => {
 
           <CardContent className="pt-8">
             {/* Section Items */}
-            <div className="space-y-6">
+            <div className="space-y-4">
               {currentSection.items.map((item, index) => {
                 const itemId = `${currentSection.id}-${index}`;
                 const itemData = checklist[itemId];
@@ -472,7 +472,7 @@ const DueDiligenceChecklist = () => {
                 return (
                   <div
                     key={itemId}
-                    className="backdrop-blur-xl bg-background/40 border border-border/50 rounded-lg p-5 space-y-4"
+                    className="backdrop-blur-xl bg-card/80 border-2 border-border/60 rounded-lg p-5 space-y-4 shadow-sm hover:shadow-md transition-shadow"
                   >
                     {/* Hidden file input */}
                     <input
