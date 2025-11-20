@@ -225,7 +225,7 @@ const DealDashboard = () => {
                 <ChevronRight className="h-4 w-4" />
               </BreadcrumbSeparator>
               <BreadcrumbItem>
-                <BreadcrumbPage className="text-foreground font-medium">Dashboard</BreadcrumbPage>
+                <BreadcrumbPage className="text-foreground font-medium">{dealName}</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
