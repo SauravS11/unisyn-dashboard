@@ -53,7 +53,7 @@ const CreateDeal = () => {
       </div>
 
       {/* Header */}
-      <div className="relative z-10 border-b border-border/50 bg-background/80 backdrop-blur-xl">
+      <div className="relative z-10 border-b border-border/50 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-center">
           <img src={unisynLogo} alt="UniSyn Technology" className="w-32 h-auto" />
         </div>
