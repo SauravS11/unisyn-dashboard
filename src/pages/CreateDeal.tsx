@@ -6,15 +6,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronRight, CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import unisynLogo from "@/assets/unisyn-logo.png";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const CreateDeal = () => {
   const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     dealName: "",
     buyer: "",
@@ -27,11 +30,58 @@ const CreateDeal = () => {
     confidentialityLevel: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    // Check if user is logged in
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("Please sign in to create a deal");
+        navigate("/");
+      }
+    };
+    checkAuth();
+  }, [navigate]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Deal created:", formData);
-    // Navigate to checklist page with deal ID (for now using a placeholder)
-    navigate("/deals/new-deal/checklist");
+    setIsSubmitting(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast.error("You must be logged in to create a deal");
+        navigate("/");
+        return;
+      }
+
+      // Create deal in database
+      const { data: deal, error } = await supabase
+        .from("deals")
+        .insert({
+          name: formData.dealName,
+          user_id: user.id,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error("Error creating deal:", error);
+        toast.error("Failed to create deal");
+        return;
+      }
+
+      console.log("Deal created:", { ...formData, dealId: deal.id });
+      toast.success("Deal created successfully!");
+      
+      // Navigate to checklist page with the actual deal ID
+      navigate(`/deals/${deal.id}/checklist`);
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("An error occurred while creating the deal");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (field: string, value: string | Date | undefined) => {
@@ -247,8 +297,9 @@ const CreateDeal = () => {
                 <Button 
                   type="submit" 
                   className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 font-semibold shadow-lg hover:shadow-xl transition-all rounded-2xl"
+                  disabled={isSubmitting}
                 >
-                  Continue to Checklist
+                  {isSubmitting ? "Creating Deal..." : "Continue to Checklist"}
                 </Button>
               </div>
             </form>
