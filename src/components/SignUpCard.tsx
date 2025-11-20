@@ -4,6 +4,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const SignUpCard = () => {
   const navigate = useNavigate();
@@ -12,16 +14,51 @@ export const SignUpCard = () => {
   const [firmName, setFirmName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSignUp = (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (password !== confirmPassword) {
-      alert("Passwords don't match");
+      toast.error("Passwords don't match");
       return;
     }
-    // Handle sign up logic here
-    console.log("Sign up:", { fullName, email, firmName, password });
-    navigate("/welcome");
+
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+          data: {
+            full_name: fullName,
+            firm_name: firmName,
+          },
+        },
+      });
+
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+
+      if (data.user) {
+        toast.success("Account created successfully! You can now sign in.");
+        navigate("/welcome");
+      }
+    } catch (error) {
+      console.error("Sign up error:", error);
+      toast.error("An error occurred during sign up");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -92,8 +129,12 @@ export const SignUpCard = () => {
               className="bg-background/50 border-border/50"
             />
           </div>
-          <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all">
-            Create Account
+          <Button 
+            type="submit" 
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all"
+            disabled={isLoading}
+          >
+            {isLoading ? "Creating Account..." : "Create Account"}
           </Button>
         </form>
       </CardContent>

@@ -4,17 +4,40 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const SignInCard = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSignIn = (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle sign in logic here
-    console.log("Sign in:", { email, password });
-    navigate("/welcome");
+    setIsLoading(true);
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+
+      if (data.user) {
+        toast.success("Signed in successfully!");
+        navigate("/welcome");
+      }
+    } catch (error) {
+      console.error("Sign in error:", error);
+      toast.error("An error occurred during sign in");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -57,8 +80,12 @@ export const SignInCard = () => {
               Forgot password?
             </a>
           </div>
-          <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all">
-            Sign In
+          <Button 
+            type="submit" 
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all"
+            disabled={isLoading}
+          >
+            {isLoading ? "Signing In..." : "Sign In"}
           </Button>
         </form>
       </CardContent>
