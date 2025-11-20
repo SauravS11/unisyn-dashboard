@@ -51,8 +51,9 @@ const Welcome = () => {
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-12">
         {/* Header Section */}
         <div className="text-center mb-16 animate-fade-in">
-          <h1 className="text-5xl md:text-6xl font-bold tracking-tight mb-4 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-            Welcome to UniSyn
+          <h1 className="text-5xl md:text-6xl font-bold tracking-tight mb-4">
+            <span className="text-foreground">Welcome to Uni</span>
+            <span className="text-primary">Syn</span>
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground font-light">
             Centralise your M&A workflow.
