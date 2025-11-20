@@ -142,7 +142,7 @@ const CreateDeal = () => {
                   </Label>
                   <Input
                     id="dealValue"
-                    placeholder="e.g., $50,000,000"
+                    placeholder="e.g., R 50,000,000"
                     value={formData.dealValue}
                     onChange={(e) => handleChange("dealValue", e.target.value)}
                     required
