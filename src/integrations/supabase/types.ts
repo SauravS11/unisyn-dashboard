@@ -14,7 +14,166 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      deal_categories: {
+        Row: {
+          category_code: string
+          category_order: number
+          created_at: string
+          deal_id: string
+          id: string
+          title: string
+        }
+        Insert: {
+          category_code: string
+          category_order: number
+          created_at?: string
+          deal_id: string
+          id?: string
+          title: string
+        }
+        Update: {
+          category_code?: string
+          category_order?: number
+          created_at?: string
+          deal_id?: string
+          id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_categories_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deal_specialists: {
+        Row: {
+          category_id: string
+          created_at: string
+          deal_id: string
+          email: string
+          id: string
+          name: string
+          role: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          deal_id: string
+          email: string
+          id?: string
+          name: string
+          role: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          deal_id?: string
+          email?: string
+          id?: string
+          name?: string
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_specialists_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "deal_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_specialists_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deal_tasks: {
+        Row: {
+          category_id: string
+          checked: boolean
+          created_at: string
+          due_date: string | null
+          has_attachment: boolean
+          id: string
+          notes: string | null
+          priority: string
+          status: string
+          task_code: string
+          task_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category_id: string
+          checked?: boolean
+          created_at?: string
+          due_date?: string | null
+          has_attachment?: boolean
+          id?: string
+          notes?: string | null
+          priority?: string
+          status?: string
+          task_code: string
+          task_order: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string
+          checked?: boolean
+          created_at?: string
+          due_date?: string | null
+          has_attachment?: boolean
+          id?: string
+          notes?: string | null
+          priority?: string
+          status?: string
+          task_code?: string
+          task_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_tasks_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "deal_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deals: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
