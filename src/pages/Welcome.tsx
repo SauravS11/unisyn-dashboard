@@ -38,17 +38,18 @@ const Welcome = () => {
         </svg>
       </div>
 
-      {/* Logo in Top Right */}
-      <div className="absolute top-8 right-8 z-20">
-        <img 
-          src={unisynLogo} 
-          alt="UniSyn Technology" 
-          className="w-32 h-auto drop-shadow-lg"
-        />
-      </div>
-
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-12">
+        {/* Logo with Glow */}
+        <div className="mb-8 relative">
+          <div className="absolute inset-0 bg-primary/15 blur-3xl rounded-full scale-150" />
+          <img 
+            src={unisynLogo} 
+            alt="UniSyn Technology" 
+            className="relative w-56 h-auto drop-shadow-2xl"
+          />
+        </div>
+
         {/* Header Section */}
         <div className="text-center mb-16 animate-fade-in">
           <h1 className="text-5xl md:text-6xl font-bold tracking-tight mb-4">
