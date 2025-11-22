@@ -205,31 +205,29 @@ const DealDashboard = () => {
 
       {/* Header */}
       <div className="relative z-10 border-b border-border/50 bg-background/80 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink href="/welcome" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Home
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator>
-                <ChevronRight className="h-4 w-4" />
-              </BreadcrumbSeparator>
-              <BreadcrumbItem>
-                <BreadcrumbLink href="/deals" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Deals
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator>
-                <ChevronRight className="h-4 w-4" />
-              </BreadcrumbSeparator>
-              <BreadcrumbItem>
-                <BreadcrumbPage className="text-foreground font-medium">{dealName}</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
+        <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col items-center gap-4">
           <img src={unisynLogo} alt="UniSyn Technology" className="w-24 h-auto" />
+          
+          {/* Circular Navigation Bar */}
+          <nav className="flex items-center gap-2 bg-background/60 backdrop-blur-xl border-2 border-border/50 rounded-full px-6 py-3 shadow-2xl">
+            <a 
+              href="/welcome" 
+              className="relative px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:bg-red-500/10 text-muted-foreground hover:text-foreground"
+            >
+              Home
+            </a>
+            <div className="w-1 h-1 rounded-full bg-border" />
+            <a 
+              href="/deals" 
+              className="relative px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:bg-red-500/10 text-muted-foreground hover:text-foreground"
+            >
+              Deals
+            </a>
+            <div className="w-1 h-1 rounded-full bg-border" />
+            <span className="relative px-4 py-2 rounded-full text-sm font-medium bg-red-500/20 text-red-500 animate-fade-in">
+              {dealName}
+            </span>
+          </nav>
         </div>
       </div>
 
