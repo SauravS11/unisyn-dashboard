@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { MoreVertical, Trash2, Edit, UserPlus } from "lucide-react";
 import { PageNavigation } from "@/components/PageNavigation";
+import { SignOutButton } from "@/components/SignOutButton";
 
 interface TeamMember {
   id: string;
@@ -215,7 +216,10 @@ const CoreDealTeam = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <div className="border-b border-border/50 bg-background/80 backdrop-blur-xl">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-center">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-center relative">
+          <div className="absolute top-4 right-6">
+            <SignOutButton />
+          </div>
           <PageNavigation items={[
             { to: "/deals", label: "Deals" },
             { to: `/deals/${id}/team`, label: "Core Team", isActive: true },

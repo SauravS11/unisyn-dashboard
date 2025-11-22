@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import unisynLogo from "@/assets/unisyn-logo.png";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { SignOutButton } from "@/components/SignOutButton";
 
 const CreateDeal = () => {
   const navigate = useNavigate();
@@ -105,31 +106,14 @@ const CreateDeal = () => {
 
       {/* Header */}
       <div className="relative z-10 border-b border-border/50 bg-background/80 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between relative">
           <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink href="/welcome" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Home
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator>
-                <ChevronRight className="h-4 w-4" />
-              </BreadcrumbSeparator>
-              <BreadcrumbItem>
-                <BreadcrumbLink href="/deals" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Deals
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator>
-                <ChevronRight className="h-4 w-4" />
-              </BreadcrumbSeparator>
-              <BreadcrumbItem>
-                <BreadcrumbPage className="text-foreground font-medium">Create New Deal</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
+...
           </Breadcrumb>
           <img src={unisynLogo} alt="UniSyn Technology" className="w-24 h-auto" />
+          <div className="absolute top-4 right-6">
+            <SignOutButton />
+          </div>
         </div>
       </div>
 

@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import unisynLogo from "@/assets/unisyn-logo.png";
 import { Briefcase, FileSearch, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { SignOutButton } from "@/components/SignOutButton";
 
 const Welcome = () => {
   const navigate = useNavigate();
@@ -41,6 +42,11 @@ const Welcome = () => {
           </defs>
           <rect width="100%" height="100%" fill="url(#grid)" />
         </svg>
+      </div>
+
+      {/* Sign Out Button */}
+      <div className="absolute top-6 right-6 z-20">
+        <SignOutButton />
       </div>
 
       {/* Content */}
