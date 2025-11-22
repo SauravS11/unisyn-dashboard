@@ -24,19 +24,19 @@ const Index = () => {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-12">
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 sm:px-6 py-8 sm:py-12">
         {/* Logo with Glow */}
-        <div className="mb-8 relative">
+        <div className="mb-6 sm:mb-8 relative">
           <div className="absolute inset-0 bg-primary/15 blur-3xl rounded-full scale-150" />
           <img 
             src={unisynLogo} 
             alt="UniSyn Technology" 
-            className="relative w-48 h-auto drop-shadow-2xl"
+            className="relative w-32 sm:w-40 md:w-48 h-auto drop-shadow-2xl"
           />
         </div>
 
         {/* Tab Navigation */}
-        <div className="mb-8 relative w-full max-w-md backdrop-blur-xl bg-card/60 border-border/50 rounded-full p-1.5 shadow-lg">
+        <div className="mb-6 sm:mb-8 relative w-full max-w-md backdrop-blur-xl bg-card/60 border-border/50 rounded-full p-1.5 shadow-lg">
           <div className="relative flex">
             {/* Sliding Background */}
             <div 
@@ -49,7 +49,7 @@ const Index = () => {
             {/* Sign In Tab */}
             <button
               onClick={() => setActiveTab("signin")}
-              className={`relative z-10 flex-1 py-3 px-6 rounded-full font-semibold transition-colors duration-300 ${
+              className={`relative z-10 flex-1 py-2.5 sm:py-3 px-4 sm:px-6 rounded-full text-sm sm:text-base font-semibold transition-colors duration-300 touch-manipulation ${
                 activeTab === "signin" 
                   ? "text-primary-foreground" 
                   : "text-foreground hover:text-foreground/70"
@@ -61,7 +61,7 @@ const Index = () => {
             {/* Sign Up Tab */}
             <button
               onClick={() => setActiveTab("signup")}
-              className={`relative z-10 flex-1 py-3 px-6 rounded-full font-semibold transition-colors duration-300 ${
+              className={`relative z-10 flex-1 py-2.5 sm:py-3 px-4 sm:px-6 rounded-full text-sm sm:text-base font-semibold transition-colors duration-300 touch-manipulation ${
                 activeTab === "signup" 
                   ? "text-primary-foreground" 
                   : "text-foreground hover:text-foreground/70"
@@ -73,7 +73,7 @@ const Index = () => {
         </div>
 
         {/* Auth Form */}
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-md px-2 sm:px-0">
           <div className="relative">
             <div 
               className={`transition-opacity duration-300 ${
@@ -93,7 +93,7 @@ const Index = () => {
         </div>
 
         {/* Footer Text */}
-        <p className="mt-12 text-sm text-muted-foreground">
+        <p className="mt-8 sm:mt-12 text-xs sm:text-sm text-muted-foreground text-center px-4">
           © 2025 UniSyn Technology. All rights reserved.
         </p>
       </div>

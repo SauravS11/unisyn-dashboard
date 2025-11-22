@@ -106,32 +106,32 @@ const CreateDeal = () => {
 
       {/* Header */}
       <div className="relative z-10 border-b border-border/50 bg-background/80 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between relative">
-          <Breadcrumb>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between relative">
+          <Breadcrumb className="flex-1">
 ...
           </Breadcrumb>
-          <img src={unisynLogo} alt="UniSyn Technology" className="w-24 h-auto" />
-          <div className="absolute top-4 right-6">
+          <img src={unisynLogo} alt="UniSyn Technology" className="w-16 sm:w-20 md:w-24 h-auto ml-2 sm:ml-4" />
+          <div className="absolute top-3 sm:top-4 right-4 sm:right-6">
             <SignOutButton />
           </div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="relative z-10 max-w-5xl mx-auto px-6 py-12">
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl">
-          <CardHeader className="border-b border-border/50 pb-6">
-            <CardTitle className="text-3xl font-bold tracking-tight">
+          <CardHeader className="border-b border-border/50 pb-4 sm:pb-6 px-4 sm:px-6">
+            <CardTitle className="text-2xl sm:text-3xl font-bold tracking-tight">
               New <span className="text-primary">Deal</span>
             </CardTitle>
-            <p className="text-muted-foreground mt-2">
+            <p className="text-sm sm:text-base text-muted-foreground mt-2">
               Enter the details for your new M&A transaction
             </p>
           </CardHeader>
-          <CardContent className="pt-8">
-            <form onSubmit={handleSubmit} className="space-y-8">
+          <CardContent className="pt-6 sm:pt-8 px-4 sm:px-6">
+            <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
               {/* Two Column Layout */}
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 {/* Deal Name */}
                 <div className="space-y-2 md:col-span-2">
                   <Label htmlFor="dealName" className="text-sm font-medium">
@@ -301,10 +301,10 @@ const CreateDeal = () => {
               </div>
 
               {/* Submit Button */}
-              <div className="flex justify-center pt-6 border-t border-border/50">
+              <div className="flex justify-center pt-4 sm:pt-6 border-t border-border/50">
                 <Button 
                   type="submit" 
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 font-semibold shadow-lg hover:shadow-xl transition-all rounded-2xl"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 sm:px-8 font-semibold shadow-lg hover:shadow-xl transition-all rounded-2xl w-full sm:w-auto touch-manipulation"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? "Creating Deal..." : "Continue to Core Team"}
