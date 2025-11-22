@@ -257,11 +257,11 @@ const DealDashboard = () => {
       <div className="relative z-10 max-w-7xl mx-auto px-6 py-12">
         {/* Top Summary Section */}
         <div className="grid md:grid-cols-5 gap-6 mb-8">
-          {/* Deal Name & Readiness Score */}
-          <Card className="md:col-span-2 backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl">
-            <CardContent className="py-6">
-              <div className="flex flex-col gap-6">
-                {/* Readiness Score */}
+          {/* Left Column - Readiness Score & Days Until Close */}
+          <div className="md:col-span-2 flex flex-col gap-6">
+            {/* Readiness Score Card */}
+            <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl">
+              <CardContent className="py-6">
                 <div className="flex items-center justify-center gap-8">
                   <div className="relative w-24 h-24 flex-shrink-0">
                     <svg className="w-24 h-24 transform -rotate-90">
@@ -299,9 +299,13 @@ const DealDashboard = () => {
                     </p>
                   </div>
                 </div>
-                
-                {/* Days Until Close */}
-                <div className="flex items-center justify-center gap-8 pt-6 border-t border-border/50">
+              </CardContent>
+            </Card>
+
+            {/* Days Until Close Card */}
+            <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl">
+              <CardContent className="py-6">
+                <div className="flex items-center justify-center gap-8">
                   <div className="relative w-24 h-24 flex-shrink-0">
                     <svg className="w-24 h-24 transform -rotate-90">
                       <circle
@@ -343,9 +347,9 @@ const DealDashboard = () => {
                     </p>
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
 
           {/* Summary Cards */}
           <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-xl">
