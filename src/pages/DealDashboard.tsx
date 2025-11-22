@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { DocumentsModal } from "@/components/DocumentsModal";
 import unisynLogo from "@/assets/unisyn-logo.png";
 import { PageNavigation } from "@/components/PageNavigation";
+import { SignOutButton } from "@/components/SignOutButton";
 
 interface Task {
   id: string;
@@ -254,7 +255,10 @@ const DealDashboard = () => {
 
       {/* Header */}
       <div className="relative z-10 border-b border-border/50 bg-background/80 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col items-center gap-4">
+        <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col items-center gap-4 relative">
+          <div className="absolute top-6 right-6">
+            <SignOutButton />
+          </div>
           <img src={unisynLogo} alt="UniSyn Technology" className="w-24 h-auto" />
           <PageNavigation
             items={[
