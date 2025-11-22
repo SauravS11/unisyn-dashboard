@@ -274,7 +274,7 @@ const CoreDealTeam = () => {
                   type="tel"
                   value={formData.contact_number}
                   onChange={(e) => setFormData({ ...formData, contact_number: e.target.value })}
-                  placeholder="+1 (555) 000-0000"
+                  placeholder="+27 XX XXX XXXX"
                 />
               </div>
 
