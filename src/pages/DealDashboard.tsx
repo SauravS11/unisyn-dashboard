@@ -490,7 +490,7 @@ const DealDashboard = () => {
                 View all core team members for this deal
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+            <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
               {coreTeam.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   No core team members have been added yet
@@ -531,7 +531,7 @@ const DealDashboard = () => {
                 View all specialists assigned to this deal
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+            <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
               {specialists.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   No specialists have been assigned yet
@@ -579,7 +579,7 @@ const DealDashboard = () => {
                 )}
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-3 overflow-y-auto pr-2">
+            <div className="space-y-3 overflow-y-auto pr-2 max-h-[calc(80vh-12rem)] scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
               {selectedCategory?.tasks.map((task) => (
                 <Card
                   key={task.id}
