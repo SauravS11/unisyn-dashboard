@@ -349,7 +349,7 @@ const DealDashboard = () => {
             </Card>
           </div>
 
-          {/* Second Row - Days Until Close + Documents + Core Team */}
+          {/* Second Row - Days Until Close + Core Team + Documents */}
           <div className="grid md:grid-cols-5 gap-6">
             {/* Days Until Close Card */}
             <Card className="md:col-span-2 backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl">
@@ -400,24 +400,6 @@ const DealDashboard = () => {
             </Card>
 
             <Card 
-              className="backdrop-blur-xl bg-card/60 border-border/50 shadow-xl cursor-pointer hover:shadow-2xl transition-shadow"
-              onClick={() => setDocumentsModalOpen(true)}
-            >
-              <CardContent className="flex items-center justify-center py-8">
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-primary mb-2 flex items-center justify-center gap-2">
-                    <FileText className="h-8 w-8" />
-                    {documentsCount}
-                  </div>
-                  <div className="text-sm text-muted-foreground">Documents</div>
-                  <Button variant="link" className="mt-2 text-xs">
-                    View & Upload
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card 
               className="md:col-span-2 backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl cursor-pointer hover:shadow-2xl transition-shadow"
               onClick={() => setCoreTeamModalOpen(true)}
             >
@@ -457,6 +439,24 @@ const DealDashboard = () => {
                       View Details
                     </Button>
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card 
+              className="backdrop-blur-xl bg-card/60 border-border/50 shadow-xl cursor-pointer hover:shadow-2xl transition-shadow"
+              onClick={() => setDocumentsModalOpen(true)}
+            >
+              <CardContent className="flex items-center justify-center py-8">
+                <div className="text-center">
+                  <div className="text-4xl font-bold text-primary mb-2 flex items-center justify-center gap-2">
+                    <FileText className="h-8 w-8" />
+                    {documentsCount}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Documents</div>
+                  <Button variant="link" className="mt-2 text-xs">
+                    View & Upload
+                  </Button>
                 </div>
               </CardContent>
             </Card>
