@@ -446,14 +446,30 @@ const DueDiligenceChecklist = () => {
     try {
       const file = files[0];
       const fileExt = file.name.split('.').pop();
-      const fileName = `${id}-${Date.now()}.${fileExt}`;
-      const filePath = `${fileName}`;
+      const fileName = `${dealId}/${id}-${Date.now()}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from('deal-documents')
-        .upload(filePath, file);
+        .upload(fileName, file);
 
       if (uploadError) throw uploadError;
+
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+
+      // Save document metadata to database
+      await supabase
+        .from('deal_documents')
+        .insert({
+          deal_id: dealId!,
+          file_name: file.name,
+          file_path: fileName,
+          file_size: file.size,
+          file_type: file.type || null,
+          uploaded_by: user?.id,
+          category: 'Checklist',
+          notes: `Uploaded for task: ${checklist[id].text}`,
+        });
 
       // Add file to checklist item
       setChecklist((prev) => ({
@@ -462,7 +478,7 @@ const DueDiligenceChecklist = () => {
           ...prev[id],
           uploadedFiles: [
             ...prev[id].uploadedFiles,
-            { name: file.name, path: filePath },
+            { name: file.name, path: fileName },
           ],
         },
       }));
