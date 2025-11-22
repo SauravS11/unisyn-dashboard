@@ -197,6 +197,42 @@ export type Database = {
           },
         ]
       }
+      deal_team_members: {
+        Row: {
+          contact_number: string
+          created_at: string
+          deal_id: string
+          email: string
+          full_name: string
+          id: string
+          permission_level: string
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          contact_number: string
+          created_at?: string
+          deal_id: string
+          email: string
+          full_name: string
+          id?: string
+          permission_level: string
+          role: string
+          updated_at?: string
+        }
+        Update: {
+          contact_number?: string
+          created_at?: string
+          deal_id?: string
+          email?: string
+          full_name?: string
+          id?: string
+          permission_level?: string
+          role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       deals: {
         Row: {
           created_at: string
