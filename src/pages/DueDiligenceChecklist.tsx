@@ -670,7 +670,7 @@ const DueDiligenceChecklist = () => {
             </div>
 
             {/* Section Items */}
-            <div className="space-y-4">
+            <div className="space-y-4 max-h-[calc(100vh-32rem)] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
               {currentSection.items.map((item, index) => {
                 const itemId = `${currentSection.id}-${index}`;
                 const itemData = checklist[itemId];
