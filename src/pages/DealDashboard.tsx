@@ -41,6 +41,7 @@ const DealDashboard = () => {
   const [documentsModalOpen, setDocumentsModalOpen] = useState(false);
   const [specialists, setSpecialists] = useState<Array<{ name: string; email: string; role: string; category: string }>>([]);
   const [specialistsModalOpen, setSpecialistsModalOpen] = useState(false);
+  const [targetCloseDate, setTargetCloseDate] = useState<string | null>(null);
 
   useEffect(() => {
     fetchDealData();
@@ -53,12 +54,13 @@ const DealDashboard = () => {
         // Fetch deal information
         const { data: dealData, error: dealError } = await supabase
           .from('deals')
-          .select('name')
+          .select('name, target_close_date')
           .eq('id', dealId)
           .single();
 
         if (dealError) throw dealError;
         setDealName(dealData.name);
+        setTargetCloseDate(dealData.target_close_date);
 
         // Fetch categories with their tasks and specialists
         const { data: categoriesData, error: categoriesError } = await supabase
@@ -157,6 +159,11 @@ const DealDashboard = () => {
   const openTasks = allTasks.filter((t) => t.status !== "completed").length;
   const highPriorityTasks = allTasks.filter((t) => t.priority === "high" && t.status !== "completed").length;
   const specialistsAssigned = new Set(allTasks.filter((t) => t.assignedName).map((t) => t.assignedEmail)).size;
+  
+  // Calculate days until close
+  const daysUntilClose = targetCloseDate 
+    ? Math.ceil((new Date(targetCloseDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+    : null;
 
   if (loading) {
     return (
@@ -253,43 +260,85 @@ const DealDashboard = () => {
           {/* Deal Name & Readiness Score */}
           <Card className="md:col-span-2 backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl">
             <CardContent className="py-6">
-              <div className="flex items-center justify-center gap-8">
-                {/* Circular Progress */}
-                <div className="relative w-24 h-24 flex-shrink-0">
-                  <svg className="w-24 h-24 transform -rotate-90">
-                    <circle
-                      cx="48"
-                      cy="48"
-                      r="40"
-                      stroke="currentColor"
-                      strokeWidth="8"
-                      fill="none"
-                      className="text-muted"
-                    />
-                    <circle
-                      cx="48"
-                      cy="48"
-                      r="40"
-                      stroke="currentColor"
-                      strokeWidth="8"
-                      fill="none"
-                      strokeDasharray={`${2 * Math.PI * 40}`}
-                      strokeDashoffset={`${2 * Math.PI * 40 * (1 - readinessScore / 100)}`}
-                      className="text-primary transition-all duration-500"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-2xl font-bold">{readinessScore}%</span>
+              <div className="flex flex-col gap-6">
+                {/* Readiness Score */}
+                <div className="flex items-center justify-center gap-8">
+                  <div className="relative w-24 h-24 flex-shrink-0">
+                    <svg className="w-24 h-24 transform -rotate-90">
+                      <circle
+                        cx="48"
+                        cy="48"
+                        r="40"
+                        stroke="currentColor"
+                        strokeWidth="8"
+                        fill="none"
+                        className="text-muted"
+                      />
+                      <circle
+                        cx="48"
+                        cy="48"
+                        r="40"
+                        stroke="currentColor"
+                        strokeWidth="8"
+                        fill="none"
+                        strokeDasharray={`${2 * Math.PI * 40}`}
+                        strokeDashoffset={`${2 * Math.PI * 40 * (1 - readinessScore / 100)}`}
+                        className="text-primary transition-all duration-500"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-2xl font-bold">{readinessScore}%</span>
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-lg font-semibold text-foreground mb-2">{dealName}</p>
+                    <p className="text-sm text-muted-foreground mb-1">Readiness Score</p>
+                    <p className="text-xs text-muted-foreground">
+                      {completedTasks} of {totalTasks} tasks completed
+                    </p>
                   </div>
                 </div>
-                <div className="text-center">
-                  <p className="text-lg font-semibold text-foreground mb-2">{dealName}</p>
-                  <p className="text-sm text-muted-foreground mb-1">Readiness Score</p>
-                  <p className="text-xs text-muted-foreground">
-                    {completedTasks} of {totalTasks} tasks completed
-                  </p>
-                </div>
+                
+                {/* Days Until Close */}
+                {daysUntilClose !== null && (
+                  <div className="flex items-center justify-center gap-8 pt-6 border-t border-border/50">
+                    <div className="relative w-24 h-24 flex-shrink-0">
+                      <svg className="w-24 h-24 transform -rotate-90">
+                        <circle
+                          cx="48"
+                          cy="48"
+                          r="40"
+                          stroke="currentColor"
+                          strokeWidth="8"
+                          fill="none"
+                          className="text-muted"
+                        />
+                        <circle
+                          cx="48"
+                          cy="48"
+                          r="40"
+                          stroke="currentColor"
+                          strokeWidth="8"
+                          fill="none"
+                          strokeDasharray={`${2 * Math.PI * 40}`}
+                          strokeDashoffset={`${2 * Math.PI * 40 * 0.25}`}
+                          className="text-accent transition-all duration-500"
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-2xl font-bold">{daysUntilClose}</span>
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm text-muted-foreground mb-1">Days Until Close</p>
+                      <p className="text-xs text-muted-foreground">
+                        Target: {targetCloseDate ? new Date(targetCloseDate).toLocaleDateString() : 'Not set'}
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

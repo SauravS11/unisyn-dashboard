@@ -61,6 +61,7 @@ const CreateDeal = () => {
         .insert({
           name: formData.dealName,
           user_id: user.id,
+          target_close_date: formData.timeline ? format(formData.timeline, 'yyyy-MM-dd') : null,
         })
         .select()
         .single();
