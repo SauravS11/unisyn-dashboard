@@ -64,7 +64,9 @@ export const SignUpCard = () => {
   return (
     <Card className="w-full max-w-md backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold tracking-tight">Sign Up</CardTitle>
+        <CardTitle className="text-2xl font-bold tracking-tight">
+          Sign <span className="text-red-500">Up</span>
+        </CardTitle>
         <CardDescription>Create your account to get started</CardDescription>
       </CardHeader>
       <CardContent>
