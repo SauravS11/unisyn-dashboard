@@ -19,16 +19,18 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/welcome" element={<Welcome />} />
-          <Route path="/deals" element={<DealsListPage />} />
-          <Route path="/deals/create" element={<CreateDeal />} />
-          <Route path="/deals/:id/checklist" element={<DueDiligenceChecklist />} />
-          <Route path="/deals/:id/dashboard" element={<DealDashboard />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <div className="animate-fade-in">
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/welcome" element={<Welcome />} />
+            <Route path="/deals" element={<DealsListPage />} />
+            <Route path="/deals/create" element={<CreateDeal />} />
+            <Route path="/deals/:id/checklist" element={<DueDiligenceChecklist />} />
+            <Route path="/deals/:id/dashboard" element={<DealDashboard />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </div>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
