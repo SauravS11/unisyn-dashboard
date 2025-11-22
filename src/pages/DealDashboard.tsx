@@ -237,15 +237,10 @@ const DealDashboard = () => {
         <div className="grid md:grid-cols-4 gap-6 mb-8">
           {/* Deal Name & Readiness Score */}
           <Card className="md:col-span-2 backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl">
-            <CardHeader>
-              <CardTitle className="text-2xl font-bold">
-                <span className="text-foreground">{dealName}</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-6">
+            <CardContent className="py-6">
+              <div className="flex items-center justify-center gap-8">
                 {/* Circular Progress */}
-                <div className="relative w-24 h-24">
+                <div className="relative w-24 h-24 flex-shrink-0">
                   <svg className="w-24 h-24 transform -rotate-90">
                     <circle
                       cx="48"
@@ -273,7 +268,8 @@ const DealDashboard = () => {
                     <span className="text-2xl font-bold">{readinessScore}%</span>
                   </div>
                 </div>
-                <div>
+                <div className="text-center">
+                  <p className="text-lg font-semibold text-foreground mb-2">{dealName}</p>
                   <p className="text-sm text-muted-foreground mb-1">Readiness Score</p>
                   <p className="text-xs text-muted-foreground">
                     {completedTasks} of {totalTasks} tasks completed
@@ -285,27 +281,27 @@ const DealDashboard = () => {
 
           {/* Summary Cards */}
           <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-xl">
-            <CardContent className="flex items-center justify-center min-h-[120px]">
+            <CardContent className="flex items-center justify-center py-8">
               <div className="text-center">
-                <div className="text-3xl font-bold text-primary mb-1">{openTasks}</div>
+                <div className="text-4xl font-bold text-primary mb-2">{openTasks}</div>
                 <div className="text-sm text-muted-foreground">Open Tasks</div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-xl">
-            <CardContent className="flex items-center justify-center min-h-[120px]">
+            <CardContent className="flex items-center justify-center py-8">
               <div className="text-center">
-                <div className="text-3xl font-bold text-primary mb-1">{highPriorityTasks}</div>
+                <div className="text-4xl font-bold text-primary mb-2">{highPriorityTasks}</div>
                 <div className="text-sm text-muted-foreground">High Priority</div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-xl md:col-start-4">
-            <CardContent className="pt-6">
+            <CardContent className="flex items-center justify-center py-8">
               <div className="text-center">
-                <div className="text-3xl font-bold text-primary mb-1">{specialistsAssigned}</div>
+                <div className="text-4xl font-bold text-primary mb-2">{specialistsAssigned}</div>
                 <div className="text-sm text-muted-foreground">Specialists Assigned</div>
               </div>
             </CardContent>
