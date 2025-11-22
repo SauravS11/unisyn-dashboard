@@ -421,13 +421,42 @@ const DealDashboard = () => {
               className="backdrop-blur-xl bg-card/60 border-border/50 shadow-xl cursor-pointer hover:shadow-2xl transition-shadow md:col-start-4 md:row-span-2"
               onClick={() => setCoreTeamModalOpen(true)}
             >
-              <CardContent className="flex flex-col items-center justify-center h-full py-8">
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-primary mb-2">{coreTeam.length}</div>
-                  <div className="text-sm text-muted-foreground">Core <span className="text-red-500">Team</span></div>
-                  <Button variant="link" className="mt-2 text-xs">
-                    View Details
-                  </Button>
+              <CardContent className="flex flex-col items-center justify-center h-full py-6">
+                <div className="flex flex-col items-center justify-center gap-4">
+                  <div className="relative w-24 h-24 flex-shrink-0">
+                    <svg className="w-24 h-24 transform -rotate-90">
+                      <circle
+                        cx="48"
+                        cy="48"
+                        r="40"
+                        stroke="currentColor"
+                        strokeWidth="8"
+                        fill="none"
+                        className="text-muted"
+                      />
+                      <circle
+                        cx="48"
+                        cy="48"
+                        r="40"
+                        stroke="currentColor"
+                        strokeWidth="8"
+                        fill="none"
+                        strokeDasharray={`${2 * Math.PI * 40}`}
+                        strokeDashoffset={`${2 * Math.PI * 40 * 0.25}`}
+                        className="text-accent transition-all duration-500"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-2xl font-bold">{coreTeam.length}</span>
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-sm text-muted-foreground">Core <span className="text-red-500">Team</span></div>
+                    <Button variant="link" className="mt-2 text-xs">
+                      View Details
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
