@@ -301,19 +301,19 @@ const DealDashboard = () => {
                 </div>
                 
                 {/* Days Until Close */}
-                {daysUntilClose !== null && (
-                  <div className="flex items-center justify-center gap-8 pt-6 border-t border-border/50">
-                    <div className="relative w-24 h-24 flex-shrink-0">
-                      <svg className="w-24 h-24 transform -rotate-90">
-                        <circle
-                          cx="48"
-                          cy="48"
-                          r="40"
-                          stroke="currentColor"
-                          strokeWidth="8"
-                          fill="none"
-                          className="text-muted"
-                        />
+                <div className="flex items-center justify-center gap-8 pt-6 border-t border-border/50">
+                  <div className="relative w-24 h-24 flex-shrink-0">
+                    <svg className="w-24 h-24 transform -rotate-90">
+                      <circle
+                        cx="48"
+                        cy="48"
+                        r="40"
+                        stroke="currentColor"
+                        strokeWidth="8"
+                        fill="none"
+                        className="text-muted"
+                      />
+                      {daysUntilClose !== null && (
                         <circle
                           cx="48"
                           cy="48"
@@ -326,19 +326,23 @@ const DealDashboard = () => {
                           className="text-accent transition-all duration-500"
                           strokeLinecap="round"
                         />
-                      </svg>
-                      <div className="absolute inset-0 flex items-center justify-center">
+                      )}
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      {daysUntilClose !== null ? (
                         <span className="text-2xl font-bold">{daysUntilClose}</span>
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-sm text-muted-foreground mb-1">Days Until Close</p>
-                      <p className="text-xs text-muted-foreground">
-                        Target: {targetCloseDate ? new Date(targetCloseDate).toLocaleDateString() : 'Not set'}
-                      </p>
+                      ) : (
+                        <span className="text-sm font-semibold text-muted-foreground">N/A</span>
+                      )}
                     </div>
                   </div>
-                )}
+                  <div className="text-center">
+                    <p className="text-sm text-muted-foreground mb-1">Days Until Close</p>
+                    <p className="text-xs text-muted-foreground">
+                      Target: {targetCloseDate ? new Date(targetCloseDate).toLocaleDateString() : 'Not set'}
+                    </p>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
