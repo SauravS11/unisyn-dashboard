@@ -4,10 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { ChevronRight, Paperclip, AlertCircle, CheckCircle2, Clock } from "lucide-react";
+import { ChevronRight, Paperclip, AlertCircle, CheckCircle2, Clock, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { DocumentsModal } from "@/components/DocumentsModal";
 import unisynLogo from "@/assets/unisyn-logo.png";
 
 interface Task {
@@ -34,12 +36,17 @@ const DealDashboard = () => {
   const [dealName, setDealName] = useState<string>("Loading...");
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [documentsCount, setDocumentsCount] = useState(0);
+  const [documentsModalOpen, setDocumentsModalOpen] = useState(false);
 
   useEffect(() => {
-    const fetchDealData = async () => {
-      if (!dealId) return;
+    fetchDealData();
+  }, [dealId, toast]);
 
-      try {
+  const fetchDealData = async () => {
+    if (!dealId) return;
+
+    try {
         // Fetch deal information
         const { data: dealData, error: dealError } = await supabase
           .from('deals')
@@ -105,6 +112,16 @@ const DealDashboard = () => {
         });
 
         setCategories(categoriesWithTasks);
+
+        // Fetch documents count
+        const { count: docsCount, error: docsError } = await supabase
+          .from('deal_documents')
+          .select('*', { count: 'exact', head: true })
+          .eq('deal_id', dealId);
+
+        if (!docsError && docsCount !== null) {
+          setDocumentsCount(docsCount);
+        }
       } catch (error) {
         console.error('Error fetching deal data:', error);
         toast({
@@ -115,10 +132,7 @@ const DealDashboard = () => {
       } finally {
         setLoading(false);
       }
-    };
-
-    fetchDealData();
-  }, [dealId, toast]);
+  };
   
   // Calculate stats
   const allTasks = categories.flatMap((cat) => cat.tasks);
@@ -234,7 +248,7 @@ const DealDashboard = () => {
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-6 py-12">
         {/* Top Summary Section */}
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
+        <div className="grid md:grid-cols-5 gap-6 mb-8">
           {/* Deal Name & Readiness Score */}
           <Card className="md:col-span-2 backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl">
             <CardContent className="py-6">
@@ -298,7 +312,7 @@ const DealDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-xl md:col-start-4">
+          <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-xl">
             <CardContent className="flex items-center justify-center py-8">
               <div className="text-center">
                 <div className="text-4xl font-bold text-primary mb-2">{specialistsAssigned}</div>
@@ -306,7 +320,38 @@ const DealDashboard = () => {
               </div>
             </CardContent>
           </Card>
+
+          <Card 
+            className="backdrop-blur-xl bg-card/60 border-border/50 shadow-xl cursor-pointer hover:shadow-2xl transition-shadow md:col-start-3"
+            onClick={() => setDocumentsModalOpen(true)}
+          >
+            <CardContent className="flex items-center justify-center py-8">
+              <div className="text-center">
+                <div className="text-4xl font-bold text-primary mb-2 flex items-center justify-center gap-2">
+                  <FileText className="h-8 w-8" />
+                  {documentsCount}
+                </div>
+                <div className="text-sm text-muted-foreground">Documents</div>
+                <Button variant="link" className="mt-2 text-xs">
+                  View & Upload
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
+
+        {/* Documents Modal */}
+        <DocumentsModal
+          open={documentsModalOpen}
+          onOpenChange={(open) => {
+            setDocumentsModalOpen(open);
+            if (!open) {
+              // Refresh documents count when modal closes
+              fetchDealData();
+            }
+          }}
+          dealId={dealId!}
+        />
 
         {/* Category Panels */}
         <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl">
