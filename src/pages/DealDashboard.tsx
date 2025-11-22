@@ -400,10 +400,10 @@ const DealDashboard = () => {
             </Card>
 
             <Card 
-              className="backdrop-blur-xl bg-card/60 border-border/50 shadow-xl cursor-pointer hover:shadow-2xl transition-shadow md:col-start-3 md:row-span-2"
+              className="backdrop-blur-xl bg-card/60 border-border/50 shadow-xl cursor-pointer hover:shadow-2xl transition-shadow"
               onClick={() => setDocumentsModalOpen(true)}
             >
-              <CardContent className="flex flex-col items-center justify-center h-full py-8">
+              <CardContent className="flex items-center justify-center py-8">
                 <div className="text-center">
                   <div className="text-4xl font-bold text-primary mb-2 flex items-center justify-center gap-2">
                     <FileText className="h-8 w-8" />
@@ -416,13 +416,16 @@ const DealDashboard = () => {
                 </div>
               </CardContent>
             </Card>
+          </div>
 
+          {/* Third Row - Core Team */}
+          <div className="grid md:grid-cols-5 gap-6">
             <Card 
-              className="backdrop-blur-xl bg-card/60 border-border/50 shadow-xl cursor-pointer hover:shadow-2xl transition-shadow md:col-start-4 md:row-span-2"
+              className="md:col-span-2 backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl cursor-pointer hover:shadow-2xl transition-shadow"
               onClick={() => setCoreTeamModalOpen(true)}
             >
-              <CardContent className="flex flex-col items-center justify-center h-full py-6">
-                <div className="flex flex-col items-center justify-center gap-4">
+              <CardContent className="py-6">
+                <div className="flex items-center justify-center gap-8">
                   <div className="relative w-24 h-24 flex-shrink-0">
                     <svg className="w-24 h-24 transform -rotate-90">
                       <circle
@@ -452,8 +455,8 @@ const DealDashboard = () => {
                     </div>
                   </div>
                   <div className="text-center">
-                    <div className="text-sm text-muted-foreground">Core <span className="text-red-500">Team</span></div>
-                    <Button variant="link" className="mt-2 text-xs">
+                    <p className="text-sm text-muted-foreground mb-1">Core <span className="text-red-500">Team</span></p>
+                    <Button variant="link" className="text-xs p-0 h-auto">
                       View Details
                     </Button>
                   </div>
