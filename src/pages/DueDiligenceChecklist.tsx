@@ -354,68 +354,85 @@ const DueDiligenceChecklist = () => {
         return;
       }
 
-      // Save each category and its tasks
-      for (let sectionIndex = 0; sectionIndex < checklistData.length; sectionIndex++) {
-        const section = checklistData[sectionIndex];
-        
-        // Create or update category
-        const { data: categoryData, error: categoryError } = await supabase
-          .from('deal_categories')
-          .upsert({
-            deal_id: dealId,
-            title: section.title,
-            category_code: section.id,
-            category_order: sectionIndex + 1,
-          }, {
-            onConflict: 'deal_id,category_code',
-          })
-          .select()
-          .single();
+      // Batch insert all categories
+      const categories = checklistData.map((section, index) => ({
+        deal_id: dealId,
+        title: section.title,
+        category_code: section.id,
+        category_order: index + 1,
+      }));
 
-        if (categoryError) throw categoryError;
+      const { data: categoryData, error: categoryError } = await supabase
+        .from('deal_categories')
+        .upsert(categories, {
+          onConflict: 'deal_id,category_code',
+        })
+        .select();
 
-        // Save specialist if provided
-        const specialist = sectionSpecialists[section.id];
-        if (specialist.name && specialist.email) {
-          const { error: specialistError } = await supabase
-            .from('deal_specialists')
-            .upsert({
+      if (categoryError) throw categoryError;
+
+      // Create a map of category codes to IDs
+      const categoryMap = new Map(
+        categoryData.map(cat => [cat.category_code, cat.id])
+      );
+
+      // Batch insert all specialists
+      const specialists = checklistData
+        .map(section => {
+          const specialist = sectionSpecialists[section.id];
+          const categoryId = categoryMap.get(section.id);
+          
+          if (specialist.name && specialist.email && categoryId) {
+            return {
               deal_id: dealId,
-              category_id: categoryData.id,
+              category_id: categoryId,
               name: specialist.name,
               email: specialist.email,
               role: specialist.role || 'Specialist',
-            }, {
-              onConflict: 'deal_id,category_id',
-            });
+            };
+          }
+          return null;
+        })
+        .filter(Boolean);
 
-          if (specialistError) throw specialistError;
-        }
+      if (specialists.length > 0) {
+        const { error: specialistError } = await supabase
+          .from('deal_specialists')
+          .upsert(specialists, {
+            onConflict: 'deal_id,category_id',
+          });
 
-        // Save tasks for this category
-        for (let itemIndex = 0; itemIndex < section.items.length; itemIndex++) {
+        if (specialistError) throw specialistError;
+      }
+
+      // Batch insert all tasks
+      const tasks = checklistData.flatMap((section, sectionIndex) => 
+        section.items.map((item, itemIndex) => {
           const itemId = `${section.id}-${itemIndex}`;
           const checklistItem = checklist[itemId];
+          const categoryId = categoryMap.get(section.id);
 
-          const { error: taskError } = await supabase
-            .from('deal_tasks')
-            .upsert({
-              category_id: categoryData.id,
-              title: checklistItem.text,
-              task_code: itemId,
-              task_order: itemIndex + 1,
-              checked: checklistItem.checked,
-              notes: checklistItem.notes || null,
-              has_attachment: checklistItem.uploadedFiles.length > 0,
-              status: checklistItem.checked ? 'completed' : 'pending',
-              priority: itemIndex < 3 ? 'high' : 'medium', // First 3 items are high priority
-            }, {
-              onConflict: 'category_id,task_code',
-            });
+          return {
+            category_id: categoryId,
+            title: checklistItem.text,
+            task_code: itemId,
+            task_order: itemIndex + 1,
+            checked: checklistItem.checked,
+            notes: checklistItem.notes || null,
+            has_attachment: checklistItem.uploadedFiles.length > 0,
+            status: checklistItem.checked ? 'completed' : 'pending',
+            priority: itemIndex < 3 ? 'high' : 'medium',
+          };
+        })
+      );
 
-          if (taskError) throw taskError;
-        }
-      }
+      const { error: taskError } = await supabase
+        .from('deal_tasks')
+        .upsert(tasks, {
+          onConflict: 'category_id,task_code',
+        });
+
+      if (taskError) throw taskError;
 
       toast({
         title: "Checklist submitted",
