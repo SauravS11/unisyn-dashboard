@@ -558,8 +558,8 @@ const DealDashboard = () => {
 
         {/* Category Tasks Modal */}
         <Dialog open={categoryModalOpen} onOpenChange={setCategoryModalOpen}>
-          <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col">
-            <DialogHeader className="flex-shrink-0">
+          <DialogContent className="max-w-4xl max-h-[80vh]">
+            <DialogHeader>
               <DialogTitle className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                   <span className="text-primary font-bold">{selectedCategory?.id}</span>
@@ -575,7 +575,7 @@ const DealDashboard = () => {
                 )}
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-3 overflow-y-auto flex-1 pr-2">
+            <div className="space-y-3 overflow-y-auto pr-2">
               {selectedCategory?.tasks.map((task) => (
                 <Card
                   key={task.id}
