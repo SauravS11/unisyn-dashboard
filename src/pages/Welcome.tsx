@@ -45,54 +45,54 @@ const Welcome = () => {
       </div>
 
       {/* Sign Out Button */}
-      <div className="absolute top-6 right-6 z-20">
+      <div className="absolute top-4 right-4 md:top-6 md:right-6 z-20">
         <SignOutButton />
       </div>
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-12">
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 sm:px-6 py-12 sm:py-16">
         {/* Logo with Glow */}
-        <div className="mb-8 relative">
+        <div className="mb-6 sm:mb-8 relative">
           <div className="absolute inset-0 bg-primary/15 blur-3xl rounded-full scale-150" />
           <img 
             src={unisynLogo} 
             alt="UniSyn Technology" 
-            className="relative w-56 h-auto drop-shadow-2xl"
+            className="relative w-40 sm:w-48 md:w-56 h-auto drop-shadow-2xl"
           />
         </div>
 
         {/* Header Section */}
-        <div className="text-center mb-16 animate-fade-in">
-          <h1 className="text-5xl md:text-6xl font-bold tracking-tight mb-4">
+        <div className="text-center mb-12 sm:mb-16 animate-fade-in px-4">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-3 sm:mb-4">
             <span className="text-foreground">Welcome to Uni</span>
             <span className="text-primary">Syn</span>
           </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground font-light">
+          <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground font-light">
             Centralise your M&A workflow.
           </p>
         </div>
 
         {/* Feature Cards */}
-        <div className="grid md:grid-cols-3 gap-6 w-full max-w-6xl">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 w-full max-w-6xl px-4">
           {features.map((feature, index) => {
             const Icon = feature.icon;
             return (
               <Card 
                 key={index}
-                className="backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl hover:shadow-primary/10 transition-all duration-300 hover:-translate-y-1 group cursor-pointer"
+                className="backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl hover:shadow-primary/10 transition-all duration-300 hover:-translate-y-1 group cursor-pointer touch-manipulation"
                 style={{ animationDelay: `${index * 100}ms` }}
                 onClick={feature.onClick}
               >
-                <CardHeader className="space-y-4">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center group-hover:from-primary/20 group-hover:to-primary/10 transition-all duration-300">
-                    <Icon className="w-7 h-7 text-primary" strokeWidth={1.5} />
+                <CardHeader className="space-y-3 sm:space-y-4">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center group-hover:from-primary/20 group-hover:to-primary/10 transition-all duration-300">
+                    <Icon className="w-6 h-6 sm:w-7 sm:h-7 text-primary" strokeWidth={1.5} />
                   </div>
-                  <CardTitle className="text-xl font-semibold tracking-tight">
+                  <CardTitle className="text-lg sm:text-xl font-semibold tracking-tight">
                     {feature.title}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <CardDescription className="text-base leading-relaxed">
+                  <CardDescription className="text-sm sm:text-base leading-relaxed">
                     {feature.description}
                   </CardDescription>
                 </CardContent>
@@ -102,7 +102,7 @@ const Welcome = () => {
         </div>
 
         {/* Footer Text */}
-        <p className="mt-16 text-sm text-muted-foreground">
+        <p className="mt-12 sm:mt-16 text-xs sm:text-sm text-muted-foreground text-center px-4">
           © 2025 UniSyn Technology. All rights reserved.
         </p>
       </div>

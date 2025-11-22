@@ -216,8 +216,8 @@ const CoreDealTeam = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <div className="border-b border-border/50 bg-background/80 backdrop-blur-xl">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-center relative">
-          <div className="absolute top-4 right-6">
+        <div className="container mx-auto px-4 py-3 sm:py-4 flex items-center justify-center relative">
+          <div className="absolute top-3 sm:top-4 right-4 sm:right-6">
             <SignOutButton />
           </div>
           <PageNavigation items={[
@@ -228,28 +228,28 @@ const CoreDealTeam = () => {
         </div>
       </div>
       
-      <div className="container mx-auto px-4 py-8 max-w-5xl">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Add Core Deal <span className="text-red-500">Team</span></h1>
-          <p className="text-muted-foreground text-lg">
+      <div className="container mx-auto px-4 py-6 sm:py-8 max-w-5xl">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-3xl sm:text-4xl font-bold mb-2">Add Core Deal <span className="text-red-500">Team</span></h1>
+          <p className="text-sm sm:text-base text-muted-foreground text-lg">
             Assign the primary team members who will oversee and manage this transaction. Core Team members will receive deal updates, dashboard access, and visibility across tasks.
           </p>
-          <p className="text-sm text-muted-foreground mt-2">Deal: {dealName}</p>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-2">Deal: {dealName}</p>
         </div>
 
         {/* Add Team Member Form */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <UserPlus className="h-5 w-5" />
+        <Card className="mb-6 sm:mb-8">
+          <CardHeader className="px-4 sm:px-6">
+            <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+              <UserPlus className="h-4 w-4 sm:h-5 sm:w-5" />
               {editingMember ? "Edit Team Member" : "Add Team Member"}
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-xs sm:text-sm">
               {editingMember ? "Update team member information" : "Enter team member details"}
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid md:grid-cols-2 gap-4">
+          <CardContent className="space-y-4 px-4 sm:px-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="full_name">Full Name *</Label>
                 <Input
@@ -332,8 +332,8 @@ const CoreDealTeam = () => {
               </div>
             </div>
 
-            <div className="flex gap-2">
-              <Button onClick={handleAddOrUpdateMember} disabled={isSubmitting} className="bg-destructive hover:bg-destructive/90">
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button onClick={handleAddOrUpdateMember} disabled={isSubmitting} className="bg-destructive hover:bg-destructive/90 touch-manipulation w-full sm:w-auto">
                 {editingMember ? "Update Team Member" : "Add Team Member"}
               </Button>
               {editingMember && (
@@ -347,7 +347,7 @@ const CoreDealTeam = () => {
                     custom_role: "",
                     permission_level: "",
                   });
-                }}>
+                }} className="w-full sm:w-auto">
                   Cancel
                 </Button>
               )}
@@ -357,39 +357,39 @@ const CoreDealTeam = () => {
 
         {/* Team Members List */}
         {teamMembers.length > 0 && (
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle>Team Members ({teamMembers.length})</CardTitle>
-              <CardDescription>Manage your core deal team</CardDescription>
+          <Card className="mb-6 sm:mb-8">
+            <CardHeader className="px-4 sm:px-6">
+              <CardTitle className="text-lg sm:text-xl">Team Members ({teamMembers.length})</CardTitle>
+              <CardDescription className="text-xs sm:text-sm">Manage your core deal team</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-4 sm:px-6">
               <div className="space-y-4">
                 {teamMembers.map((member) => (
                   <Card key={member.id} className="bg-muted/50">
-                    <CardContent className="py-4">
-                      <div className="flex justify-between items-start">
-                        <div className="space-y-1 flex-1">
-                          <div className="flex items-center gap-3">
-                            <h3 className="font-semibold text-lg">{member.full_name}</h3>
-                            <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">
+                    <CardContent className="py-3 sm:py-4 px-3 sm:px-4">
+                      <div className="flex justify-between items-start gap-2">
+                        <div className="space-y-1 flex-1 min-w-0">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                            <h3 className="font-semibold text-base sm:text-lg truncate">{member.full_name}</h3>
+                            <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary w-fit">
                               {member.permission_level}
                             </span>
                           </div>
-                          <div className="grid md:grid-cols-3 gap-2 text-sm text-muted-foreground">
-                            <div>
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 text-xs sm:text-sm text-muted-foreground">
+                            <div className="truncate">
                               <span className="font-medium">Email:</span> {member.email}
                             </div>
-                            <div>
+                            <div className="truncate">
                               <span className="font-medium">Phone:</span> {member.contact_number}
                             </div>
-                            <div>
+                            <div className="truncate">
                               <span className="font-medium">Role:</span> {member.role}
                             </div>
                           </div>
                         </div>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
+                            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 touch-manipulation">
                               <MoreVertical className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
@@ -417,7 +417,7 @@ const CoreDealTeam = () => {
         )}
 
         {/* Continue Button */}
-        <Button onClick={handleContinue} size="lg" className="w-full">
+        <Button onClick={handleContinue} size="lg" className="w-full touch-manipulation">
           Continue to Pre-Due Diligence Checklist
         </Button>
       </div>

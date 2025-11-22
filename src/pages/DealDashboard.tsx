@@ -255,11 +255,11 @@ const DealDashboard = () => {
 
       {/* Header */}
       <div className="relative z-10 border-b border-border/50 bg-background/80 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col items-center gap-4 relative">
-          <div className="absolute top-6 right-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 flex flex-col items-center gap-3 sm:gap-4 relative">
+          <div className="absolute top-4 right-4 sm:top-6 sm:right-6">
             <SignOutButton />
           </div>
-          <img src={unisynLogo} alt="UniSyn Technology" className="w-24 h-auto" />
+          <img src={unisynLogo} alt="UniSyn Technology" className="w-20 sm:w-24 h-auto" />
           <PageNavigation
             items={[
               { to: "/welcome", label: "Home" },
@@ -271,16 +271,16 @@ const DealDashboard = () => {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 py-12">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         {/* Top Summary Section */}
-        <div className="flex flex-col gap-6 mb-8">
+        <div className="flex flex-col gap-4 sm:gap-6 mb-6 sm:mb-8">
           {/* First Row - Readiness Score + Stats */}
-          <div className="grid md:grid-cols-5 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 sm:gap-6">
             {/* Readiness Score Card */}
-            <Card className="md:col-span-2 backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl">
-              <CardContent className="py-6">
-                <div className="flex items-center justify-center gap-8">
-                  <div className="relative w-24 h-24 flex-shrink-0">
+            <Card className="sm:col-span-2 backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl">
+              <CardContent className="py-4 sm:py-6">
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
+                  <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0">
                     <svg className="w-24 h-24 transform -rotate-90">
                       <circle
                         cx="48"
