@@ -75,8 +75,8 @@ const CreateDeal = () => {
       console.log("Deal created:", { ...formData, dealId: deal.id });
       toast.success("Deal created successfully!");
       
-      // Navigate to checklist page with the actual deal ID
-      navigate(`/deals/${deal.id}/checklist`);
+      // Navigate to team page with the actual deal ID
+      navigate(`/deals/${deal.id}/team`);
     } catch (error) {
       console.error("Error:", error);
       toast.error("An error occurred while creating the deal");
@@ -323,7 +323,7 @@ const CreateDeal = () => {
                   className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 font-semibold shadow-lg hover:shadow-xl transition-all rounded-2xl"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Creating Deal..." : "Continue to Checklist"}
+                  {isSubmitting ? "Creating Deal..." : "Continue to Core Team"}
                 </Button>
               </div>
             </form>

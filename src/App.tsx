@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import Welcome from "./pages/Welcome";
 import DealsListPage from "./pages/DealsListPage";
 import CreateDeal from "./pages/CreateDeal";
+import CoreDealTeam from "./pages/CoreDealTeam";
 import DueDiligenceChecklist from "./pages/DueDiligenceChecklist";
 import DealDashboard from "./pages/DealDashboard";
 import NotFound from "./pages/NotFound";
@@ -25,6 +26,7 @@ const App = () => (
             <Route path="/welcome" element={<Welcome />} />
             <Route path="/deals" element={<DealsListPage />} />
             <Route path="/deals/create" element={<CreateDeal />} />
+            <Route path="/deals/:id/team" element={<CoreDealTeam />} />
             <Route path="/deals/:id/checklist" element={<DueDiligenceChecklist />} />
             <Route path="/deals/:id/dashboard" element={<DealDashboard />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
