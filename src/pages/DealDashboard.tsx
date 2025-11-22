@@ -416,10 +416,7 @@ const DealDashboard = () => {
                 </div>
               </CardContent>
             </Card>
-          </div>
 
-          {/* Third Row - Core Team */}
-          <div className="grid md:grid-cols-5 gap-6">
             <Card 
               className="md:col-span-2 backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl cursor-pointer hover:shadow-2xl transition-shadow"
               onClick={() => setCoreTeamModalOpen(true)}
