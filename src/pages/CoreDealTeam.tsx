@@ -226,7 +226,7 @@ const CoreDealTeam = () => {
       
       <div className="container mx-auto px-4 py-8 max-w-5xl">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Add Core Deal Team</h1>
+          <h1 className="text-4xl font-bold mb-2">Add Core Deal <span className="text-red-500">Team</span></h1>
           <p className="text-muted-foreground text-lg">
             Assign the primary team members who will oversee and manage this transaction. Core Team members will receive deal updates, dashboard access, and visibility across tasks.
           </p>
