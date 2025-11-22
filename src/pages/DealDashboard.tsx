@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -44,6 +43,8 @@ const DealDashboard = () => {
   const [targetCloseDate, setTargetCloseDate] = useState<string | null>(null);
   const [coreTeam, setCoreTeam] = useState<Array<{ full_name: string; email: string; role: string; contact_number: string; permission_level: string }>>([]);
   const [coreTeamModalOpen, setCoreTeamModalOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
 
   useEffect(() => {
     fetchDealData();
@@ -555,6 +556,70 @@ const DealDashboard = () => {
           </DialogContent>
         </Dialog>
 
+        {/* Category Tasks Modal */}
+        <Dialog open={categoryModalOpen} onOpenChange={setCategoryModalOpen}>
+          <DialogContent className="max-w-4xl max-h-[80vh]">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <span className="text-primary font-bold">{selectedCategory?.id}</span>
+                </div>
+                {selectedCategory?.title}
+              </DialogTitle>
+              <DialogDescription>
+                {selectedCategory && (
+                  <>
+                    {selectedCategory.tasks.filter((t) => t.status === "completed").length} completed · {" "}
+                    {selectedCategory.tasks.filter((t) => t.status !== "completed").length} remaining
+                  </>
+                )}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-3 overflow-y-auto pr-2">
+              {selectedCategory?.tasks.map((task) => (
+                <Card
+                  key={task.id}
+                  className="backdrop-blur-xl bg-card/40 border border-border/40 hover:bg-card/60 transition-colors"
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-4">
+                      {/* Priority Dot */}
+                      <div className={`w-3 h-3 rounded-full mt-1.5 flex-shrink-0 ${getPriorityColor(task.priority)}`} />
+
+                      {/* Task Details */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-4 mb-2">
+                          <div className="flex-1">
+                            <div className="font-medium text-sm mb-1">
+                              {task.title} <span className="text-muted-foreground">({task.code})</span>
+                            </div>
+                            {task.assignedName && (
+                              <div className="text-xs text-muted-foreground">
+                                Assigned to: {task.assignedName} ({task.assignedEmail})
+                              </div>
+                            )}
+                          </div>
+                          {getStatusBadge(task.status)}
+                        </div>
+
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                          <div>Due: {task.dueDate}</div>
+                          {task.hasAttachment && (
+                            <div className="flex items-center gap-1">
+                              <Paperclip className="h-3 w-3" />
+                              Attachment
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </DialogContent>
+        </Dialog>
+
         {/* Category Panels - Split into two cards */}
         <div className="grid md:grid-cols-2 gap-6">
           {/* First Half - Categories 1-7 */}
@@ -565,19 +630,23 @@ const DealDashboard = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-6">
-              <Accordion type="multiple" className="space-y-4">
+              <div className="space-y-4">
                 {categories.slice(0, 7).map((category) => {
                   const completion = getCategoryCompletion(category);
                   const openTasksCount = getOpenTasksCount(category);
+                  const completedTasksCount = category.tasks.filter((t) => t.status === "completed").length;
 
                   return (
-                    <AccordionItem
+                    <Card
                       key={category.id}
-                      value={category.id}
-                      className="backdrop-blur-xl bg-background/40 border-2 border-border/50 rounded-lg overflow-hidden"
+                      className="backdrop-blur-xl bg-background/40 border-2 border-border/50 cursor-pointer hover:bg-background/60 transition-all hover:shadow-lg"
+                      onClick={() => {
+                        setSelectedCategory(category);
+                        setCategoryModalOpen(true);
+                      }}
                     >
-                      <AccordionTrigger className="px-6 py-4 hover:bg-background/60 transition-colors hover:no-underline">
-                        <div className="flex items-center justify-between w-full pr-4">
+                      <CardContent className="p-6">
+                        <div className="flex items-center justify-between w-full">
                           <div className="flex items-center gap-4">
                             <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                               <span className="text-primary font-bold">{category.id}</span>
@@ -585,7 +654,7 @@ const DealDashboard = () => {
                             <div className="text-left">
                               <div className="font-semibold text-base">{category.title}</div>
                               <div className="text-xs text-muted-foreground mt-1">
-                                {openTasksCount} open tasks
+                                {completedTasksCount} completed · {openTasksCount} remaining
                               </div>
                             </div>
                           </div>
@@ -596,53 +665,11 @@ const DealDashboard = () => {
                             </div>
                           </div>
                         </div>
-                      </AccordionTrigger>
-                      <AccordionContent className="px-6 pb-4">
-                        <div className="space-y-2 pt-4">
-                          {category.tasks.map((task) => (
-                            <div
-                              key={task.id}
-                              className="backdrop-blur-xl bg-card/40 border border-border/40 rounded-lg p-4 hover:bg-card/60 transition-colors"
-                            >
-                              <div className="flex items-start gap-4">
-                                {/* Priority Dot */}
-                                <div className={`w-3 h-3 rounded-full mt-1.5 ${getPriorityColor(task.priority)}`} />
-
-                                {/* Task Details */}
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-start justify-between gap-4 mb-2">
-                                    <div className="flex-1">
-                                      <div className="font-medium text-sm mb-1">
-                                        {task.title} <span className="text-muted-foreground">({task.code})</span>
-                                      </div>
-                                      {task.assignedName && (
-                                        <div className="text-xs text-muted-foreground">
-                                          Assigned to: {task.assignedName} ({task.assignedEmail})
-                                        </div>
-                                      )}
-                                    </div>
-                                    {getStatusBadge(task.status)}
-                                  </div>
-
-                                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                                    <div>Due: {task.dueDate}</div>
-                                    {task.hasAttachment && (
-                                      <div className="flex items-center gap-1">
-                                        <Paperclip className="h-3 w-3" />
-                                        Attachment
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
+                      </CardContent>
+                    </Card>
                   );
                 })}
-              </Accordion>
+              </div>
             </CardContent>
           </Card>
 
@@ -654,19 +681,23 @@ const DealDashboard = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-6">
-              <Accordion type="multiple" className="space-y-4">
+              <div className="space-y-4">
                 {categories.slice(7).map((category) => {
                   const completion = getCategoryCompletion(category);
                   const openTasksCount = getOpenTasksCount(category);
+                  const completedTasksCount = category.tasks.filter((t) => t.status === "completed").length;
 
                   return (
-                    <AccordionItem
+                    <Card
                       key={category.id}
-                      value={category.id}
-                      className="backdrop-blur-xl bg-background/40 border-2 border-border/50 rounded-lg overflow-hidden"
+                      className="backdrop-blur-xl bg-background/40 border-2 border-border/50 cursor-pointer hover:bg-background/60 transition-all hover:shadow-lg"
+                      onClick={() => {
+                        setSelectedCategory(category);
+                        setCategoryModalOpen(true);
+                      }}
                     >
-                      <AccordionTrigger className="px-6 py-4 hover:bg-background/60 transition-colors hover:no-underline">
-                        <div className="flex items-center justify-between w-full pr-4">
+                      <CardContent className="p-6">
+                        <div className="flex items-center justify-between w-full">
                           <div className="flex items-center gap-4">
                             <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                               <span className="text-primary font-bold">{category.id}</span>
@@ -674,7 +705,7 @@ const DealDashboard = () => {
                             <div className="text-left">
                               <div className="font-semibold text-base">{category.title}</div>
                               <div className="text-xs text-muted-foreground mt-1">
-                                {openTasksCount} open tasks
+                                {completedTasksCount} completed · {openTasksCount} remaining
                               </div>
                             </div>
                           </div>
@@ -685,53 +716,11 @@ const DealDashboard = () => {
                             </div>
                           </div>
                         </div>
-                      </AccordionTrigger>
-                      <AccordionContent className="px-6 pb-4">
-                        <div className="space-y-2 pt-4">
-                          {category.tasks.map((task) => (
-                            <div
-                              key={task.id}
-                              className="backdrop-blur-xl bg-card/40 border border-border/40 rounded-lg p-4 hover:bg-card/60 transition-colors"
-                            >
-                              <div className="flex items-start gap-4">
-                                {/* Priority Dot */}
-                                <div className={`w-3 h-3 rounded-full mt-1.5 ${getPriorityColor(task.priority)}`} />
-
-                                {/* Task Details */}
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-start justify-between gap-4 mb-2">
-                                    <div className="flex-1">
-                                      <div className="font-medium text-sm mb-1">
-                                        {task.title} <span className="text-muted-foreground">({task.code})</span>
-                                      </div>
-                                      {task.assignedName && (
-                                        <div className="text-xs text-muted-foreground">
-                                          Assigned to: {task.assignedName} ({task.assignedEmail})
-                                        </div>
-                                      )}
-                                    </div>
-                                    {getStatusBadge(task.status)}
-                                  </div>
-
-                                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                                    <div>Due: {task.dueDate}</div>
-                                    {task.hasAttachment && (
-                                      <div className="flex items-center gap-1">
-                                        <Paperclip className="h-3 w-3" />
-                                        Attachment
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
+                      </CardContent>
+                    </Card>
                   );
                 })}
-              </Accordion>
+              </div>
             </CardContent>
           </Card>
         </div>
