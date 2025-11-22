@@ -42,6 +42,8 @@ const DealDashboard = () => {
   const [specialists, setSpecialists] = useState<Array<{ name: string; email: string; role: string; category: string }>>([]);
   const [specialistsModalOpen, setSpecialistsModalOpen] = useState(false);
   const [targetCloseDate, setTargetCloseDate] = useState<string | null>(null);
+  const [coreTeam, setCoreTeam] = useState<Array<{ full_name: string; email: string; role: string; contact_number: string; permission_level: string }>>([]);
+  const [coreTeamModalOpen, setCoreTeamModalOpen] = useState(false);
 
   useEffect(() => {
     fetchDealData();
@@ -138,6 +140,16 @@ const DealDashboard = () => {
 
         if (!docsError && docsCount !== null) {
           setDocumentsCount(docsCount);
+        }
+
+        // Fetch core team members
+        const { data: coreTeamData, error: coreTeamError } = await supabase
+          .from('deal_team_members')
+          .select('*')
+          .eq('deal_id', dealId);
+
+        if (!coreTeamError && coreTeamData) {
+          setCoreTeam(coreTeamData);
         }
       } catch (error) {
         console.error('Error fetching deal data:', error);
@@ -337,7 +349,7 @@ const DealDashboard = () => {
             </Card>
           </div>
 
-          {/* Second Row - Days Until Close + Documents */}
+          {/* Second Row - Days Until Close + Documents + Core Team */}
           <div className="grid md:grid-cols-5 gap-6">
             {/* Days Until Close Card */}
             <Card className="md:col-span-2 backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl">
@@ -388,10 +400,10 @@ const DealDashboard = () => {
             </Card>
 
             <Card 
-              className="backdrop-blur-xl bg-card/60 border-border/50 shadow-xl cursor-pointer hover:shadow-2xl transition-shadow md:col-start-3"
+              className="backdrop-blur-xl bg-card/60 border-border/50 shadow-xl cursor-pointer hover:shadow-2xl transition-shadow md:col-start-3 md:row-span-2"
               onClick={() => setDocumentsModalOpen(true)}
             >
-              <CardContent className="flex items-center justify-center py-8">
+              <CardContent className="flex flex-col items-center justify-center h-full py-8">
                 <div className="text-center">
                   <div className="text-4xl font-bold text-primary mb-2 flex items-center justify-center gap-2">
                     <FileText className="h-8 w-8" />
@@ -400,6 +412,21 @@ const DealDashboard = () => {
                   <div className="text-sm text-muted-foreground">Documents</div>
                   <Button variant="link" className="mt-2 text-xs">
                     View & Upload
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card 
+              className="backdrop-blur-xl bg-card/60 border-border/50 shadow-xl cursor-pointer hover:shadow-2xl transition-shadow md:col-start-4 md:row-span-2"
+              onClick={() => setCoreTeamModalOpen(true)}
+            >
+              <CardContent className="flex flex-col items-center justify-center h-full py-8">
+                <div className="text-center">
+                  <div className="text-4xl font-bold text-primary mb-2">{coreTeam.length}</div>
+                  <div className="text-sm text-muted-foreground">Core <span className="text-red-500">Team</span></div>
+                  <Button variant="link" className="mt-2 text-xs">
+                    View Details
                   </Button>
                 </div>
               </CardContent>
@@ -419,6 +446,47 @@ const DealDashboard = () => {
           }}
           dealId={dealId!}
         />
+
+        {/* Core Team Modal */}
+        <Dialog open={coreTeamModalOpen} onOpenChange={setCoreTeamModalOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Core Deal <span className="text-red-500">Team</span></DialogTitle>
+              <DialogDescription>
+                View all core team members for this deal
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+              {coreTeam.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  No core team members have been added yet
+                </div>
+              ) : (
+                coreTeam.map((member, index) => (
+                  <Card key={index} className="border-border/50">
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="font-semibold text-lg">{member.full_name}</h3>
+                          <p className="text-sm text-muted-foreground">{member.role}</p>
+                          <div className="mt-2 space-y-1">
+                            <p className="text-sm">
+                              <span className="text-muted-foreground">Email:</span> {member.email}
+                            </p>
+                            <p className="text-sm">
+                              <span className="text-muted-foreground">Contact:</span> {member.contact_number}
+                            </p>
+                          </div>
+                        </div>
+                        <Badge variant="outline">{member.permission_level}</Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Specialists Modal */}
         <Dialog open={specialistsModalOpen} onOpenChange={setSpecialistsModalOpen}>
