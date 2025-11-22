@@ -2,13 +2,15 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, FolderOpen, Calendar, Clock, ChevronRight } from "lucide-react";
+import { Plus, FolderOpen, Calendar, Clock, ChevronRight, MoreVertical, CheckCircle2 } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import unisynLogo from "@/assets/unisyn-logo.png";
 import { format } from "date-fns";
 import { PageNavigation } from "@/components/PageNavigation";
 import { SignOutButton } from "@/components/SignOutButton";
+import { toast as sonnerToast } from "sonner";
 
 interface Deal {
   id: string;
@@ -61,6 +63,18 @@ const DealsListPage = () => {
 
     fetchDeals();
   }, [navigate, toast]);
+
+  const handleDealComplete = async (dealId: string, dealName: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    try {
+      sonnerToast.success(`${dealName} marked as complete!`);
+      // Future: Update deal status in database
+    } catch (error) {
+      console.error('Error marking deal as complete:', error);
+      sonnerToast.error("Failed to mark deal as complete");
+    }
+  };
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-background via-background to-muted">
@@ -155,7 +169,22 @@ const DealsListPage = () => {
               >
                 <CardHeader className="pb-3">
                   <CardTitle className="text-xl font-semibold group-hover:text-primary transition-colors flex items-start justify-between">
-                    <span className="flex-1">{deal.name}</span>
+                    <div className="flex items-center gap-2 flex-1">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start" className="z-50 bg-card border-border">
+                          <DropdownMenuItem onClick={(e) => handleDealComplete(deal.id, deal.name, e)}>
+                            <CheckCircle2 className="h-4 w-4 mr-2" />
+                            Deal Complete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                      <span className="flex-1">{deal.name}</span>
+                    </div>
                     <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
                   </CardTitle>
                 </CardHeader>
