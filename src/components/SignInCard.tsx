@@ -43,7 +43,7 @@ export const SignInCard = () => {
   return (
     <Card className="w-full max-w-md backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold tracking-tight">Sign In</CardTitle>
+        <CardTitle className="text-2xl font-bold tracking-tight text-red-500">Sign In</CardTitle>
         <CardDescription>Enter your credentials to access your account</CardDescription>
       </CardHeader>
       <CardContent>
