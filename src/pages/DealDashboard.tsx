@@ -5,12 +5,12 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { ChevronRight, Paperclip, AlertCircle, CheckCircle2, Clock, FileText } from "lucide-react";
+import { Paperclip, AlertCircle, CheckCircle2, Clock, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { DocumentsModal } from "@/components/DocumentsModal";
 import unisynLogo from "@/assets/unisyn-logo.png";
+import { PageNavigation } from "@/components/PageNavigation";
 
 interface Task {
   id: string;
@@ -221,27 +221,13 @@ const DealDashboard = () => {
       <div className="relative z-10 border-b border-border/50 bg-background/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col items-center gap-4">
           <img src={unisynLogo} alt="UniSyn Technology" className="w-24 h-auto" />
-          
-          {/* Circular Navigation Bar */}
-          <nav className="flex items-center gap-2 bg-background/60 backdrop-blur-xl border-2 border-border/50 rounded-full px-6 py-3 shadow-2xl">
-            <a 
-              href="/welcome" 
-              className="relative px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:bg-red-500/10 text-muted-foreground hover:text-foreground"
-            >
-              Home
-            </a>
-            <div className="w-1 h-1 rounded-full bg-border" />
-            <a 
-              href="/deals" 
-              className="relative px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:bg-red-500/10 text-muted-foreground hover:text-foreground"
-            >
-              Deals
-            </a>
-            <div className="w-1 h-1 rounded-full bg-border" />
-            <span className="relative px-4 py-2 rounded-full text-sm font-medium bg-red-500/20 text-red-500 animate-fade-in">
-              {dealName}
-            </span>
-          </nav>
+          <PageNavigation
+            items={[
+              { to: "/welcome", label: "Home" },
+              { to: "/deals", label: "Deals" },
+              { to: `/deals/${dealId}/dashboard`, label: dealName, isActive: true },
+            ]}
+          />
         </div>
       </div>
 

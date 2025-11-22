@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { ChevronRight, Plus, FolderOpen, Calendar, Clock } from "lucide-react";
+import { Plus, FolderOpen, Calendar, Clock, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import unisynLogo from "@/assets/unisyn-logo.png";
 import { format } from "date-fns";
+import { PageNavigation } from "@/components/PageNavigation";
 
 interface Deal {
   id: string;
@@ -77,29 +77,14 @@ const DealsListPage = () => {
 
       {/* Header */}
       <div className="relative z-10 border-b border-border/50 bg-background/80 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-center">
-          <div className="bg-background/60 backdrop-blur-sm rounded-full px-8 py-3 border border-border/50 shadow-lg">
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem>
-                  <BreadcrumbLink 
-                    href="/welcome" 
-                    className="relative text-muted-foreground hover:text-foreground transition-all duration-300 px-4 py-2 rounded-full hover:bg-red-500/20 after:absolute after:inset-0 after:rounded-full after:bg-red-500/0 hover:after:bg-red-500/10 after:transition-all after:duration-300"
-                  >
-                    Home
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
-                </BreadcrumbSeparator>
-                <BreadcrumbItem>
-                  <BreadcrumbPage className="relative text-foreground font-medium px-4 py-2 rounded-full bg-red-500/10 after:absolute after:inset-0 after:rounded-full after:bg-red-500/20 after:animate-pulse">
-                    Deals
-                  </BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-          </div>
+        <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col items-center gap-4">
+          <img src={unisynLogo} alt="UniSyn Technology" className="w-24 h-auto" />
+          <PageNavigation
+            items={[
+              { to: "/welcome", label: "Home" },
+              { to: "/deals", label: "Deals", isActive: true },
+            ]}
+          />
         </div>
       </div>
 
