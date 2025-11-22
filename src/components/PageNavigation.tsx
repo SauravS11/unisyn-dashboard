@@ -19,7 +19,7 @@ export const PageNavigation = ({ items }: PageNavigationProps) => {
       {items.map((item, index) => {
         const isActive = item.isActive !== undefined 
           ? item.isActive 
-          : location.pathname === item.to || location.pathname.startsWith(item.to + '/');
+          : location.pathname === item.to;
         
         return (
           <div key={item.to} className="flex items-center gap-2">
