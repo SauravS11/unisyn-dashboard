@@ -5,6 +5,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Paperclip, AlertCircle, CheckCircle2, Clock, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -38,6 +39,8 @@ const DealDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [documentsCount, setDocumentsCount] = useState(0);
   const [documentsModalOpen, setDocumentsModalOpen] = useState(false);
+  const [specialists, setSpecialists] = useState<Array<{ name: string; email: string; role: string; category: string }>>([]);
+  const [specialistsModalOpen, setSpecialistsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchDealData();
@@ -88,6 +91,18 @@ const DealDashboard = () => {
           .in('category_id', categoryIds);
 
         if (specialistsError) throw specialistsError;
+
+        // Map specialists with category names for display
+        const specialistsList = specialistsData.map(specialist => {
+          const category = categoriesData.find(cat => cat.id === specialist.category_id);
+          return {
+            name: specialist.name,
+            email: specialist.email,
+            role: specialist.role,
+            category: category?.title || 'Unknown',
+          };
+        });
+        setSpecialists(specialistsList);
 
         // Build categories with tasks
         const categoriesWithTasks: Category[] = categoriesData.map(category => {
@@ -298,11 +313,17 @@ const DealDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-xl">
+          <Card 
+            className="backdrop-blur-xl bg-card/60 border-border/50 shadow-xl cursor-pointer hover:shadow-2xl transition-shadow"
+            onClick={() => setSpecialistsModalOpen(true)}
+          >
             <CardContent className="flex items-center justify-center py-8">
               <div className="text-center">
                 <div className="text-4xl font-bold text-primary mb-2">{specialistsAssigned}</div>
                 <div className="text-sm text-muted-foreground">Specialists Assigned</div>
+                <Button variant="link" className="mt-2 text-xs">
+                  View Details
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -338,6 +359,44 @@ const DealDashboard = () => {
           }}
           dealId={dealId!}
         />
+
+        {/* Specialists Modal */}
+        <Dialog open={specialistsModalOpen} onOpenChange={setSpecialistsModalOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Specialists Assigned</DialogTitle>
+              <DialogDescription>
+                View all specialists assigned to this deal
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+              {specialists.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  No specialists have been assigned yet
+                </div>
+              ) : (
+                specialists.map((specialist, index) => (
+                  <Card key={index} className="border-border/50">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <div className="font-semibold text-base">{specialist.name}</div>
+                          <div className="text-sm text-muted-foreground mt-1">{specialist.email}</div>
+                          <Badge variant="outline" className="mt-2 text-xs">
+                            {specialist.role}
+                          </Badge>
+                        </div>
+                        <div className="text-right text-sm text-muted-foreground">
+                          {specialist.category}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Category Panels - Split into two cards */}
         <div className="grid md:grid-cols-2 gap-6">
