@@ -17,6 +17,7 @@ interface Deal {
   name: string;
   created_at: string;
   updated_at: string;
+  status: string;
 }
 
 const DealsListPage = () => {
@@ -24,43 +25,44 @@ const DealsListPage = () => {
   const { toast } = useToast();
   const [deals, setDeals] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState<'active' | 'completed'>('active');
 
-  useEffect(() => {
-    const fetchDeals = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        
-        if (!user) {
-          toast({
-            title: "Authentication required",
-            description: "Please sign in to view your deals.",
-            variant: "destructive",
-          });
-          navigate("/");
-          return;
-        }
-
-        const { data, error } = await supabase
-          .from('deals')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false });
-
-        if (error) throw error;
-
-        setDeals(data || []);
-      } catch (error) {
-        console.error('Error fetching deals:', error);
+  const fetchDeals = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
         toast({
-          title: "Error",
-          description: "Failed to load deals. Please try again.",
+          title: "Authentication required",
+          description: "Please sign in to view your deals.",
           variant: "destructive",
         });
-      } finally {
-        setLoading(false);
+        navigate("/");
+        return;
       }
-    };
 
+      const { data, error } = await supabase
+        .from('deals')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      setDeals(data || []);
+    } catch (error) {
+      console.error('Error fetching deals:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load deals. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchDeals();
   }, [navigate, toast]);
 
@@ -68,13 +70,25 @@ const DealsListPage = () => {
     e.stopPropagation();
     
     try {
+      const { error } = await supabase
+        .from('deals')
+        .update({ status: 'completed' })
+        .eq('id', dealId);
+
+      if (error) throw error;
+
       sonnerToast.success(`${dealName} marked as complete!`);
-      // Future: Update deal status in database
+      
+      // Refresh deals list
+      fetchDeals();
     } catch (error) {
       console.error('Error marking deal as complete:', error);
       sonnerToast.error("Failed to mark deal as complete");
     }
   };
+
+  const filteredDeals = deals.filter(deal => deal.status === viewMode);
+  const completedCount = deals.filter(deal => deal.status === 'completed').length;
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-background via-background to-muted">
@@ -117,13 +131,22 @@ const DealsListPage = () => {
               Manage and track all your M&A deals in one place
             </p>
           </div>
-          <Button 
-            onClick={() => navigate("/deals/create")}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all"
-          >
-            <Plus className="h-5 w-5 mr-2" />
-            New Deal
-          </Button>
+          <div className="flex gap-3">
+            <Button 
+              onClick={() => setViewMode(viewMode === 'active' ? 'completed' : 'active')}
+              variant="outline"
+              className="bg-background/50 border-border/50"
+            >
+              {viewMode === 'active' ? `Deal Completed (${completedCount})` : 'Active Deals'}
+            </Button>
+            <Button 
+              onClick={() => navigate("/deals/create")}
+              className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all"
+            >
+              <Plus className="h-5 w-5 mr-2" />
+              New Deal
+            </Button>
+          </div>
         </div>
 
         {loading ? (
@@ -142,26 +165,33 @@ const DealsListPage = () => {
               </Card>
             ))}
           </div>
-        ) : deals.length === 0 ? (
+        ) : filteredDeals.length === 0 ? (
           <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-lg">
             <CardContent className="py-16 text-center">
               <FolderOpen className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-xl font-semibold mb-2">No deals yet</h3>
+              <h3 className="text-xl font-semibold mb-2">
+                {viewMode === 'active' ? 'No active deals' : 'No completed deals'}
+              </h3>
               <p className="text-muted-foreground mb-6">
-                Get started by creating your first deal
+                {viewMode === 'active' 
+                  ? 'Get started by creating your first deal'
+                  : 'Mark deals as complete to see them here'
+                }
               </p>
-              <Button 
-                onClick={() => navigate("/deals/create")}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Create Your First Deal
-              </Button>
+              {viewMode === 'active' && (
+                <Button 
+                  onClick={() => navigate("/deals/create")}
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Your First Deal
+                </Button>
+              )}
             </CardContent>
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {deals.map((deal) => (
+            {filteredDeals.map((deal) => (
               <Card 
                 key={deal.id}
                 className="backdrop-blur-xl bg-card/60 border-border/50 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group"
