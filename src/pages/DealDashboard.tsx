@@ -55,6 +55,8 @@ const DealDashboard = () => {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
   const [openFlagPopover, setOpenFlagPopover] = useState<string | null>(null);
+  const [openAssignPopover, setOpenAssignPopover] = useState<string | null>(null);
+  const [openDatePopover, setOpenDatePopover] = useState<string | null>(null);
 
   useEffect(() => {
     fetchDealData();
@@ -738,7 +740,7 @@ const DealDashboard = () => {
                         {/* Action Buttons */}
                         <div className="flex flex-wrap items-center gap-2 mb-2">
                           {/* Assign Person */}
-                          <Popover>
+                          <Popover open={openAssignPopover === task.id} onOpenChange={(open) => setOpenAssignPopover(open ? task.id : null)}>
                             <PopoverTrigger asChild>
                               <Button
                                 variant="outline"
@@ -749,15 +751,19 @@ const DealDashboard = () => {
                                 {task.assignedName ? task.assignedName : 'Assign'}
                               </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-72 p-3">
+                            <PopoverContent className="w-72 p-3 pointer-events-auto">
                               <div className="space-y-2">
                                 <label className="text-sm font-medium">Assign Person</label>
                                 <Input
                                   placeholder="Name"
                                   defaultValue={task.assignedName}
-                                  onBlur={(e) => {
-                                    if (e.target.value !== task.assignedName) {
-                                      handleTaskUpdate(task.id, { assigned_to: e.target.value });
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      const value = (e.target as HTMLInputElement).value;
+                                      if (value !== task.assignedName) {
+                                        handleTaskUpdate(task.id, { assigned_to: value });
+                                        setOpenAssignPopover(null);
+                                      }
                                     }
                                   }}
                                   className="h-8 text-sm"
@@ -766,19 +772,46 @@ const DealDashboard = () => {
                                   placeholder="Email"
                                   type="email"
                                   defaultValue={task.assignedEmail}
-                                  onBlur={(e) => {
-                                    if (e.target.value !== task.assignedEmail) {
-                                      handleTaskUpdate(task.id, { assigned_email: e.target.value });
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      const value = (e.target as HTMLInputElement).value;
+                                      if (value !== task.assignedEmail) {
+                                        handleTaskUpdate(task.id, { assigned_email: value });
+                                        setOpenAssignPopover(null);
+                                      }
                                     }
                                   }}
                                   className="h-8 text-sm"
                                 />
+                                <Button
+                                  size="sm"
+                                  className="w-full"
+                                  onClick={() => {
+                                    const nameInput = document.querySelector(`input[placeholder="Name"]`) as HTMLInputElement;
+                                    const emailInput = document.querySelector(`input[placeholder="Email"]`) as HTMLInputElement;
+                                    
+                                    const updates: any = {};
+                                    if (nameInput?.value && nameInput.value !== task.assignedName) {
+                                      updates.assigned_to = nameInput.value;
+                                    }
+                                    if (emailInput?.value && emailInput.value !== task.assignedEmail) {
+                                      updates.assigned_email = emailInput.value;
+                                    }
+                                    
+                                    if (Object.keys(updates).length > 0) {
+                                      handleTaskUpdate(task.id, updates);
+                                    }
+                                    setOpenAssignPopover(null);
+                                  }}
+                                >
+                                  Save
+                                </Button>
                               </div>
                             </PopoverContent>
                           </Popover>
 
                           {/* Due Date */}
-                          <Popover>
+                          <Popover open={openDatePopover === task.id} onOpenChange={(open) => setOpenDatePopover(open ? task.id : null)}>
                             <PopoverTrigger asChild>
                               <Button
                                 variant="outline"
@@ -789,7 +822,7 @@ const DealDashboard = () => {
                                 {task.dueDate ? format(new Date(task.dueDate), 'MMM dd, yyyy') : 'Set Due Date'}
                               </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
+                            <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
                               <CalendarComponent
                                 mode="single"
                                 selected={task.dueDate ? new Date(task.dueDate) : undefined}
@@ -798,9 +831,11 @@ const DealDashboard = () => {
                                     handleTaskUpdate(task.id, { 
                                       due_date: format(date, 'yyyy-MM-dd')
                                     });
+                                    setOpenDatePopover(null);
                                   }
                                 }}
                                 initialFocus
+                                className="pointer-events-auto"
                               />
                             </PopoverContent>
                           </Popover>
