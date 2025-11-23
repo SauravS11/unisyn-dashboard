@@ -643,7 +643,7 @@ const DealDashboard = () => {
                             status: checked ? 'completed' : 'pending'
                           });
                         }}
-                        className="mt-1"
+                        className="mt-1 rounded-full data-[state=checked]:bg-red-500 data-[state=checked]:border-red-500"
                       />
 
                       {/* Priority Flag */}
