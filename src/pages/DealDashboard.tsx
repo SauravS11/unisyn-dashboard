@@ -210,6 +210,19 @@ const DealDashboard = () => {
       }))
     );
 
+    // Also update selectedCategory if the task is in it
+    setSelectedCategory(prevSelected => {
+      if (!prevSelected) return prevSelected;
+      return {
+        ...prevSelected,
+        tasks: prevSelected.tasks.map(task =>
+          task.id === taskId
+            ? { ...task, ...updates }
+            : task
+        )
+      };
+    });
+
     try {
       const { error } = await supabase
         .from('deal_tasks')
