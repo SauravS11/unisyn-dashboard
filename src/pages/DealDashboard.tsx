@@ -54,6 +54,7 @@ const DealDashboard = () => {
   const [coreTeamModalOpen, setCoreTeamModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+  const [openFlagPopover, setOpenFlagPopover] = useState<string | null>(null);
 
   useEffect(() => {
     fetchDealData();
@@ -647,84 +648,81 @@ const DealDashboard = () => {
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-3 overflow-y-auto pr-2 max-h-[calc(80vh-12rem)] scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
-              {selectedCategory?.tasks.map((task) => {
-                const [flagOpen, setFlagOpen] = React.useState(false);
-                
-                return (
-                  <Card
-                    key={task.id}
-                    className="backdrop-blur-xl bg-card/40 border border-border/40 hover:bg-card/60 transition-colors"
-                  >
-                    <CardContent className="p-4">
-                      <div className="flex items-start gap-3">
-                        {/* Checkbox for completion */}
-                        <Checkbox
-                          checked={task.checked}
-                          onCheckedChange={(checked) => {
-                            handleTaskUpdate(task.id, { 
-                              checked,
-                              status: checked ? 'completed' : 'pending'
-                            });
-                          }}
-                          className="mt-1 rounded-full data-[state=checked]:bg-red-500 data-[state=checked]:border-red-500"
-                        />
+              {selectedCategory?.tasks.map((task) => (
+                <Card
+                  key={task.id}
+                  className="backdrop-blur-xl bg-card/40 border border-border/40 hover:bg-card/60 transition-colors"
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-3">
+                      {/* Checkbox for completion */}
+                      <Checkbox
+                        checked={task.checked}
+                        onCheckedChange={(checked) => {
+                          handleTaskUpdate(task.id, { 
+                            checked,
+                            status: checked ? 'completed' : 'pending'
+                          });
+                        }}
+                        className="mt-1 rounded-full data-[state=checked]:bg-red-500 data-[state=checked]:border-red-500"
+                      />
 
-                        {/* Priority Flag */}
-                        <div className="flex-shrink-0 mt-0.5">
-                          <Popover open={flagOpen} onOpenChange={setFlagOpen}>
-                            <PopoverTrigger asChild>
+                      {/* Priority Flag */}
+                      <div className="flex-shrink-0 mt-0.5">
+                        <Popover open={openFlagPopover === task.id} onOpenChange={(open) => setOpenFlagPopover(open ? task.id : null)}>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                            >
+                              <Flag className={`h-4 w-4 ${
+                                task.priority === 'high' ? 'text-red-500 fill-red-500' :
+                                task.priority === 'medium' ? 'text-yellow-500 fill-yellow-500' :
+                                task.priority === 'low' ? 'text-green-500 fill-green-500' :
+                                'text-muted-foreground'
+                              }`} />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-56 p-2">
+                            <div className="space-y-1">
                               <Button
                                 variant="ghost"
-                                size="sm"
-                                className="h-8 w-8 p-0"
+                                className="w-full justify-start gap-2 text-red-500 hover:text-red-500"
+                                onClick={() => {
+                                  handleTaskUpdate(task.id, { priority: 'high' });
+                                  setOpenFlagPopover(null);
+                                }}
                               >
-                                <Flag className={`h-4 w-4 ${
-                                  task.priority === 'high' ? 'text-red-500 fill-red-500' :
-                                  task.priority === 'medium' ? 'text-yellow-500 fill-yellow-500' :
-                                  task.priority === 'low' ? 'text-green-500 fill-green-500' :
-                                  'text-muted-foreground'
-                                }`} />
+                                <Flag className="h-4 w-4 fill-red-500" />
+                                High Priority
                               </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-56 p-2">
-                              <div className="space-y-1">
-                                <Button
-                                  variant="ghost"
-                                  className="w-full justify-start gap-2 text-red-500 hover:text-red-500"
-                                  onClick={() => {
-                                    handleTaskUpdate(task.id, { priority: 'high' });
-                                    setFlagOpen(false);
-                                  }}
-                                >
-                                  <Flag className="h-4 w-4 fill-red-500" />
-                                  High Priority
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  className="w-full justify-start gap-2 text-yellow-500 hover:text-yellow-500"
-                                  onClick={() => {
-                                    handleTaskUpdate(task.id, { priority: 'medium' });
-                                    setFlagOpen(false);
-                                  }}
-                                >
-                                  <Flag className="h-4 w-4 fill-yellow-500" />
-                                  Medium Priority
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  className="w-full justify-start gap-2 text-green-500 hover:text-green-500"
-                                  onClick={() => {
-                                    handleTaskUpdate(task.id, { priority: 'low' });
-                                    setFlagOpen(false);
-                                  }}
-                                >
-                                  <Flag className="h-4 w-4 fill-green-500" />
-                                  Low Priority
-                                </Button>
-                              </div>
-                            </PopoverContent>
-                          </Popover>
-                        </div>
+                              <Button
+                                variant="ghost"
+                                className="w-full justify-start gap-2 text-yellow-500 hover:text-yellow-500"
+                                onClick={() => {
+                                  handleTaskUpdate(task.id, { priority: 'medium' });
+                                  setOpenFlagPopover(null);
+                                }}
+                              >
+                                <Flag className="h-4 w-4 fill-yellow-500" />
+                                Medium Priority
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                className="w-full justify-start gap-2 text-green-500 hover:text-green-500"
+                                onClick={() => {
+                                  handleTaskUpdate(task.id, { priority: 'low' });
+                                  setOpenFlagPopover(null);
+                                }}
+                              >
+                                <Flag className="h-4 w-4 fill-green-500" />
+                                Low Priority
+                              </Button>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
 
                       {/* Task Details */}
                       <div className="flex-1 min-w-0">
@@ -824,8 +822,7 @@ const DealDashboard = () => {
                     </div>
                   </CardContent>
                 </Card>
-              );
-              })}
+              ))}
             </div>
           </DialogContent>
         </Dialog>
