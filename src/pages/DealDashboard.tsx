@@ -198,6 +198,18 @@ const DealDashboard = () => {
   }
 
   const handleTaskUpdate = async (taskId: string, updates: any) => {
+    // Optimistic update - update UI immediately
+    setCategories(prevCategories => 
+      prevCategories.map(category => ({
+        ...category,
+        tasks: category.tasks.map(task => 
+          task.id === taskId 
+            ? { ...task, ...updates }
+            : task
+        )
+      }))
+    );
+
     try {
       const { error } = await supabase
         .from('deal_tasks')
@@ -205,16 +217,10 @@ const DealDashboard = () => {
         .eq('id', taskId);
 
       if (error) throw error;
-
-      // Refresh data
-      await fetchDealData();
-
-      toast({
-        title: "Success",
-        description: "Task updated successfully",
-      });
     } catch (error) {
       console.error('Error updating task:', error);
+      // Revert on error
+      await fetchDealData();
       toast({
         title: "Error",
         description: "Failed to update task. Please try again.",
