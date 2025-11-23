@@ -201,14 +201,31 @@ const DealDashboard = () => {
     );
   }
 
-  const handleTaskUpdate = async (taskId: string, updates: any) => {
+  const handleTaskUpdate = async (taskId: string, partialUpdates: {
+    checked?: boolean;
+    status?: "pending" | "in-progress" | "completed";
+    priority?: "high" | "medium" | "low";
+    assignedName?: string;
+    assignedEmail?: string;
+    dueDate?: string | null;
+  }) => {
+    // Map UI field names to database column names
+    const dbUpdates: any = {};
+
+    if ("checked" in partialUpdates) dbUpdates.checked = partialUpdates.checked;
+    if ("status" in partialUpdates) dbUpdates.status = partialUpdates.status;
+    if ("priority" in partialUpdates) dbUpdates.priority = partialUpdates.priority;
+    if ("assignedName" in partialUpdates) dbUpdates.assigned_to = partialUpdates.assignedName;
+    if ("assignedEmail" in partialUpdates) dbUpdates.assigned_email = partialUpdates.assignedEmail;
+    if ("dueDate" in partialUpdates) dbUpdates.due_date = partialUpdates.dueDate;
+
     // Optimistic update - update UI immediately
     setCategories(prevCategories => 
       prevCategories.map(category => ({
         ...category,
         tasks: category.tasks.map(task => 
           task.id === taskId 
-            ? { ...task, ...updates }
+            ? { ...task, ...partialUpdates }
             : task
         )
       }))
@@ -221,7 +238,7 @@ const DealDashboard = () => {
         ...prevSelected,
         tasks: prevSelected.tasks.map(task =>
           task.id === taskId
-            ? { ...task, ...updates }
+            ? { ...task, ...partialUpdates }
             : task
         )
       };
@@ -230,7 +247,7 @@ const DealDashboard = () => {
     try {
       const { error } = await supabase
         .from('deal_tasks')
-        .update(updates)
+        .update(dbUpdates)
         .eq('id', taskId);
 
       if (error) throw error;
@@ -661,9 +678,10 @@ const DealDashboard = () => {
                       <Checkbox
                         checked={task.checked}
                         onCheckedChange={(checked) => {
+                          const isChecked = checked === true;
                           handleTaskUpdate(task.id, { 
-                            checked,
-                            status: checked ? 'completed' : 'pending'
+                            checked: isChecked,
+                            status: isChecked ? 'completed' : 'pending'
                           });
                         }}
                         className="mt-1 rounded-full data-[state=checked]:bg-red-500 data-[state=checked]:border-red-500"
@@ -757,13 +775,10 @@ const DealDashboard = () => {
                                 <Input
                                   placeholder="Name"
                                   defaultValue={task.assignedName}
-                                  onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                      const value = (e.target as HTMLInputElement).value;
-                                      if (value !== task.assignedName) {
-                                        handleTaskUpdate(task.id, { assigned_to: value });
-                                        setOpenAssignPopover(null);
-                                      }
+                                  onBlur={(e) => {
+                                    const value = e.target.value.trim();
+                                    if (value !== task.assignedName) {
+                                      handleTaskUpdate(task.id, { assignedName: value });
                                     }
                                   }}
                                   className="h-8 text-sm"
@@ -772,40 +787,14 @@ const DealDashboard = () => {
                                   placeholder="Email"
                                   type="email"
                                   defaultValue={task.assignedEmail}
-                                  onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                      const value = (e.target as HTMLInputElement).value;
-                                      if (value !== task.assignedEmail) {
-                                        handleTaskUpdate(task.id, { assigned_email: value });
-                                        setOpenAssignPopover(null);
-                                      }
+                                  onBlur={(e) => {
+                                    const value = e.target.value.trim();
+                                    if (value !== task.assignedEmail) {
+                                      handleTaskUpdate(task.id, { assignedEmail: value });
                                     }
                                   }}
                                   className="h-8 text-sm"
                                 />
-                                <Button
-                                  size="sm"
-                                  className="w-full"
-                                  onClick={() => {
-                                    const nameInput = document.querySelector(`input[placeholder="Name"]`) as HTMLInputElement;
-                                    const emailInput = document.querySelector(`input[placeholder="Email"]`) as HTMLInputElement;
-                                    
-                                    const updates: any = {};
-                                    if (nameInput?.value && nameInput.value !== task.assignedName) {
-                                      updates.assigned_to = nameInput.value;
-                                    }
-                                    if (emailInput?.value && emailInput.value !== task.assignedEmail) {
-                                      updates.assigned_email = emailInput.value;
-                                    }
-                                    
-                                    if (Object.keys(updates).length > 0) {
-                                      handleTaskUpdate(task.id, updates);
-                                    }
-                                    setOpenAssignPopover(null);
-                                  }}
-                                >
-                                  Save
-                                </Button>
                               </div>
                             </PopoverContent>
                           </Popover>
@@ -829,7 +818,7 @@ const DealDashboard = () => {
                                 onSelect={(date) => {
                                   if (date) {
                                     handleTaskUpdate(task.id, { 
-                                      due_date: format(date, 'yyyy-MM-dd')
+                                      dueDate: format(date, 'yyyy-MM-dd')
                                     });
                                     setOpenDatePopover(null);
                                   }
