@@ -3,18 +3,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronRight, CalendarIcon, ArrowLeft } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import unisynLogo from "@/assets/unisyn-logo.png";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { SignOutButton } from "@/components/SignOutButton";
+import { PageNavigation } from "@/components/PageNavigation";
 
 const CreateDeal = () => {
   const navigate = useNavigate();
@@ -106,44 +106,17 @@ const CreateDeal = () => {
 
       {/* Header */}
       <div className="relative z-10 border-b border-border/50 bg-background/80 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between relative">
-          <div className="flex items-center gap-4 flex-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate("/deals")}
-              className="hover:bg-accent"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <Breadcrumb className="flex-1">
-              <BreadcrumbList>
-                <BreadcrumbItem>
-                  <BreadcrumbLink onClick={() => navigate("/")} className="cursor-pointer">
-                    Home
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator>
-                  <ChevronRight className="h-4 w-4" />
-                </BreadcrumbSeparator>
-                <BreadcrumbItem>
-                  <BreadcrumbLink onClick={() => navigate("/deals")} className="cursor-pointer">
-                    Deals
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator>
-                  <ChevronRight className="h-4 w-4" />
-                </BreadcrumbSeparator>
-                <BreadcrumbItem>
-                  <BreadcrumbPage>New Deal</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-          </div>
-          <img src={unisynLogo} alt="UniSyn Technology" className="w-16 sm:w-20 md:w-24 h-auto ml-2 sm:ml-4" />
-          <div className="absolute top-3 sm:top-4 right-4 sm:right-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 flex flex-col items-center gap-3 sm:gap-4 relative">
+          <div className="absolute top-4 right-4 sm:top-6 sm:right-6">
             <SignOutButton />
           </div>
+          <img src={unisynLogo} alt="UniSyn Technology" className="w-20 sm:w-24 h-auto" />
+          <PageNavigation
+            items={[
+              { to: "/welcome", label: "Home" },
+              { to: "/deals", label: "Deals" },
+            ]}
+          />
         </div>
       </div>
 
