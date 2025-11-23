@@ -5,7 +5,13 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Paperclip, AlertCircle, CheckCircle2, Clock, FileText } from "lucide-react";
+import { Paperclip, AlertCircle, CheckCircle2, Clock, FileText, Flag, User, Calendar } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { DocumentsModal } from "@/components/DocumentsModal";
@@ -23,6 +29,7 @@ interface Task {
   status: "pending" | "in-progress" | "completed";
   dueDate: string | null;
   hasAttachment: boolean;
+  checked: boolean;
 }
 
 interface Category {
@@ -123,11 +130,12 @@ const DealDashboard = () => {
               code: task.task_code,
               title: task.title,
               priority: task.priority as "high" | "medium" | "low",
-              assignedName: specialist?.name || "",
-              assignedEmail: specialist?.email || "",
+              assignedName: task.assigned_to || specialist?.name || "",
+              assignedEmail: task.assigned_email || specialist?.email || "",
               status: task.status as "pending" | "in-progress" | "completed",
               dueDate: task.due_date,
               hasAttachment: task.has_attachment,
+              checked: task.checked,
             })),
           };
         });
@@ -167,11 +175,11 @@ const DealDashboard = () => {
   
   // Calculate stats
   const allTasks = categories.flatMap((cat) => cat.tasks);
-  const completedTasks = allTasks.filter((t) => t.status === "completed").length;
+  const completedTasks = allTasks.filter((t) => t.checked).length;
   const totalTasks = allTasks.length || 1; // Prevent division by zero
   const readinessScore = Math.round((completedTasks / totalTasks) * 100);
-  const openTasks = allTasks.filter((t) => t.status !== "completed").length;
-  const highPriorityTasks = allTasks.filter((t) => t.priority === "high" && t.status !== "completed").length;
+  const openTasks = allTasks.filter((t) => !t.checked).length;
+  const highPriorityTasks = allTasks.filter((t) => t.priority === "high" && !t.checked).length;
   const specialistsAssigned = new Set(allTasks.filter((t) => t.assignedName).map((t) => t.assignedEmail)).size;
   
   // Calculate days until close
@@ -189,25 +197,64 @@ const DealDashboard = () => {
     );
   }
 
+  const handleTaskUpdate = async (taskId: string, updates: any) => {
+    try {
+      const { error } = await supabase
+        .from('deal_tasks')
+        .update(updates)
+        .eq('id', taskId);
+
+      if (error) throw error;
+
+      // Refresh data
+      await fetchDealData();
+
+      toast({
+        title: "Success",
+        description: "Task updated successfully",
+      });
+    } catch (error) {
+      console.error('Error updating task:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update task. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getCategoryCompletion = (category: Category) => {
-    const completed = category.tasks.filter((t) => t.status === "completed").length;
+    const completed = category.tasks.filter((t) => t.checked).length;
     return Math.round((completed / category.tasks.length) * 100);
   };
 
   const getOpenTasksCount = (category: Category) => {
-    return category.tasks.filter((t) => t.status !== "completed").length;
+    return category.tasks.filter((t) => !t.checked).length;
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "high":
-        return "bg-primary";
+        return "bg-red-500";
       case "medium":
         return "bg-yellow-500";
       case "low":
         return "bg-green-500";
       default:
         return "bg-muted";
+    }
+  };
+
+  const getPriorityLabel = (priority: string) => {
+    switch (priority) {
+      case "high":
+        return "High Priority (Red)";
+      case "medium":
+        return "Medium Priority (Yellow)";
+      case "low":
+        return "Low Priority (Green)";
+      default:
+        return "Set Priority";
     }
   };
 
@@ -573,8 +620,8 @@ const DealDashboard = () => {
               <DialogDescription>
                 {selectedCategory && (
                   <>
-                    {selectedCategory.tasks.filter((t) => t.status === "completed").length} completed · {" "}
-                    {selectedCategory.tasks.filter((t) => t.status !== "completed").length} remaining
+                    {selectedCategory.tasks.filter((t) => t.checked).length} completed · {" "}
+                    {selectedCategory.tasks.filter((t) => !t.checked).length} remaining
                   </>
                 )}
               </DialogDescription>
@@ -586,35 +633,161 @@ const DealDashboard = () => {
                   className="backdrop-blur-xl bg-card/40 border border-border/40 hover:bg-card/60 transition-colors"
                 >
                   <CardContent className="p-4">
-                    <div className="flex items-start gap-4">
-                      {/* Priority Dot */}
-                      <div className={`w-3 h-3 rounded-full mt-1.5 flex-shrink-0 ${getPriorityColor(task.priority)}`} />
+                    <div className="flex items-start gap-3">
+                      {/* Checkbox for completion */}
+                      <Checkbox
+                        checked={task.checked}
+                        onCheckedChange={(checked) => {
+                          handleTaskUpdate(task.id, { 
+                            checked,
+                            status: checked ? 'completed' : 'pending'
+                          });
+                        }}
+                        className="mt-1"
+                      />
+
+                      {/* Priority Flag */}
+                      <div className="flex-shrink-0 mt-0.5">
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                            >
+                              <Flag className={`h-4 w-4 ${
+                                task.priority === 'high' ? 'text-red-500 fill-red-500' :
+                                task.priority === 'medium' ? 'text-yellow-500 fill-yellow-500' :
+                                task.priority === 'low' ? 'text-green-500 fill-green-500' :
+                                'text-muted-foreground'
+                              }`} />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-56 p-2">
+                            <div className="space-y-1">
+                              <Button
+                                variant="ghost"
+                                className="w-full justify-start gap-2 text-red-500 hover:text-red-500"
+                                onClick={() => handleTaskUpdate(task.id, { priority: 'high' })}
+                              >
+                                <Flag className="h-4 w-4 fill-red-500" />
+                                High Priority
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                className="w-full justify-start gap-2 text-yellow-500 hover:text-yellow-500"
+                                onClick={() => handleTaskUpdate(task.id, { priority: 'medium' })}
+                              >
+                                <Flag className="h-4 w-4 fill-yellow-500" />
+                                Medium Priority
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                className="w-full justify-start gap-2 text-green-500 hover:text-green-500"
+                                onClick={() => handleTaskUpdate(task.id, { priority: 'low' })}
+                              >
+                                <Flag className="h-4 w-4 fill-green-500" />
+                                Low Priority
+                              </Button>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
 
                       {/* Task Details */}
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-4 mb-2">
+                        <div className="flex items-start justify-between gap-4 mb-3">
                           <div className="flex-1">
-                            <div className="font-medium text-sm mb-1">
-                              {task.title} <span className="text-muted-foreground">({task.code})</span>
+                            <div className={`font-medium text-sm mb-1 ${task.checked ? 'line-through text-muted-foreground' : ''}`}>
+                              {task.title} <span className="text-muted-foreground text-xs">({task.code})</span>
                             </div>
-                            {task.assignedName && (
-                              <div className="text-xs text-muted-foreground">
-                                Assigned to: {task.assignedName} ({task.assignedEmail})
-                              </div>
-                            )}
                           </div>
                           {getStatusBadge(task.status)}
                         </div>
 
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                          <div>Due: {task.dueDate}</div>
+                        {/* Action Buttons */}
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                          {/* Assign Person */}
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-7 text-xs gap-1"
+                              >
+                                <User className="h-3 w-3" />
+                                {task.assignedName ? task.assignedName : 'Assign'}
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-72 p-3">
+                              <div className="space-y-2">
+                                <label className="text-sm font-medium">Assign Person</label>
+                                <Input
+                                  placeholder="Name"
+                                  defaultValue={task.assignedName}
+                                  onBlur={(e) => {
+                                    if (e.target.value !== task.assignedName) {
+                                      handleTaskUpdate(task.id, { assigned_to: e.target.value });
+                                    }
+                                  }}
+                                  className="h-8 text-sm"
+                                />
+                                <Input
+                                  placeholder="Email"
+                                  type="email"
+                                  defaultValue={task.assignedEmail}
+                                  onBlur={(e) => {
+                                    if (e.target.value !== task.assignedEmail) {
+                                      handleTaskUpdate(task.id, { assigned_email: e.target.value });
+                                    }
+                                  }}
+                                  className="h-8 text-sm"
+                                />
+                              </div>
+                            </PopoverContent>
+                          </Popover>
+
+                          {/* Due Date */}
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-7 text-xs gap-1"
+                              >
+                                <Calendar className="h-3 w-3" />
+                                {task.dueDate ? format(new Date(task.dueDate), 'MMM dd, yyyy') : 'Set Due Date'}
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <CalendarComponent
+                                mode="single"
+                                selected={task.dueDate ? new Date(task.dueDate) : undefined}
+                                onSelect={(date) => {
+                                  if (date) {
+                                    handleTaskUpdate(task.id, { 
+                                      due_date: format(date, 'yyyy-MM-dd')
+                                    });
+                                  }
+                                }}
+                                initialFocus
+                              />
+                            </PopoverContent>
+                          </Popover>
+
                           {task.hasAttachment && (
-                            <div className="flex items-center gap-1">
+                            <Badge variant="outline" className="h-7 gap-1 text-xs">
                               <Paperclip className="h-3 w-3" />
                               Attachment
-                            </div>
+                            </Badge>
                           )}
                         </div>
+
+                        {task.assignedEmail && (
+                          <div className="text-xs text-muted-foreground">
+                            {task.assignedEmail}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </CardContent>
@@ -638,7 +811,7 @@ const DealDashboard = () => {
                 {categories.slice(0, 7).map((category) => {
                   const completion = getCategoryCompletion(category);
                   const openTasksCount = getOpenTasksCount(category);
-                  const completedTasksCount = category.tasks.filter((t) => t.status === "completed").length;
+                  const completedTasksCount = category.tasks.filter((t) => t.checked).length;
 
                   return (
                     <Card
@@ -689,7 +862,7 @@ const DealDashboard = () => {
                 {categories.slice(7).map((category) => {
                   const completion = getCategoryCompletion(category);
                   const openTasksCount = getOpenTasksCount(category);
-                  const completedTasksCount = category.tasks.filter((t) => t.status === "completed").length;
+                  const completedTasksCount = category.tasks.filter((t) => t.checked).length;
 
                   return (
                     <Card

@@ -143,6 +143,8 @@ export type Database = {
       }
       deal_tasks: {
         Row: {
+          assigned_email: string | null
+          assigned_to: string | null
           category_id: string
           checked: boolean
           created_at: string
@@ -158,6 +160,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          assigned_email?: string | null
+          assigned_to?: string | null
           category_id: string
           checked?: boolean
           created_at?: string
@@ -173,6 +177,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          assigned_email?: string | null
+          assigned_to?: string | null
           category_id?: string
           checked?: boolean
           created_at?: string
