@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Bell } from "lucide-react";
+import { Bell, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -19,6 +19,7 @@ interface Notification {
   created_at: string;
   read: boolean;
   deal_id: string | null;
+  deal_name?: string;
 }
 
 export const NotificationButton = () => {
@@ -55,7 +56,7 @@ export const NotificationButton = () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    const { data, error } = await supabase
+    const { data: notifications, error } = await supabase
       .from("notifications")
       .select("*")
       .eq("user_id", user.id)
@@ -67,8 +68,24 @@ export const NotificationButton = () => {
       return;
     }
 
-    setNotifications(data || []);
-    setUnreadCount(data?.filter((n) => !n.read).length || 0);
+    // Fetch deal names for notifications with deal_id
+    const notificationsWithDealNames = await Promise.all(
+      (notifications || []).map(async (notification) => {
+        if (notification.deal_id) {
+          const { data: deal } = await supabase
+            .from("deals")
+            .select("name")
+            .eq("id", notification.deal_id)
+            .single();
+          
+          return { ...notification, deal_name: deal?.name };
+        }
+        return notification;
+      })
+    );
+
+    setNotifications(notificationsWithDealNames);
+    setUnreadCount(notificationsWithDealNames.filter((n) => !n.read).length || 0);
   };
 
   const markAsRead = async (notificationId: string) => {
@@ -102,64 +119,93 @@ export const NotificationButton = () => {
     fetchNotifications();
   };
 
+  const deleteNotification = async (notificationId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    await supabase
+      .from("notifications")
+      .delete()
+      .eq("id", notificationId);
+
+    fetchNotifications();
+  };
+
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="icon" className="relative">
+        <Button variant="outline" size="icon" className="relative backdrop-blur-xl bg-background/50 border-border/50 hover:bg-background/80">
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center">
+            <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-gradient-to-br from-primary to-primary/80 text-primary-foreground text-xs flex items-center justify-center shadow-lg animate-scale-in">
               {unreadCount}
             </span>
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 p-0" align="end">
-        <div className="flex items-center justify-between p-4 border-b">
-          <h3 className="font-semibold">Notifications</h3>
+      <PopoverContent className="w-96 p-0 backdrop-blur-2xl bg-background/80 border-border/50 shadow-2xl animate-scale-in" align="end">
+        <div className="flex items-center justify-between p-5 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent">
+          <h3 className="font-bold text-lg">Notifications</h3>
           {unreadCount > 0 && (
             <Button
               variant="ghost"
               size="sm"
               onClick={markAllAsRead}
-              className="h-auto p-0 text-xs text-muted-foreground hover:text-foreground"
+              className="h-auto px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:bg-background/50 transition-all"
             >
               Mark all as read
             </Button>
           )}
         </div>
-        <ScrollArea className="h-[400px]">
+        <ScrollArea className="h-[450px]">
           {notifications.length === 0 ? (
-            <div className="p-8 text-center text-muted-foreground">
-              No notifications yet
+            <div className="p-12 text-center">
+              <Bell className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
+              <p className="text-muted-foreground">No notifications yet</p>
             </div>
           ) : (
-            <div className="divide-y">
+            <div className="divide-y divide-border/30">
               {notifications.map((notification) => (
-                <button
+                <div
                   key={notification.id}
-                  onClick={() => handleNotificationClick(notification)}
-                  className={`w-full p-4 text-left hover:bg-accent transition-colors ${
-                    !notification.read ? "bg-accent/50" : ""
+                  className={`group relative p-4 hover:bg-accent/30 transition-all ${
+                    !notification.read ? "bg-primary/5" : ""
                   }`}
                 >
-                  <div className="flex items-start gap-3">
-                    {!notification.read && (
-                      <div className="h-2 w-2 rounded-full bg-primary mt-2 flex-shrink-0" />
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm">{notification.title}</p>
-                      <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                        {notification.message}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-2">
-                        {formatDistanceToNow(new Date(notification.created_at), {
-                          addSuffix: true,
-                        })}
-                      </p>
+                  <button
+                    onClick={() => handleNotificationClick(notification)}
+                    className="w-full text-left"
+                  >
+                    <div className="flex items-start gap-3">
+                      {!notification.read && (
+                        <div className="h-2 w-2 rounded-full bg-gradient-to-br from-primary to-primary/80 mt-2 flex-shrink-0 shadow-lg" />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-sm mb-1">{notification.title}</p>
+                        {notification.deal_name && (
+                          <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium mb-2">
+                            Deal: {notification.deal_name}
+                          </div>
+                        )}
+                        <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                          {notification.message}
+                        </p>
+                        <p className="text-xs text-muted-foreground/70 mt-2">
+                          {formatDistanceToNow(new Date(notification.created_at), {
+                            addSuffix: true,
+                          })}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </button>
+                  </button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={(e) => deleteNotification(notification.id, e)}
+                    className="absolute top-3 right-3 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/20 hover:text-destructive"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
               ))}
             </div>
           )}
