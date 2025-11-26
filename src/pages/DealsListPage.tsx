@@ -108,11 +108,11 @@ const DealsListPage = () => {
       {/* Header */}
       <div className="relative z-10 border-b border-border/50 bg-background/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 flex flex-col items-center gap-3 sm:gap-4 relative">
-          <div className="absolute top-4 right-4 sm:top-6 sm:right-6 flex items-center gap-2">
+          <div className="absolute top-4 right-4 sm:top-6 sm:right-6 flex items-center gap-1 sm:gap-2 z-10">
             <NotificationButton />
             <SignOutButton />
           </div>
-          <img src={unisynLogo} alt="UniSyn Technology" className="w-20 sm:w-24 h-auto" />
+          <img src={unisynLogo} alt="UniSyn Technology" className="w-16 sm:w-24 h-auto mt-2 sm:mt-0" />
           <PageNavigation
             items={[
               { to: "/welcome", label: "Home" },

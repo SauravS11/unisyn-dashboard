@@ -142,21 +142,32 @@ export const NotificationButton = () => {
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[calc(100vw-2rem)] sm:w-96 max-w-md p-0 backdrop-blur-2xl bg-background/80 border-border/50 shadow-2xl animate-scale-in" align="end">
-        <div className="flex items-center justify-between p-5 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent">
+      <PopoverContent className="w-[calc(100vw-2rem)] sm:w-96 max-w-md p-0 backdrop-blur-2xl bg-background/80 border-border/50 shadow-2xl animate-scale-in" align="center" side="bottom" sideOffset={8}>
+        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent">
           <h3 className="font-bold text-lg">Notifications</h3>
-          {unreadCount > 0 && (
+          <div className="flex items-center gap-2">
+            {unreadCount > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={markAllAsRead}
+                className="h-auto px-2 sm:px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:bg-background/50 transition-all"
+              >
+                <span className="hidden sm:inline">Mark all as read</span>
+                <span className="sm:hidden">Mark read</span>
+              </Button>
+            )}
             <Button
               variant="ghost"
-              size="sm"
-              onClick={markAllAsRead}
-              className="h-auto px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:bg-background/50 transition-all"
+              size="icon"
+              onClick={() => setIsOpen(false)}
+              className="h-8 w-8 hover:bg-background/50 transition-all"
             >
-              Mark all as read
+              <X className="h-4 w-4" />
             </Button>
-          )}
+          </div>
         </div>
-        <ScrollArea className="h-[450px]">
+        <ScrollArea className="h-[50vh] max-h-[450px]">
           {notifications.length === 0 ? (
             <div className="p-12 text-center">
               <Bell className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
