@@ -759,35 +759,39 @@ const DueDiligenceChecklist = () => {
             </div>
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between items-center mt-8 pt-6 border-t border-border/50">
+            <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 mt-8 pt-6 border-t border-border/50">
               <Button
                 variant="outline"
-                className="border-border/50"
+                className="border-border/50 flex-1 sm:flex-none touch-manipulation"
                 onClick={goToPreviousSection}
                 disabled={isFirstSection}
               >
-                <ChevronLeft className="h-4 w-4 mr-2" />
-                Previous Section
+                <ChevronLeft className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Previous Section</span>
+                <span className="sm:hidden">Previous</span>
               </Button>
 
-              <Button variant="outline" className="border-border/50">
-                Save Draft
+              <Button variant="outline" className="border-border/50 flex-1 sm:flex-none touch-manipulation">
+                <span className="hidden sm:inline">Save Draft</span>
+                <span className="sm:hidden">Save</span>
               </Button>
 
               {isLastSection ? (
                 <Button 
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 font-semibold shadow-lg hover:shadow-xl transition-all"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 sm:px-8 font-semibold shadow-lg hover:shadow-xl transition-all flex-1 sm:flex-none touch-manipulation"
                   onClick={handleSubmit}
                 >
-                  Submit Checklist
+                  <span className="hidden sm:inline">Submit Checklist</span>
+                  <span className="sm:hidden">Submit</span>
                 </Button>
               ) : (
                 <Button
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all flex-1 sm:flex-none touch-manipulation"
                   onClick={goToNextSection}
                 >
-                  Next Section
-                  <ChevronRight className="h-4 w-4 ml-2" />
+                  <span className="hidden sm:inline">Next Section</span>
+                  <span className="sm:hidden">Next</span>
+                  <ChevronRight className="h-4 w-4 ml-1 sm:ml-2" />
                 </Button>
               )}
             </div>
