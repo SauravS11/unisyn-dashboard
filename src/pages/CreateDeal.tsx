@@ -121,9 +121,9 @@ const CreateDeal = () => {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+      <div className="relative z-10 max-w-5xl mx-auto px-3 sm:px-6 py-6 sm:py-12">
         <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl">
-          <CardHeader className="border-b border-border/50 pb-4 sm:pb-6 px-4 sm:px-6">
+          <CardHeader className="border-b border-border/50 pb-3 sm:pb-6 px-3 sm:px-6">
             <CardTitle className="text-2xl sm:text-3xl font-bold tracking-tight">
               New <span className="text-primary">Deal</span>
             </CardTitle>
@@ -131,10 +131,10 @@ const CreateDeal = () => {
               Enter the details for your new M&A transaction
             </p>
           </CardHeader>
-          <CardContent className="pt-6 sm:pt-8 px-4 sm:px-6">
-            <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
+          <CardContent className="pt-4 sm:pt-8 px-3 sm:px-6">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-8">
               {/* Two Column Layout */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6">
                 {/* Deal Name */}
                 <div className="space-y-2 md:col-span-2">
                   <Label htmlFor="dealName" className="text-sm font-medium">

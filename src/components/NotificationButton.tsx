@@ -142,7 +142,7 @@ export const NotificationButton = () => {
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-96 p-0 backdrop-blur-2xl bg-background/80 border-border/50 shadow-2xl animate-scale-in" align="end">
+      <PopoverContent className="w-[calc(100vw-2rem)] sm:w-96 max-w-md p-0 backdrop-blur-2xl bg-background/80 border-border/50 shadow-2xl animate-scale-in" align="end">
         <div className="flex items-center justify-between p-5 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent">
           <h3 className="font-bold text-lg">Notifications</h3>
           {unreadCount > 0 && (

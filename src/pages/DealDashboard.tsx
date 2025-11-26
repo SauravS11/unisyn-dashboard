@@ -366,9 +366,9 @@ const DealDashboard = () => {
             {/* Readiness Score Card */}
             <Card className="sm:col-span-2 backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl">
               <CardContent className="py-4 sm:py-6">
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
-                  <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0">
-                    <svg className="w-24 h-24 transform -rotate-90">
+                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
+                  <div className="relative w-24 h-24 flex-shrink-0">
+                    <svg className="w-full h-full transform -rotate-90">
                       <circle
                         cx="48"
                         cy="48"
@@ -392,11 +392,11 @@ const DealDashboard = () => {
                       />
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-2xl font-bold">{readinessScore}%</span>
+                      <span className="text-xl sm:text-2xl font-bold">{readinessScore}%</span>
                     </div>
                   </div>
-                  <div className="text-center">
-                    <p className="text-lg font-semibold text-foreground mb-2">{dealName}</p>
+                  <div className="text-center sm:text-left">
+                    <p className="text-base sm:text-lg font-semibold text-foreground mb-2">{dealName}</p>
                     <p className="text-sm text-muted-foreground mb-1">Readiness Score</p>
                     <p className="text-xs text-muted-foreground">
                       {completedTasks} of {totalTasks} tasks completed

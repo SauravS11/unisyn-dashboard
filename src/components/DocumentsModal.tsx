@@ -219,7 +219,7 @@ export const DocumentsModal = ({ open, onOpenChange, dealId }: DocumentsModalPro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">Deal Documents</DialogTitle>
           <DialogDescription>
@@ -229,7 +229,7 @@ export const DocumentsModal = ({ open, onOpenChange, dealId }: DocumentsModalPro
 
         {/* Upload Section */}
         <div className="space-y-4 border-b border-border pb-6">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="category">Category</Label>
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
