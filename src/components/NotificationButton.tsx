@@ -143,7 +143,7 @@ export const NotificationButton = () => {
       </Button>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="w-[50vw] h-[50vh] max-w-none p-0 backdrop-blur-2xl bg-background/80 border-border/50 shadow-2xl">
+        <DialogContent className="w-[90vw] sm:w-[70vw] lg:w-[50vw] h-[60vh] max-h-[80vh] max-w-none p-0 overflow-hidden backdrop-blur-2xl bg-background/80 border-border/50 shadow-2xl">
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between p-4 sm:p-5 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent flex-shrink-0">
               <h3 className="font-bold text-lg">Notifications</h3>
@@ -169,7 +169,7 @@ export const NotificationButton = () => {
                 </Button>
               </div>
             </div>
-            <ScrollArea className="flex-1">
+            <ScrollArea className="flex-1 h-full">
               {notifications.length === 0 ? (
                 <div className="p-12 text-center">
                   <Bell className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
