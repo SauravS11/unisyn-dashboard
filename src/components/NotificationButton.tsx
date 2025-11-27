@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Bell, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
@@ -169,7 +169,7 @@ export const NotificationButton = () => {
                 </Button>
               </div>
             </div>
-            <ScrollArea className="flex-1 h-full overflow-y-auto">
+            <div className="flex-1 min-h-0 overflow-y-auto">
               {notifications.length === 0 ? (
                 <div className="p-12 text-center">
                   <Bell className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
@@ -222,7 +222,7 @@ export const NotificationButton = () => {
                   ))}
                 </div>
               )}
-            </ScrollArea>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
