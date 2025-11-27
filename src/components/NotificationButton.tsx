@@ -169,7 +169,7 @@ export const NotificationButton = () => {
                 </Button>
               </div>
             </div>
-            <ScrollArea className="flex-1 h-full">
+            <ScrollArea className="flex-1">
               {notifications.length === 0 ? (
                 <div className="p-12 text-center">
                   <Bell className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
