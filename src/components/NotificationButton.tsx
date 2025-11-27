@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Bell, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -143,10 +143,15 @@ export const NotificationButton = () => {
       </Button>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="w-[90vw] sm:w-[70vw] lg:w-[50vw] h-[60vh] max-h-[80vh] max-w-none p-0 overflow-hidden backdrop-blur-2xl bg-background/80 border-border/50 shadow-2xl">
+        <DialogContent className="w-[90vw] sm:w-[70vw] lg:w-[50vw] h-[60vh] max-h-[80vh] max-w-none p-0 overflow-y-auto backdrop-blur-2xl bg-background/80 border-border/50 shadow-2xl">
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between p-4 sm:p-5 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent flex-shrink-0">
-              <h3 className="font-bold text-lg">Notifications</h3>
+              <div className="flex flex-col">
+                <DialogTitle className="font-bold text-lg">Notifications</DialogTitle>
+                <DialogDescription className="sr-only">
+                  Recent notifications about your deals.
+                </DialogDescription>
+              </div>
               <div className="flex items-center gap-2">
                 {unreadCount > 0 && (
                   <Button
