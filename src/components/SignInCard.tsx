@@ -211,12 +211,13 @@ export const SignInCard = () => {
                 <Input
                   id="signin-phone"
                   type="tel"
-                  placeholder="+27 XX XXX XXXX"
+                  placeholder="+27821234567"
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  onChange={(e) => setPhone(e.target.value.replace(/\s/g, ''))}
                   required
                   className="bg-background/50 border-border/50"
                 />
+                <p className="text-xs text-muted-foreground">Enter in format: +27XXXXXXXXX (no spaces)</p>
               </div>
               <Button
                 type="submit"
