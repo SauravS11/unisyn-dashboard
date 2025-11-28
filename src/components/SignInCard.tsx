@@ -7,14 +7,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Mail, Phone } from "lucide-react";
 
 export const SignInCard = () => {
   const navigate = useNavigate();
-  const [authMethod, setAuthMethod] = useState<"email" | "phone">("email");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [phone, setPhone] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSignIn = async (e: React.FormEvent) => {
@@ -65,29 +62,6 @@ export const SignInCard = () => {
     }
   };
 
-  const handlePhoneSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      const { error } = await supabase.auth.signInWithOtp({
-        phone,
-      });
-
-      if (error) {
-        toast.error(error.message);
-        return;
-      }
-
-      toast.success("OTP sent to your phone! Check your messages.");
-    } catch (error) {
-      console.error("Phone sign in error:", error);
-      toast.error("An error occurred during phone sign in");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <Card className="w-full max-w-md backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl">
       <CardHeader className="space-y-1">
@@ -132,102 +106,52 @@ export const SignInCard = () => {
               <Separator className="w-full" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
+              <span className="bg-card px-2 text-muted-foreground">Or continue with email</span>
             </div>
           </div>
 
-          {/* Auth Method Toggle */}
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              variant={authMethod === "email" ? "default" : "outline"}
-              className="flex-1"
-              onClick={() => setAuthMethod("email")}
-            >
-              <Mail className="mr-2 h-4 w-4" />
-              Email
-            </Button>
-            <Button
-              type="button"
-              variant={authMethod === "phone" ? "default" : "outline"}
-              className="flex-1"
-              onClick={() => setAuthMethod("phone")}
-            >
-              <Phone className="mr-2 h-4 w-4" />
-              Phone
-            </Button>
-          </div>
-
           {/* Email Sign In Form */}
-          {authMethod === "email" && (
-            <form onSubmit={handleSignIn} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="signin-email">Email</Label>
-                <Input
-                  id="signin-email"
-                  type="email"
-                  placeholder="you@company.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="bg-background/50 border-border/50"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="signin-password">Password</Label>
-                <Input
-                  id="signin-password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="bg-background/50 border-border/50"
-                />
-              </div>
-              <div className="flex justify-end">
-                <a
-                  href="#"
-                  className="text-sm text-primary hover:text-primary/80 transition-colors font-medium"
-                >
-                  Forgot password?
-                </a>
-              </div>
-              <Button
-                type="submit"
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all"
-                disabled={isLoading}
+          <form onSubmit={handleSignIn} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="signin-email">Email</Label>
+              <Input
+                id="signin-email"
+                type="email"
+                placeholder="you@company.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="bg-background/50 border-border/50"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="signin-password">Password</Label>
+              <Input
+                id="signin-password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="bg-background/50 border-border/50"
+              />
+            </div>
+            <div className="flex justify-end">
+              <a
+                href="#"
+                className="text-sm text-primary hover:text-primary/80 transition-colors font-medium"
               >
-                {isLoading ? "Signing In..." : "Sign In"}
-              </Button>
-            </form>
-          )}
-
-          {/* Phone Sign In Form */}
-          {authMethod === "phone" && (
-            <form onSubmit={handlePhoneSignIn} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="signin-phone">Phone Number</Label>
-                <Input
-                  id="signin-phone"
-                  type="tel"
-                  placeholder="+27821234567"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value.replace(/\s/g, ''))}
-                  required
-                  className="bg-background/50 border-border/50"
-                />
-                <p className="text-xs text-muted-foreground">Enter in format: +27XXXXXXXXX (no spaces)</p>
-              </div>
-              <Button
-                type="submit"
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all"
-                disabled={isLoading}
-              >
-                {isLoading ? "Sending OTP..." : "Send OTP"}
-              </Button>
-            </form>
-          )}
+                Forgot password?
+              </a>
+            </div>
+            <Button
+              type="submit"
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all"
+              disabled={isLoading}
+            >
+              {isLoading ? "Signing In..." : "Sign In"}
+            </Button>
+          </form>
         </div>
       </CardContent>
     </Card>
