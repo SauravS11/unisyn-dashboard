@@ -211,7 +211,7 @@ export const SignInCard = () => {
                 <Input
                   id="signin-phone"
                   type="tel"
-                  placeholder="+1234567890"
+                  placeholder="+27 XX XXX XXXX"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   required
