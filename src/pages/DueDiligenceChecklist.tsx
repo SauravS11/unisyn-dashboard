@@ -252,6 +252,8 @@ const DueDiligenceChecklist = () => {
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
   const [uploadingFiles, setUploadingFiles] = useState<Record<string, boolean>>({});
+  const [savingDraft, setSavingDraft] = useState(false);
+  const [loadingDraft, setLoadingDraft] = useState(true);
   const [checklist, setChecklist] = useState<Record<string, ChecklistItem>>(() => {
     const initial: Record<string, ChecklistItem> = {};
     checklistData.forEach((section) => {
@@ -286,17 +288,101 @@ const DueDiligenceChecklist = () => {
   const isLastSection = currentSectionIndex === checklistData.length - 1;
   const progressPercentage = ((currentSectionIndex + 1) / checklistData.length) * 100;
 
-  // Check authentication on mount
+  // Check authentication and load existing draft data
   useEffect(() => {
-    const checkAuth = async () => {
+    const initializeChecklist = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         sonnerToast.error("Please sign in to access the checklist");
         navigate("/");
+        return;
+      }
+
+      if (!dealId) {
+        setLoadingDraft(false);
+        return;
+      }
+
+      try {
+        // Load existing categories
+        const { data: categories } = await supabase
+          .from('deal_categories')
+          .select('*')
+          .eq('deal_id', dealId);
+
+        if (categories && categories.length > 0) {
+          const categoryMap = new Map(categories.map(cat => [cat.category_code, cat.id]));
+
+          // Load existing tasks
+          const categoryIds = categories.map(c => c.id);
+          const { data: tasks } = await supabase
+            .from('deal_tasks')
+            .select('*')
+            .in('category_id', categoryIds);
+
+          if (tasks && tasks.length > 0) {
+            // Load documents for file attachments
+            const { data: documents } = await supabase
+              .from('deal_documents')
+              .select('*')
+              .eq('deal_id', dealId);
+
+            setChecklist(prev => {
+              const updated = { ...prev };
+              tasks.forEach(task => {
+                if (updated[task.task_code]) {
+                  // Find files for this task
+                  const taskFiles = documents?.filter(doc => 
+                    doc.notes?.includes(updated[task.task_code].text)
+                  ).map(doc => ({
+                    name: doc.file_name,
+                    path: doc.file_path
+                  })) || [];
+
+                  updated[task.task_code] = {
+                    ...updated[task.task_code],
+                    checked: task.checked,
+                    notes: task.notes || "",
+                    uploadedFiles: taskFiles,
+                  };
+                }
+              });
+              return updated;
+            });
+          }
+
+          // Load existing specialists
+          const { data: specialists } = await supabase
+            .from('deal_specialists')
+            .select('*')
+            .eq('deal_id', dealId);
+
+          if (specialists && specialists.length > 0) {
+            setSectionSpecialists(prev => {
+              const updated = { ...prev };
+              specialists.forEach(spec => {
+                const category = categories.find(c => c.id === spec.category_id);
+                if (category) {
+                  updated[category.category_code] = {
+                    name: spec.name,
+                    email: spec.email,
+                    role: spec.role,
+                  };
+                }
+              });
+              return updated;
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error loading draft:', error);
+      } finally {
+        setLoadingDraft(false);
       }
     };
-    checkAuth();
-  }, [navigate]);
+
+    initializeChecklist();
+  }, [navigate, dealId]);
 
   const goToNextSection = () => {
     if (!isLastSection) {
@@ -331,6 +417,134 @@ const DueDiligenceChecklist = () => {
       ...prev,
       [sectionId]: { ...prev[sectionId], [field]: value },
     }));
+  };
+
+  const handleSaveDraft = async () => {
+    if (!dealId) {
+      toast({
+        title: "Error",
+        description: "Deal ID is missing.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSavingDraft(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to save the draft.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Batch insert all categories
+      const categories = checklistData.map((section, index) => ({
+        deal_id: dealId,
+        title: section.title,
+        category_code: section.id,
+        category_order: index + 1,
+      }));
+
+      const { data: categoryData, error: categoryError } = await supabase
+        .from('deal_categories')
+        .upsert(categories, {
+          onConflict: 'deal_id,category_code',
+        })
+        .select();
+
+      if (categoryError) throw categoryError;
+
+      const categoryMap = new Map(
+        categoryData.map(cat => [cat.category_code, cat.id])
+      );
+
+      // Batch insert all specialists
+      const specialists = checklistData
+        .map(section => {
+          const specialist = sectionSpecialists[section.id];
+          const categoryId = categoryMap.get(section.id);
+          
+          if (specialist.name && specialist.email && categoryId) {
+            return {
+              deal_id: dealId,
+              category_id: categoryId,
+              name: specialist.name,
+              email: specialist.email,
+              role: specialist.role || 'Specialist',
+            };
+          }
+          return null;
+        })
+        .filter(Boolean);
+
+      if (specialists.length > 0) {
+        const { error: specialistError } = await supabase
+          .from('deal_specialists')
+          .upsert(specialists, {
+            onConflict: 'deal_id,category_id',
+          });
+
+        if (specialistError) throw specialistError;
+      }
+
+      // Batch insert all tasks
+      const tasks = checklistData.flatMap((section) => 
+        section.items.map((item, itemIndex) => {
+          const itemId = `${section.id}-${itemIndex}`;
+          const checklistItem = checklist[itemId];
+          const categoryId = categoryMap.get(section.id);
+
+          return {
+            category_id: categoryId,
+            title: checklistItem.text,
+            task_code: itemId,
+            task_order: itemIndex + 1,
+            checked: checklistItem.checked,
+            notes: checklistItem.notes || null,
+            has_attachment: checklistItem.uploadedFiles.length > 0,
+            status: checklistItem.checked ? 'completed' : 'pending',
+            priority: itemIndex < 3 ? 'high' : 'medium',
+          };
+        })
+      );
+
+      const { error: taskError } = await supabase
+        .from('deal_tasks')
+        .upsert(tasks, {
+          onConflict: 'category_id,task_code',
+        });
+
+      if (taskError) throw taskError;
+
+      // Update deal status to in_progress
+      const { error: dealError } = await supabase
+        .from('deals')
+        .update({ status: 'in_progress' })
+        .eq('id', dealId);
+
+      if (dealError) throw dealError;
+
+      toast({
+        title: "Draft saved",
+        description: "Your checklist progress has been saved.",
+      });
+      
+      navigate('/deals');
+    } catch (error) {
+      console.error('Error saving draft:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save draft. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSavingDraft(false);
+    }
   };
 
   const handleSubmit = async () => {
@@ -434,6 +648,12 @@ const DueDiligenceChecklist = () => {
         });
 
       if (taskError) throw taskError;
+
+      // Update deal status to active (submitted)
+      await supabase
+        .from('deals')
+        .update({ status: 'active' })
+        .eq('id', dealId);
 
       toast({
         title: "Checklist submitted",
@@ -771,9 +991,14 @@ const DueDiligenceChecklist = () => {
                 <span className="sm:hidden">Previous</span>
               </Button>
 
-              <Button variant="outline" className="border-border/50 flex-1 sm:flex-none touch-manipulation">
-                <span className="hidden sm:inline">Save Draft</span>
-                <span className="sm:hidden">Save</span>
+              <Button 
+                variant="outline" 
+                className="border-border/50 flex-1 sm:flex-none touch-manipulation"
+                onClick={handleSaveDraft}
+                disabled={savingDraft || loadingDraft}
+              >
+                <span className="hidden sm:inline">{savingDraft ? "Saving..." : "Save Draft"}</span>
+                <span className="sm:hidden">{savingDraft ? "Saving..." : "Save"}</span>
               </Button>
 
               {isLastSection ? (
