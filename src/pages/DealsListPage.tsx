@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Plus, FolderOpen, Calendar, Clock, ChevronRight, MoreVertical, CheckCircle2 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
@@ -88,8 +89,20 @@ const DealsListPage = () => {
     }
   };
 
-  const filteredDeals = deals.filter(deal => deal.status === viewMode);
+  const filteredDeals = deals.filter(deal => 
+    viewMode === 'active' 
+      ? (deal.status === 'active' || deal.status === 'in_progress')
+      : deal.status === viewMode
+  );
   const completedCount = deals.filter(deal => deal.status === 'completed').length;
+
+  const handleDealClick = (deal: Deal) => {
+    if (deal.status === 'in_progress') {
+      navigate(`/deals/${deal.id}/checklist`);
+    } else {
+      navigate(`/deals/${deal.id}/dashboard`);
+    }
+  };
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-background via-background to-muted">
@@ -197,7 +210,7 @@ const DealsListPage = () => {
               <Card 
                 key={deal.id}
                 className="backdrop-blur-xl bg-card/60 border-border/50 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group touch-manipulation"
-                onClick={() => navigate(`/deals/${deal.id}/dashboard`)}
+                onClick={() => handleDealClick(deal)}
               >
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg sm:text-xl font-semibold group-hover:text-primary transition-colors flex items-start justify-between gap-2">
@@ -221,6 +234,11 @@ const DealsListPage = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2 sm:space-y-3">
+                  {deal.status === 'in_progress' && (
+                    <Badge className="bg-emerald-500/20 text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/30">
+                      In Progress
+                    </Badge>
+                  )}
                   <div className="flex items-center text-xs sm:text-sm text-muted-foreground">
                     <Calendar className="h-4 w-4 mr-2 shrink-0" />
                     <span className="truncate">Created {format(new Date(deal.created_at), 'MMM dd, yyyy')}</span>
