@@ -118,12 +118,18 @@ export const NotificationButton = () => {
   const deleteNotification = async (notificationId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     
+    // Optimistic UI update - remove immediately from state
+    const notificationToDelete = notifications.find(n => n.id === notificationId);
+    setNotifications(prev => prev.filter(n => n.id !== notificationId));
+    if (notificationToDelete && !notificationToDelete.read) {
+      setUnreadCount(prev => Math.max(0, prev - 1));
+    }
+    
+    // Then delete from database
     await supabase
       .from("notifications")
       .delete()
       .eq("id", notificationId);
-
-    fetchNotifications();
   };
 
   return (
@@ -152,27 +158,17 @@ export const NotificationButton = () => {
                   Recent notifications about your deals.
                 </DialogDescription>
               </div>
-              <div className="flex items-center gap-2">
-                {unreadCount > 0 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={markAllAsRead}
-                    className="h-auto px-2 sm:px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:bg-background/50 transition-all"
-                  >
-                    <span className="hidden sm:inline">Mark all as read</span>
-                    <span className="sm:hidden">Mark read</span>
-                  </Button>
-                )}
+              {unreadCount > 0 && (
                 <Button
                   variant="ghost"
-                  size="icon"
-                  onClick={() => setIsOpen(false)}
-                  className="h-8 w-8 hover:bg-background/50 transition-all"
+                  size="sm"
+                  onClick={markAllAsRead}
+                  className="h-auto px-2 sm:px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:bg-background/50 transition-all"
                 >
-                  <X className="h-4 w-4" />
+                  <span className="hidden sm:inline">Mark all as read</span>
+                  <span className="sm:hidden">Mark read</span>
                 </Button>
-              </div>
+              )}
             </div>
             <div className="flex-1 min-h-0 overflow-y-auto">
               {notifications.length === 0 ? (
