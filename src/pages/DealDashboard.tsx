@@ -869,10 +869,10 @@ const DealDashboard = () => {
         {/* Specialists Modal */}
         <Dialog open={specialistsModalOpen} onOpenChange={setSpecialistsModalOpen}>
           <DialogContent className="max-w-2xl">
-            <DialogHeader className="flex flex-row items-center justify-between">
-              <div>
+            <DialogHeader className="flex flex-row items-start justify-between pr-8">
+              <div className="space-y-2">
                 <DialogTitle>Specialists Assigned</DialogTitle>
-                <DialogDescription>
+                <DialogDescription className="mt-1.5">
                   View and add specialists to this deal
                 </DialogDescription>
               </div>
@@ -880,7 +880,6 @@ const DealDashboard = () => {
                 variant={showAddSpecialistForm ? "secondary" : "default"}
                 size="sm"
                 onClick={() => setShowAddSpecialistForm(!showAddSpecialistForm)}
-                className="ml-auto"
               >
                 {showAddSpecialistForm ? "Cancel" : "Add New"}
               </Button>
