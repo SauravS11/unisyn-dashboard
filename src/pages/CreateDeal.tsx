@@ -19,6 +19,7 @@ import { PageNavigation } from "@/components/PageNavigation";
 const CreateDeal = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(false);
   const [formData, setFormData] = useState({
     dealName: "",
     buyer: "",
@@ -300,12 +301,12 @@ const CreateDeal = () => {
                   <Label htmlFor="timeline" className="text-sm font-medium">
                     Timeline <span className="text-primary">*</span>
                   </Label>
-                  <Popover modal={true}>
+                  <Popover open={calendarOpen} onOpenChange={setCalendarOpen} modal={true}>
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
                         className={cn(
-                          "w-full justify-start text-left font-normal bg-background/50 border-border/50 hover:bg-background/70",
+                          "w-full justify-start text-left font-normal bg-background/50 border-border/50 hover:bg-background/70 transition-all duration-200",
                           !formData.timeline && "text-muted-foreground"
                         )}
                       >
@@ -313,17 +314,26 @@ const CreateDeal = () => {
                         {formData.timeline ? format(formData.timeline, "PPP") : <span>Select target date</span>}
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 backdrop-blur-xl bg-card/95 border-border/50 shadow-2xl" align="center" sideOffset={8}>
-                      <Calendar
-                        mode="single"
-                        selected={formData.timeline}
-                        onSelect={(date) => handleChange("timeline", date)}
-                        disabled={(date) =>
-                          date < new Date() || date > new Date("2035-12-31")
-                        }
-                        initialFocus
-                        className={cn("p-3 pointer-events-auto")}
-                      />
+                    <PopoverContent 
+                      className="w-auto p-0 backdrop-blur-2xl bg-card/80 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)] rounded-xl overflow-hidden" 
+                      align="center" 
+                      sideOffset={8}
+                    >
+                      <div className="bg-gradient-to-br from-primary/10 via-transparent to-accent/10 p-1">
+                        <Calendar
+                          mode="single"
+                          selected={formData.timeline}
+                          onSelect={(date) => {
+                            handleChange("timeline", date);
+                            setCalendarOpen(false);
+                          }}
+                          disabled={(date) =>
+                            date < new Date() || date > new Date("2035-12-31")
+                          }
+                          initialFocus
+                          className={cn("p-3 pointer-events-auto bg-card/60 backdrop-blur-xl rounded-lg")}
+                        />
+                      </div>
                     </PopoverContent>
                   </Popover>
                 </div>
