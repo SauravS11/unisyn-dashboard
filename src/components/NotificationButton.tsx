@@ -27,13 +27,14 @@ export const NotificationButton = () => {
   useEffect(() => {
     fetchNotifications();
 
-    // Subscribe to real-time updates
+    // Subscribe to real-time updates - only refetch on INSERT (new notifications)
+    // DELETE is handled optimistically, UPDATE (mark as read) is handled locally
     const channel = supabase
       .channel("notifications")
       .on(
         "postgres_changes",
         {
-          event: "*",
+          event: "INSERT",
           schema: "public",
           table: "notifications",
         },
