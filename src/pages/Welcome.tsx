@@ -45,7 +45,7 @@ const Welcome = () => {
       </div>
 
       {/* Sign Out Button */}
-      <div className="absolute top-4 right-4 md:top-6 md:right-6 z-20">
+      <div className="absolute top-4 left-4 md:top-6 md:left-6 z-20">
         <SignOutButton />
       </div>
 

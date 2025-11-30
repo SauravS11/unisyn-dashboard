@@ -792,7 +792,7 @@ const DueDiligenceChecklist = () => {
 ...
           </Breadcrumb>
           <img src={unisynLogo} alt="UniSyn Technology" className="w-24 h-auto" />
-          <div className="absolute top-4 right-6">
+          <div className="absolute top-4 left-6">
             <SignOutButton />
           </div>
         </div>
