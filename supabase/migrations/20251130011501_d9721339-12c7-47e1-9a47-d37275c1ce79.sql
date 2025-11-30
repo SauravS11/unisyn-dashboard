@@ -1,0 +1,2 @@
+-- Remove the unique constraint on deal_id and category_id to allow multiple specialists per category
+ALTER TABLE public.deal_specialists DROP CONSTRAINT IF EXISTS deal_specialists_deal_id_category_id_key;
