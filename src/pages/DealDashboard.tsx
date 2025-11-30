@@ -57,6 +57,25 @@ const DealDashboard = () => {
   const [openFlagPopover, setOpenFlagPopover] = useState<string | null>(null);
   const [openAssignPopover, setOpenAssignPopover] = useState<string | null>(null);
   const [openDatePopover, setOpenDatePopover] = useState<string | null>(null);
+  const [dealParties, setDealParties] = useState<{
+    buyerName: string | null;
+    buyerEmail: string | null;
+    sellerName: string | null;
+    sellerEmail: string | null;
+    buyerLegalName: string | null;
+    buyerLegalEmail: string | null;
+    sellerLegalName: string | null;
+    sellerLegalEmail: string | null;
+  }>({
+    buyerName: null,
+    buyerEmail: null,
+    sellerName: null,
+    sellerEmail: null,
+    buyerLegalName: null,
+    buyerLegalEmail: null,
+    sellerLegalName: null,
+    sellerLegalEmail: null,
+  });
 
   useEffect(() => {
     fetchDealData();
@@ -69,13 +88,23 @@ const DealDashboard = () => {
         // Fetch deal information
         const { data: dealData, error: dealError } = await supabase
           .from('deals')
-          .select('name, target_close_date')
+          .select('name, target_close_date, buyer_name, buyer_email, seller_name, seller_email, buyer_legal_name, buyer_legal_email, seller_legal_name, seller_legal_email')
           .eq('id', dealId)
           .single();
 
         if (dealError) throw dealError;
         setDealName(dealData.name);
         setTargetCloseDate(dealData.target_close_date);
+        setDealParties({
+          buyerName: dealData.buyer_name,
+          buyerEmail: dealData.buyer_email,
+          sellerName: dealData.seller_name,
+          sellerEmail: dealData.seller_email,
+          buyerLegalName: dealData.buyer_legal_name,
+          buyerLegalEmail: dealData.buyer_legal_email,
+          sellerLegalName: dealData.seller_legal_name,
+          sellerLegalEmail: dealData.seller_legal_email,
+        });
 
         // Fetch categories with their tasks and specialists
         const { data: categoriesData, error: categoriesError } = await supabase
@@ -522,7 +551,13 @@ const DealDashboard = () => {
                       />
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-2xl font-bold">{coreTeam.length}</span>
+                      <span className="text-2xl font-bold">
+                        {coreTeam.length + 
+                          (dealParties.buyerName ? 1 : 0) + 
+                          (dealParties.sellerName ? 1 : 0) + 
+                          (dealParties.buyerLegalName ? 1 : 0) + 
+                          (dealParties.sellerLegalName ? 1 : 0)}
+                      </span>
                     </div>
                   </div>
                   <div className="text-center">
@@ -574,36 +609,130 @@ const DealDashboard = () => {
             <DialogHeader>
               <DialogTitle>Core Deal <span className="text-red-500">Team</span></DialogTitle>
               <DialogDescription>
-                View all core team members for this deal
+                View all core team members and deal parties for this deal
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
-              {coreTeam.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  No core team members have been added yet
-                </div>
-              ) : (
-                coreTeam.map((member, index) => (
-                  <Card key={index} className="border-border/50">
-                    <CardContent className="p-4">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="font-semibold text-lg">{member.full_name}</h3>
-                          <p className="text-sm text-muted-foreground">{member.role}</p>
-                          <div className="mt-2 space-y-1">
-                            <p className="text-sm">
-                              <span className="text-muted-foreground">Email:</span> {member.email}
-                            </p>
-                            <p className="text-sm">
-                              <span className="text-muted-foreground">Contact:</span> {member.contact_number}
-                            </p>
+            <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
+              {/* Deal Parties Section */}
+              {(dealParties.buyerName || dealParties.sellerName) && (
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">Deal Parties</h3>
+                  
+                  {/* Buyer */}
+                  {dealParties.buyerName && (
+                    <Card className="border-border/50 bg-primary/5">
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="font-semibold text-lg">{dealParties.buyerName}</h3>
+                            <p className="text-sm text-muted-foreground">Buyer</p>
+                            {dealParties.buyerEmail && (
+                              <p className="text-sm mt-2">
+                                <span className="text-muted-foreground">Email:</span> {dealParties.buyerEmail}
+                              </p>
+                            )}
                           </div>
+                          <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20">Buyer</Badge>
                         </div>
-                        <Badge variant="outline">{member.permission_level}</Badge>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Buyer Legal Party */}
+                  {dealParties.buyerLegalName && (
+                    <Card className="border-border/50 bg-blue-500/5 ml-4">
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="font-semibold text-lg">{dealParties.buyerLegalName}</h3>
+                            <p className="text-sm text-muted-foreground">Buyer's Legal Representative</p>
+                            {dealParties.buyerLegalEmail && (
+                              <p className="text-sm mt-2">
+                                <span className="text-muted-foreground">Email:</span> {dealParties.buyerLegalEmail}
+                              </p>
+                            )}
+                          </div>
+                          <Badge variant="outline" className="text-blue-500 border-blue-500/50">Legal Party</Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Seller */}
+                  {dealParties.sellerName && (
+                    <Card className="border-border/50 bg-primary/5">
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="font-semibold text-lg">{dealParties.sellerName}</h3>
+                            <p className="text-sm text-muted-foreground">Seller</p>
+                            {dealParties.sellerEmail && (
+                              <p className="text-sm mt-2">
+                                <span className="text-muted-foreground">Email:</span> {dealParties.sellerEmail}
+                              </p>
+                            )}
+                          </div>
+                          <Badge className="bg-green-500/10 text-green-500 border-green-500/20">Seller</Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Seller Legal Party */}
+                  {dealParties.sellerLegalName && (
+                    <Card className="border-border/50 bg-green-500/5 ml-4">
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="font-semibold text-lg">{dealParties.sellerLegalName}</h3>
+                            <p className="text-sm text-muted-foreground">Seller's Legal Representative</p>
+                            {dealParties.sellerLegalEmail && (
+                              <p className="text-sm mt-2">
+                                <span className="text-muted-foreground">Email:</span> {dealParties.sellerLegalEmail}
+                              </p>
+                            )}
+                          </div>
+                          <Badge variant="outline" className="text-green-500 border-green-500/50">Legal Party</Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              )}
+
+              {/* Core Team Members Section */}
+              {coreTeam.length > 0 && (
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">Core Team Members</h3>
+                  {coreTeam.map((member, index) => (
+                    <Card key={index} className="border-border/50">
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="font-semibold text-lg">{member.full_name}</h3>
+                            <p className="text-sm text-muted-foreground">{member.role}</p>
+                            <div className="mt-2 space-y-1">
+                              <p className="text-sm">
+                                <span className="text-muted-foreground">Email:</span> {member.email}
+                              </p>
+                              <p className="text-sm">
+                                <span className="text-muted-foreground">Contact:</span> {member.contact_number}
+                              </p>
+                            </div>
+                          </div>
+                          <Badge variant="outline">{member.permission_level}</Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+
+              {/* Empty State */}
+              {coreTeam.length === 0 && !dealParties.buyerName && !dealParties.sellerName && (
+                <div className="text-center py-8 text-muted-foreground">
+                  No core team members or deal parties have been added yet
+                </div>
               )}
             </div>
           </DialogContent>

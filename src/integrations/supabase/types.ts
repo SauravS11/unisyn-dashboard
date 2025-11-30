@@ -241,30 +241,54 @@ export type Database = {
       }
       deals: {
         Row: {
+          buyer_email: string | null
+          buyer_legal_email: string | null
+          buyer_legal_name: string | null
+          buyer_name: string | null
           created_at: string
           id: string
           name: string
           passcode: string | null
+          seller_email: string | null
+          seller_legal_email: string | null
+          seller_legal_name: string | null
+          seller_name: string | null
           status: string
           target_close_date: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          buyer_email?: string | null
+          buyer_legal_email?: string | null
+          buyer_legal_name?: string | null
+          buyer_name?: string | null
           created_at?: string
           id?: string
           name: string
           passcode?: string | null
+          seller_email?: string | null
+          seller_legal_email?: string | null
+          seller_legal_name?: string | null
+          seller_name?: string | null
           status?: string
           target_close_date?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          buyer_email?: string | null
+          buyer_legal_email?: string | null
+          buyer_legal_name?: string | null
+          buyer_name?: string | null
           created_at?: string
           id?: string
           name?: string
           passcode?: string | null
+          seller_email?: string | null
+          seller_legal_email?: string | null
+          seller_legal_name?: string | null
+          seller_name?: string | null
           status?: string
           target_close_date?: string | null
           updated_at?: string

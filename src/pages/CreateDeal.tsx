@@ -22,7 +22,13 @@ const CreateDeal = () => {
   const [formData, setFormData] = useState({
     dealName: "",
     buyer: "",
+    buyerEmail: "",
     seller: "",
+    sellerEmail: "",
+    buyerLegalName: "",
+    buyerLegalEmail: "",
+    sellerLegalName: "",
+    sellerLegalEmail: "",
     dealValue: "",
     timeline: undefined as Date | undefined,
     industry: "",
@@ -63,6 +69,14 @@ const CreateDeal = () => {
           name: formData.dealName,
           user_id: user.id,
           target_close_date: formData.timeline ? format(formData.timeline, 'yyyy-MM-dd') : null,
+          buyer_name: formData.buyer || null,
+          buyer_email: formData.buyerEmail || null,
+          seller_name: formData.seller || null,
+          seller_email: formData.sellerEmail || null,
+          buyer_legal_name: formData.buyerLegalName || null,
+          buyer_legal_email: formData.buyerLegalEmail || null,
+          seller_legal_name: formData.sellerLegalName || null,
+          seller_legal_email: formData.sellerLegalEmail || null,
         })
         .select()
         .single();
@@ -150,34 +164,120 @@ const CreateDeal = () => {
                   />
                 </div>
 
-                {/* Buyer */}
-                <div className="space-y-2">
-                  <Label htmlFor="buyer" className="text-sm font-medium">
-                    Buyer <span className="text-primary">*</span>
-                  </Label>
-                  <Input
-                    id="buyer"
-                    placeholder="Buyer company name"
-                    value={formData.buyer}
-                    onChange={(e) => handleChange("buyer", e.target.value)}
-                    required
-                    className="bg-background/50 border-border/50"
-                  />
+                {/* Buyer Section */}
+                <div className="md:col-span-2 space-y-4 p-4 rounded-lg bg-muted/30 border border-border/30">
+                  <h3 className="font-semibold text-sm text-primary">Buyer Information</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="buyer" className="text-sm font-medium">
+                        Buyer Name <span className="text-primary">*</span>
+                      </Label>
+                      <Input
+                        id="buyer"
+                        placeholder="Buyer company name"
+                        value={formData.buyer}
+                        onChange={(e) => handleChange("buyer", e.target.value)}
+                        required
+                        className="bg-background/50 border-border/50"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="buyerEmail" className="text-sm font-medium">
+                        Buyer Email
+                      </Label>
+                      <Input
+                        id="buyerEmail"
+                        type="email"
+                        placeholder="buyer@company.com"
+                        value={formData.buyerEmail}
+                        onChange={(e) => handleChange("buyerEmail", e.target.value)}
+                        className="bg-background/50 border-border/50"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="buyerLegalName" className="text-sm font-medium">
+                        Buyer Legal Party Name
+                      </Label>
+                      <Input
+                        id="buyerLegalName"
+                        placeholder="Legal representative name"
+                        value={formData.buyerLegalName}
+                        onChange={(e) => handleChange("buyerLegalName", e.target.value)}
+                        className="bg-background/50 border-border/50"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="buyerLegalEmail" className="text-sm font-medium">
+                        Buyer Legal Party Email
+                      </Label>
+                      <Input
+                        id="buyerLegalEmail"
+                        type="email"
+                        placeholder="legal@buyercompany.com"
+                        value={formData.buyerLegalEmail}
+                        onChange={(e) => handleChange("buyerLegalEmail", e.target.value)}
+                        className="bg-background/50 border-border/50"
+                      />
+                    </div>
+                  </div>
                 </div>
 
-                {/* Seller */}
-                <div className="space-y-2">
-                  <Label htmlFor="seller" className="text-sm font-medium">
-                    Seller <span className="text-primary">*</span>
-                  </Label>
-                  <Input
-                    id="seller"
-                    placeholder="Seller company name"
-                    value={formData.seller}
-                    onChange={(e) => handleChange("seller", e.target.value)}
-                    required
-                    className="bg-background/50 border-border/50"
-                  />
+                {/* Seller Section */}
+                <div className="md:col-span-2 space-y-4 p-4 rounded-lg bg-muted/30 border border-border/30">
+                  <h3 className="font-semibold text-sm text-primary">Seller Information</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="seller" className="text-sm font-medium">
+                        Seller Name <span className="text-primary">*</span>
+                      </Label>
+                      <Input
+                        id="seller"
+                        placeholder="Seller company name"
+                        value={formData.seller}
+                        onChange={(e) => handleChange("seller", e.target.value)}
+                        required
+                        className="bg-background/50 border-border/50"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="sellerEmail" className="text-sm font-medium">
+                        Seller Email
+                      </Label>
+                      <Input
+                        id="sellerEmail"
+                        type="email"
+                        placeholder="seller@company.com"
+                        value={formData.sellerEmail}
+                        onChange={(e) => handleChange("sellerEmail", e.target.value)}
+                        className="bg-background/50 border-border/50"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="sellerLegalName" className="text-sm font-medium">
+                        Seller Legal Party Name
+                      </Label>
+                      <Input
+                        id="sellerLegalName"
+                        placeholder="Legal representative name"
+                        value={formData.sellerLegalName}
+                        onChange={(e) => handleChange("sellerLegalName", e.target.value)}
+                        className="bg-background/50 border-border/50"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="sellerLegalEmail" className="text-sm font-medium">
+                        Seller Legal Party Email
+                      </Label>
+                      <Input
+                        id="sellerLegalEmail"
+                        type="email"
+                        placeholder="legal@sellercompany.com"
+                        value={formData.sellerLegalEmail}
+                        onChange={(e) => handleChange("sellerLegalEmail", e.target.value)}
+                        className="bg-background/50 border-border/50"
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 {/* Deal Value */}
