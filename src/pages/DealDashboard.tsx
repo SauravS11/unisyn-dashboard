@@ -47,7 +47,7 @@ const DealDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [documentsCount, setDocumentsCount] = useState(0);
   const [documentsModalOpen, setDocumentsModalOpen] = useState(false);
-  const [specialists, setSpecialists] = useState<Array<{ name: string; email: string; role: string; category: string }>>([]);
+  const [specialists, setSpecialists] = useState<Array<{ id?: string; name: string; email: string; role: string; category: string; categoryId?: string }>>([]);
   const [specialistsModalOpen, setSpecialistsModalOpen] = useState(false);
   const [targetCloseDate, setTargetCloseDate] = useState<string | null>(null);
   const [coreTeam, setCoreTeam] = useState<Array<{ full_name: string; email: string; role: string; contact_number: string; permission_level: string }>>([]);
@@ -57,6 +57,9 @@ const DealDashboard = () => {
   const [openFlagPopover, setOpenFlagPopover] = useState<string | null>(null);
   const [openAssignPopover, setOpenAssignPopover] = useState<string | null>(null);
   const [openDatePopover, setOpenDatePopover] = useState<string | null>(null);
+  const [newSpecialist, setNewSpecialist] = useState({ name: '', email: '', role: '', categoryId: '' });
+  const [addingSpecialist, setAddingSpecialist] = useState(false);
+  const [availableCategories, setAvailableCategories] = useState<Array<{ id: string; title: string; code: string }>>([]);
   const [dealParties, setDealParties] = useState<{
     buyerName: string | null;
     buyerEmail: string | null;
@@ -142,13 +145,22 @@ const DealDashboard = () => {
         const specialistsList = specialistsData.map(specialist => {
           const category = categoriesData.find(cat => cat.id === specialist.category_id);
           return {
+            id: specialist.id,
             name: specialist.name,
             email: specialist.email,
             role: specialist.role,
             category: category?.title || 'Unknown',
+            categoryId: specialist.category_id,
           };
         });
         setSpecialists(specialistsList);
+
+        // Store available categories for the add specialist form
+        setAvailableCategories(categoriesData.map(cat => ({
+          id: cat.id,
+          title: cat.title,
+          code: cat.category_code,
+        })));
 
         // Build categories with tasks
         const categoriesWithTasks: Category[] = categoriesData.map(category => {
@@ -289,6 +301,51 @@ const DealDashboard = () => {
         description: "Failed to update task. Please try again.",
         variant: "destructive",
       });
+    }
+  };
+
+  const handleAddSpecialist = async () => {
+    if (!dealId || !newSpecialist.name || !newSpecialist.email || !newSpecialist.categoryId) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setAddingSpecialist(true);
+
+    try {
+      const { error } = await supabase
+        .from('deal_specialists')
+        .insert({
+          deal_id: dealId,
+          category_id: newSpecialist.categoryId,
+          name: newSpecialist.name,
+          email: newSpecialist.email,
+          role: newSpecialist.role || 'Specialist',
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Specialist Added",
+        description: `${newSpecialist.name} has been added as a specialist.`,
+      });
+
+      // Reset form and refresh data
+      setNewSpecialist({ name: '', email: '', role: '', categoryId: '' });
+      await fetchDealData();
+    } catch (error) {
+      console.error('Error adding specialist:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add specialist. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setAddingSpecialist(false);
     }
   };
 
@@ -744,17 +801,80 @@ const DealDashboard = () => {
             <DialogHeader>
               <DialogTitle>Specialists Assigned</DialogTitle>
               <DialogDescription>
-                View all specialists assigned to this deal
+                View and add specialists to this deal
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
+            
+            {/* Add Specialist Form */}
+            <Card className="border-primary/20 bg-primary/5">
+              <CardContent className="p-4">
+                <div className="text-sm font-semibold text-primary mb-3">Add New Specialist</div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <Input
+                    placeholder="Name"
+                    value={newSpecialist.name}
+                    onChange={(e) => setNewSpecialist(prev => ({ ...prev, name: e.target.value }))}
+                    className="bg-background/50"
+                  />
+                  <Input
+                    placeholder="Email"
+                    type="email"
+                    value={newSpecialist.email}
+                    onChange={(e) => setNewSpecialist(prev => ({ ...prev, email: e.target.value }))}
+                    className="bg-background/50"
+                  />
+                  <Select
+                    value={newSpecialist.role}
+                    onValueChange={(value) => setNewSpecialist(prev => ({ ...prev, role: value }))}
+                  >
+                    <SelectTrigger className="bg-background/50">
+                      <SelectValue placeholder="Select role" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border-border/50">
+                      <SelectItem value="financial-advisor">Financial Advisor</SelectItem>
+                      <SelectItem value="legal-advisor">Legal Advisor</SelectItem>
+                      <SelectItem value="tax-specialist">Tax Specialist</SelectItem>
+                      <SelectItem value="compliance-officer">Compliance Officer</SelectItem>
+                      <SelectItem value="it-specialist">IT Specialist</SelectItem>
+                      <SelectItem value="hr-specialist">HR Specialist</SelectItem>
+                      <SelectItem value="environmental-consultant">Environmental Consultant</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select
+                    value={newSpecialist.categoryId}
+                    onValueChange={(value) => setNewSpecialist(prev => ({ ...prev, categoryId: value }))}
+                  >
+                    <SelectTrigger className="bg-background/50">
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border-border/50 max-h-60">
+                      {availableCategories.map((cat) => (
+                        <SelectItem key={cat.id} value={cat.id}>
+                          {cat.code}. {cat.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button 
+                  className="mt-3 w-full"
+                  onClick={handleAddSpecialist}
+                  disabled={addingSpecialist || !newSpecialist.name || !newSpecialist.email || !newSpecialist.categoryId}
+                >
+                  {addingSpecialist ? "Adding..." : "Add Specialist"}
+                </Button>
+              </CardContent>
+            </Card>
+
+            <div className="space-y-4 max-h-[40vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
               {specialists.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   No specialists have been assigned yet
                 </div>
               ) : (
                 specialists.map((specialist, index) => (
-                  <Card key={index} className="border-border/50">
+                  <Card key={specialist.id || index} className="border-border/50">
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1">
@@ -764,9 +884,9 @@ const DealDashboard = () => {
                             {specialist.role}
                           </Badge>
                         </div>
-                        <div className="text-right text-sm text-muted-foreground">
+                        <Badge variant="secondary" className="text-xs">
                           {specialist.category}
-                        </div>
+                        </Badge>
                       </div>
                     </CardContent>
                   </Card>
