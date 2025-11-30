@@ -59,6 +59,7 @@ const DealDashboard = () => {
   const [openDatePopover, setOpenDatePopover] = useState<string | null>(null);
   const [newSpecialist, setNewSpecialist] = useState({ name: '', email: '', role: '', categoryId: '' });
   const [addingSpecialist, setAddingSpecialist] = useState(false);
+  const [showAddSpecialistForm, setShowAddSpecialistForm] = useState(false);
   const [availableCategories, setAvailableCategories] = useState<Array<{ id: string; title: string; code: string }>>([]);
   const [closeDateDialogOpen, setCloseDateDialogOpen] = useState(false);
   const [dealParties, setDealParties] = useState<{
@@ -866,76 +867,92 @@ const DealDashboard = () => {
         {/* Specialists Modal */}
         <Dialog open={specialistsModalOpen} onOpenChange={setSpecialistsModalOpen}>
           <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Specialists Assigned</DialogTitle>
-              <DialogDescription>
-                View and add specialists to this deal
-              </DialogDescription>
+            <DialogHeader className="flex flex-row items-center justify-between">
+              <div>
+                <DialogTitle>Specialists Assigned</DialogTitle>
+                <DialogDescription>
+                  View and add specialists to this deal
+                </DialogDescription>
+              </div>
+              <Button
+                variant={showAddSpecialistForm ? "secondary" : "default"}
+                size="sm"
+                onClick={() => setShowAddSpecialistForm(!showAddSpecialistForm)}
+                className="ml-auto"
+              >
+                {showAddSpecialistForm ? "Cancel" : "Add New"}
+              </Button>
             </DialogHeader>
             
-            {/* Add Specialist Form */}
-            <Card className="border-primary/20 bg-primary/5">
-              <CardContent className="p-4">
-                <div className="text-sm font-semibold text-primary mb-3">Add New Specialist</div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <Input
-                    placeholder="Name"
-                    value={newSpecialist.name}
-                    onChange={(e) => setNewSpecialist(prev => ({ ...prev, name: e.target.value }))}
-                    className="bg-background/50"
-                  />
-                  <Input
-                    placeholder="Email"
-                    type="email"
-                    value={newSpecialist.email}
-                    onChange={(e) => setNewSpecialist(prev => ({ ...prev, email: e.target.value }))}
-                    className="bg-background/50"
-                  />
-                  <Select
-                    value={newSpecialist.role}
-                    onValueChange={(value) => setNewSpecialist(prev => ({ ...prev, role: value }))}
-                  >
-                    <SelectTrigger className="bg-background/50">
-                      <SelectValue placeholder="Select role" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-card border-border/50">
-                      <SelectItem value="financial-advisor">Financial Advisor</SelectItem>
-                      <SelectItem value="legal-advisor">Legal Advisor</SelectItem>
-                      <SelectItem value="tax-specialist">Tax Specialist</SelectItem>
-                      <SelectItem value="compliance-officer">Compliance Officer</SelectItem>
-                      <SelectItem value="it-specialist">IT Specialist</SelectItem>
-                      <SelectItem value="hr-specialist">HR Specialist</SelectItem>
-                      <SelectItem value="environmental-consultant">Environmental Consultant</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Select
-                    value={newSpecialist.categoryId}
-                    onValueChange={(value) => setNewSpecialist(prev => ({ ...prev, categoryId: value }))}
-                  >
-                    <SelectTrigger className="bg-background/50">
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-card border-border/50 max-h-60">
-                      {availableCategories.map((cat) => (
-                        <SelectItem key={cat.id} value={cat.id}>
-                          {cat.code}. {cat.title}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Button 
-                  className="mt-3 w-full"
-                  onClick={handleAddSpecialist}
-                  disabled={addingSpecialist || !newSpecialist.name || !newSpecialist.email || !newSpecialist.categoryId}
-                >
-                  {addingSpecialist ? "Adding..." : "Add Specialist"}
-                </Button>
-              </CardContent>
-            </Card>
+            <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
+              {/* Add Specialist Form - Collapsible */}
+              {showAddSpecialistForm && (
+                <Card className="border-primary/20 bg-primary/5">
+                  <CardContent className="p-4">
+                    <div className="text-sm font-semibold text-primary mb-3">Add New Specialist</div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <Input
+                        placeholder="Name"
+                        value={newSpecialist.name}
+                        onChange={(e) => setNewSpecialist(prev => ({ ...prev, name: e.target.value }))}
+                        className="bg-background/50"
+                      />
+                      <Input
+                        placeholder="Email"
+                        type="email"
+                        value={newSpecialist.email}
+                        onChange={(e) => setNewSpecialist(prev => ({ ...prev, email: e.target.value }))}
+                        className="bg-background/50"
+                      />
+                      <Select
+                        value={newSpecialist.role}
+                        onValueChange={(value) => setNewSpecialist(prev => ({ ...prev, role: value }))}
+                      >
+                        <SelectTrigger className="bg-background/50">
+                          <SelectValue placeholder="Select role" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-card border-border/50">
+                          <SelectItem value="financial-advisor">Financial Advisor</SelectItem>
+                          <SelectItem value="legal-advisor">Legal Advisor</SelectItem>
+                          <SelectItem value="tax-specialist">Tax Specialist</SelectItem>
+                          <SelectItem value="compliance-officer">Compliance Officer</SelectItem>
+                          <SelectItem value="it-specialist">IT Specialist</SelectItem>
+                          <SelectItem value="hr-specialist">HR Specialist</SelectItem>
+                          <SelectItem value="environmental-consultant">Environmental Consultant</SelectItem>
+                          <SelectItem value="other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Select
+                        value={newSpecialist.categoryId}
+                        onValueChange={(value) => setNewSpecialist(prev => ({ ...prev, categoryId: value }))}
+                      >
+                        <SelectTrigger className="bg-background/50">
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-card border-border/50 max-h-60">
+                          {availableCategories.map((cat) => (
+                            <SelectItem key={cat.id} value={cat.id}>
+                              {cat.code}. {cat.title}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button 
+                      className="mt-3 w-full"
+                      onClick={async () => {
+                        await handleAddSpecialist();
+                        setShowAddSpecialistForm(false);
+                      }}
+                      disabled={addingSpecialist || !newSpecialist.name || !newSpecialist.email || !newSpecialist.categoryId}
+                    >
+                      {addingSpecialist ? "Adding..." : "Add Specialist"}
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
 
-            <div className="space-y-4 max-h-[40vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
+              {/* Specialists List */}
               {specialists.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   No specialists have been assigned yet
