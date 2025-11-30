@@ -10,6 +10,7 @@ import CreateDeal from "./pages/CreateDeal";
 import CoreDealTeam from "./pages/CoreDealTeam";
 import DueDiligenceChecklist from "./pages/DueDiligenceChecklist";
 import DealDashboard from "./pages/DealDashboard";
+import ExternalDealDashboard from "./pages/ExternalDealDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/deals/:id/team" element={<CoreDealTeam />} />
             <Route path="/deals/:id/checklist" element={<DueDiligenceChecklist />} />
             <Route path="/deals/:id/dashboard" element={<DealDashboard />} />
+            <Route path="/external/deals/:dealId/dashboard" element={<ExternalDealDashboard />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

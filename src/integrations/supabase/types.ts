@@ -244,6 +244,7 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          passcode: string | null
           status: string
           target_close_date: string | null
           updated_at: string
@@ -253,6 +254,7 @@ export type Database = {
           created_at?: string
           id?: string
           name: string
+          passcode?: string | null
           status?: string
           target_close_date?: string | null
           updated_at?: string
@@ -262,6 +264,7 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
+          passcode?: string | null
           status?: string
           target_close_date?: string | null
           updated_at?: string
