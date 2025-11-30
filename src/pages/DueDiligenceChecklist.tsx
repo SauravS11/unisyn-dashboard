@@ -250,6 +250,7 @@ const DueDiligenceChecklist = () => {
   const navigate = useNavigate();
   const { id: dealId } = useParams<{ id: string }>();
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const contentRef = useRef<HTMLDivElement>(null);
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
   const [uploadingFiles, setUploadingFiles] = useState<Record<string, boolean>>({});
   const [savingDraft, setSavingDraft] = useState(false);
@@ -387,14 +388,22 @@ const DueDiligenceChecklist = () => {
   const goToNextSection = () => {
     if (!isLastSection) {
       setCurrentSectionIndex((prev) => prev + 1);
+      // Scroll both the window and the content area to top
       window.scrollTo({ top: 0, behavior: "smooth" });
+      if (contentRef.current) {
+        contentRef.current.scrollTo({ top: 0, behavior: "smooth" });
+      }
     }
   };
 
   const goToPreviousSection = () => {
     if (!isFirstSection) {
       setCurrentSectionIndex((prev) => prev - 1);
+      // Scroll both the window and the content area to top
       window.scrollTo({ top: 0, behavior: "smooth" });
+      if (contentRef.current) {
+        contentRef.current.scrollTo({ top: 0, behavior: "smooth" });
+      }
     }
   };
 
@@ -833,64 +842,63 @@ const DueDiligenceChecklist = () => {
             </div>
           </CardHeader>
 
-          <CardContent className="pt-8">
-            {/* Section Specialist Assignment */}
-            <div className="backdrop-blur-xl bg-primary/5 border-2 border-primary/20 rounded-lg p-5 mb-6">
-              <Label className="text-sm font-semibold text-primary mb-4 block">Section Specialist</Label>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor={`section-${currentSection.id}-name`} className="text-xs">
-                    Name
-                  </Label>
-                  <Input
-                    id={`section-${currentSection.id}-name`}
-                    placeholder="Specialist name"
-                    value={sectionSpecialists[currentSection.id].name}
-                    onChange={(e) => handleSectionSpecialistChange(currentSection.id, "name", e.target.value)}
-                    className="bg-background/50 border-border/40 text-sm"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor={`section-${currentSection.id}-email`} className="text-xs">
-                    Email
-                  </Label>
-                  <Input
-                    id={`section-${currentSection.id}-email`}
-                    type="email"
-                    placeholder="email@example.com"
-                    value={sectionSpecialists[currentSection.id].email}
-                    onChange={(e) => handleSectionSpecialistChange(currentSection.id, "email", e.target.value)}
-                    className="bg-background/50 border-border/40 text-sm"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor={`section-${currentSection.id}-role`} className="text-xs">
-                    Role
-                  </Label>
-                  <Select
-                    value={sectionSpecialists[currentSection.id].role}
-                    onValueChange={(value) => handleSectionSpecialistChange(currentSection.id, "role", value)}
-                  >
-                    <SelectTrigger className="bg-background/50 border-border/40 text-sm">
-                      <SelectValue placeholder="Select role" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-card border-border/50">
-                      <SelectItem value="financial-advisor">Financial Advisor</SelectItem>
-                      <SelectItem value="legal-advisor">Legal Advisor</SelectItem>
-                      <SelectItem value="tax-specialist">Tax Specialist</SelectItem>
-                      <SelectItem value="compliance-officer">Compliance Officer</SelectItem>
-                      <SelectItem value="it-specialist">IT Specialist</SelectItem>
-                      <SelectItem value="hr-specialist">HR Specialist</SelectItem>
-                      <SelectItem value="environmental-consultant">Environmental Consultant</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
+          <CardContent className="pt-8" ref={contentRef}>
+            {/* Section Items - Natural scrolling flow with specialist at top */}
+            <div className="space-y-4">
+              {/* Section Specialist Assignment - Now part of natural flow */}
+              <div className="backdrop-blur-xl bg-primary/5 border-2 border-primary/20 rounded-lg p-5">
+                <Label className="text-sm font-semibold text-primary mb-4 block">Section Specialist</Label>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor={`section-${currentSection.id}-name`} className="text-xs">
+                      Name
+                    </Label>
+                    <Input
+                      id={`section-${currentSection.id}-name`}
+                      placeholder="Specialist name"
+                      value={sectionSpecialists[currentSection.id].name}
+                      onChange={(e) => handleSectionSpecialistChange(currentSection.id, "name", e.target.value)}
+                      className="bg-background/50 border-border/40 text-sm"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor={`section-${currentSection.id}-email`} className="text-xs">
+                      Email
+                    </Label>
+                    <Input
+                      id={`section-${currentSection.id}-email`}
+                      type="email"
+                      placeholder="email@example.com"
+                      value={sectionSpecialists[currentSection.id].email}
+                      onChange={(e) => handleSectionSpecialistChange(currentSection.id, "email", e.target.value)}
+                      className="bg-background/50 border-border/40 text-sm"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor={`section-${currentSection.id}-role`} className="text-xs">
+                      Role
+                    </Label>
+                    <Select
+                      value={sectionSpecialists[currentSection.id].role}
+                      onValueChange={(value) => handleSectionSpecialistChange(currentSection.id, "role", value)}
+                    >
+                      <SelectTrigger className="bg-background/50 border-border/40 text-sm">
+                        <SelectValue placeholder="Select role" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-card border-border/50">
+                        <SelectItem value="financial-advisor">Financial Advisor</SelectItem>
+                        <SelectItem value="legal-advisor">Legal Advisor</SelectItem>
+                        <SelectItem value="tax-specialist">Tax Specialist</SelectItem>
+                        <SelectItem value="compliance-officer">Compliance Officer</SelectItem>
+                        <SelectItem value="it-specialist">IT Specialist</SelectItem>
+                        <SelectItem value="hr-specialist">HR Specialist</SelectItem>
+                        <SelectItem value="environmental-consultant">Environmental Consultant</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </div>
-            </div>
-
-            {/* Section Items */}
-            <div className="space-y-4 max-h-[calc(100vh-32rem)] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
               {currentSection.items.map((item, index) => {
                 const itemId = `${currentSection.id}-${index}`;
                 const itemData = checklist[itemId];
