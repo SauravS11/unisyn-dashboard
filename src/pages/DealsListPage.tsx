@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, FolderOpen, Calendar, Clock, ChevronRight, MoreVertical, CheckCircle2 } from "lucide-react";
+import { Plus, FolderOpen, Calendar, Clock, ChevronRight, MoreVertical, CheckCircle2, Key } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -13,6 +13,7 @@ import { PageNavigation } from "@/components/PageNavigation";
 import { SignOutButton } from "@/components/SignOutButton";
 import { NotificationButton } from "@/components/NotificationButton";
 import { toast as sonnerToast } from "sonner";
+import { PasscodeDialog } from "@/components/PasscodeDialog";
 
 interface Deal {
   id: string;
@@ -20,6 +21,7 @@ interface Deal {
   created_at: string;
   updated_at: string;
   status: string;
+  passcode?: string | null;
 }
 
 const DealsListPage = () => {
@@ -28,6 +30,8 @@ const DealsListPage = () => {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'active' | 'completed'>('active');
+  const [passcodeDialogOpen, setPasscodeDialogOpen] = useState(false);
+  const [selectedDealForPasscode, setSelectedDealForPasscode] = useState<Deal | null>(null);
 
   const fetchDeals = async () => {
     try {
@@ -95,6 +99,12 @@ const DealsListPage = () => {
       : deal.status === viewMode
   );
   const completedCount = deals.filter(deal => deal.status === 'completed').length;
+
+  const handleOpenPasscodeDialog = (deal: Deal, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedDealForPasscode(deal);
+    setPasscodeDialogOpen(true);
+  };
 
   const handleDealClick = (deal: Deal) => {
     if (deal.status === 'in_progress') {
@@ -226,6 +236,10 @@ const DealsListPage = () => {
                             <CheckCircle2 className="h-4 w-4 mr-2" />
                             Deal Complete
                           </DropdownMenuItem>
+                          <DropdownMenuItem onClick={(e) => handleOpenPasscodeDialog(deal, e)}>
+                            <Key className="h-4 w-4 mr-2" />
+                            {deal.passcode ? "Edit Passcode" : "Add Passcode"}
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                       <span className="flex-1 truncate">{deal.name}</span>
@@ -253,6 +267,21 @@ const DealsListPage = () => {
           </div>
         )}
       </div>
+
+      {/* Passcode Dialog */}
+      {selectedDealForPasscode && (
+        <PasscodeDialog
+          isOpen={passcodeDialogOpen}
+          onClose={() => {
+            setPasscodeDialogOpen(false);
+            setSelectedDealForPasscode(null);
+          }}
+          dealId={selectedDealForPasscode.id}
+          dealName={selectedDealForPasscode.name}
+          currentPasscode={selectedDealForPasscode.passcode}
+          onPasscodeUpdate={fetchDeals}
+        />
+      )}
     </div>
   );
 };
