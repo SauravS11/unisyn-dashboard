@@ -217,7 +217,7 @@ const CoreDealTeam = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <div className="border-b border-border/50 bg-background/80 backdrop-blur-xl">
         <div className="container mx-auto px-4 py-3 sm:py-4 flex items-center justify-center relative">
-          <div className="absolute top-3 sm:top-4 right-4 sm:right-6">
+          <div className="absolute top-3 sm:top-4 left-4 sm:left-6">
             <SignOutButton />
           </div>
           <PageNavigation items={[
