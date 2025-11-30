@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Calendar } from "@/components/ui/calendar";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -301,41 +301,46 @@ const CreateDeal = () => {
                   <Label htmlFor="timeline" className="text-sm font-medium">
                     Timeline <span className="text-primary">*</span>
                   </Label>
-                  <Popover open={calendarOpen} onOpenChange={setCalendarOpen} modal={true}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal bg-background/50 border-border/50 hover:bg-background/70 transition-all duration-200",
-                          !formData.timeline && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {formData.timeline ? format(formData.timeline, "PPP") : <span>Select target date</span>}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent 
-                      className="w-auto p-0 backdrop-blur-2xl bg-card/80 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)] rounded-xl overflow-hidden" 
-                      align="center" 
-                      sideOffset={8}
-                    >
-                      <div className="bg-gradient-to-br from-primary/10 via-transparent to-accent/10 p-1">
-                        <Calendar
-                          mode="single"
-                          selected={formData.timeline}
-                          onSelect={(date) => {
-                            handleChange("timeline", date);
-                            setCalendarOpen(false);
-                          }}
-                          disabled={(date) =>
-                            date < new Date() || date > new Date("2035-12-31")
-                          }
-                          initialFocus
-                          className={cn("p-3 pointer-events-auto bg-card/60 backdrop-blur-xl rounded-lg")}
-                        />
+                  <Button
+                    variant="outline"
+                    onClick={() => setCalendarOpen(true)}
+                    className={cn(
+                      "w-full justify-start text-left font-normal bg-background/50 border-border/50 hover:bg-background/70 transition-all duration-200",
+                      !formData.timeline && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {formData.timeline ? format(formData.timeline, "PPP") : <span>Select target date</span>}
+                  </Button>
+                  <Dialog open={calendarOpen} onOpenChange={setCalendarOpen}>
+                    <DialogContent className="w-[90vw] sm:w-[70vw] lg:w-[50vw] max-w-none p-0 overflow-hidden backdrop-blur-2xl bg-background/80 border-border/50 shadow-2xl">
+                      <div className="flex flex-col">
+                        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent">
+                          <div className="flex flex-col">
+                            <DialogTitle className="font-bold text-lg">Select Target Date</DialogTitle>
+                            <DialogDescription className="text-sm text-muted-foreground">
+                              Choose the target close date for this deal
+                            </DialogDescription>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-center p-6 sm:p-8">
+                          <Calendar
+                            mode="single"
+                            selected={formData.timeline}
+                            onSelect={(date) => {
+                              handleChange("timeline", date);
+                              setCalendarOpen(false);
+                            }}
+                            disabled={(date) =>
+                              date < new Date() || date > new Date("2035-12-31")
+                            }
+                            initialFocus
+                            className={cn("p-3 pointer-events-auto bg-card/60 backdrop-blur-xl rounded-lg border border-border/30")}
+                          />
+                        </div>
                       </div>
-                    </PopoverContent>
-                  </Popover>
+                    </DialogContent>
+                  </Dialog>
                 </div>
 
                 {/* Industry */}
