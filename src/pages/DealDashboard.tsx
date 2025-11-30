@@ -47,7 +47,7 @@ const DealDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [documentsCount, setDocumentsCount] = useState(0);
   const [documentsModalOpen, setDocumentsModalOpen] = useState(false);
-  const [specialists, setSpecialists] = useState<Array<{ id?: string; name: string; email: string; role: string; category: string; categoryId?: string }>>([]);
+  const [specialists, setSpecialists] = useState<Array<{ id?: string; name: string; email: string; role: string; category: string; categoryId?: string; categoryOrder?: number; categoryCode?: string }>>([]);
   const [specialistsModalOpen, setSpecialistsModalOpen] = useState(false);
   const [targetCloseDate, setTargetCloseDate] = useState<string | null>(null);
   const [coreTeam, setCoreTeam] = useState<Array<{ full_name: string; email: string; role: string; contact_number: string; permission_level: string }>>([]);
@@ -143,7 +143,7 @@ const DealDashboard = () => {
 
         if (specialistsError) throw specialistsError;
 
-        // Map specialists with category names for display
+        // Map specialists with category names for display and sort by category order (A-N)
         const specialistsList = specialistsData.map(specialist => {
           const category = categoriesData.find(cat => cat.id === specialist.category_id);
           return {
@@ -153,8 +153,10 @@ const DealDashboard = () => {
             role: specialist.role,
             category: category?.title || 'Unknown',
             categoryId: specialist.category_id,
+            categoryOrder: category?.category_order || 999,
+            categoryCode: category?.category_code || 'Z',
           };
-        });
+        }).sort((a, b) => a.categoryOrder - b.categoryOrder);
         setSpecialists(specialistsList);
 
         // Store available categories for the add specialist form
@@ -970,7 +972,7 @@ const DealDashboard = () => {
                           </Badge>
                         </div>
                         <Badge variant="secondary" className="text-xs">
-                          {specialist.category}
+                          {specialist.categoryCode}. {specialist.category}
                         </Badge>
                       </div>
                     </CardContent>
