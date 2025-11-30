@@ -852,7 +852,7 @@ const DealDashboard = () => {
         </Dialog>
 
         {/* Category Panels - Split into two cards */}
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-6 items-start">
           {/* First Half - Categories 1-7 */}
           <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl">
             <CardHeader className="border-b border-border/50">
@@ -870,26 +870,26 @@ const DealDashboard = () => {
                   return (
                     <Card
                       key={category.id}
-                      className="backdrop-blur-xl bg-background/40 border-2 border-border/50 cursor-pointer hover:bg-background/60 transition-all hover:shadow-lg"
+                      className="backdrop-blur-xl bg-background/40 border-2 border-border/50 cursor-pointer hover:bg-background/60 transition-all hover:shadow-lg h-[88px]"
                       onClick={() => {
                         setSelectedCategory(category);
                         setCategoryModalOpen(true);
                       }}
                     >
-                      <CardContent className="p-6">
+                      <CardContent className="p-4 h-full flex items-center">
                         <div className="flex items-center justify-between w-full">
-                          <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                               <span className="text-primary font-bold">{category.id}</span>
                             </div>
-                            <div className="text-left">
-                              <div className="font-semibold text-base">{category.title}</div>
+                            <div className="text-left min-w-0 flex-1">
+                              <div className="font-semibold text-sm truncate">{category.title}</div>
                               <div className="text-xs text-muted-foreground mt-1">
                                 {completedTasksCount} completed · {openTasksCount} remaining
                               </div>
                             </div>
                           </div>
-                          <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-4 flex-shrink-0">
                             <div className="text-right min-w-[80px]">
                               <div className="text-sm font-semibold">{completion}%</div>
                               <Progress value={completion} className="w-20 h-2 mt-1" />
@@ -921,26 +921,26 @@ const DealDashboard = () => {
                   return (
                     <Card
                       key={category.id}
-                      className="backdrop-blur-xl bg-background/40 border-2 border-border/50 cursor-pointer hover:bg-background/60 transition-all hover:shadow-lg"
+                      className="backdrop-blur-xl bg-background/40 border-2 border-border/50 cursor-pointer hover:bg-background/60 transition-all hover:shadow-lg h-[88px]"
                       onClick={() => {
                         setSelectedCategory(category);
                         setCategoryModalOpen(true);
                       }}
                     >
-                      <CardContent className="p-6">
+                      <CardContent className="p-4 h-full flex items-center">
                         <div className="flex items-center justify-between w-full">
-                          <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                               <span className="text-primary font-bold">{category.id}</span>
                             </div>
-                            <div className="text-left">
-                              <div className="font-semibold text-base">{category.title}</div>
+                            <div className="text-left min-w-0 flex-1">
+                              <div className="font-semibold text-sm truncate">{category.title}</div>
                               <div className="text-xs text-muted-foreground mt-1">
                                 {completedTasksCount} completed · {openTasksCount} remaining
                               </div>
                             </div>
                           </div>
-                          <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-4 flex-shrink-0">
                             <div className="text-right min-w-[80px]">
                               <div className="text-sm font-semibold">{completion}%</div>
                               <Progress value={completion} className="w-20 h-2 mt-1" />
