@@ -44,8 +44,12 @@ const ExternalDealDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [documentsCount, setDocumentsCount] = useState(0);
-  const [specialists, setSpecialists] = useState<Array<{ name: string; email: string; role: string; category: string }>>([]);
+  const [specialists, setSpecialists] = useState<Array<{ id?: string; name: string; email: string; role: string; category: string; categoryId?: string; categoryOrder?: number; categoryCode?: string }>>([]);
   const [specialistsModalOpen, setSpecialistsModalOpen] = useState(false);
+  const [showAddSpecialistForm, setShowAddSpecialistForm] = useState(false);
+  const [newSpecialist, setNewSpecialist] = useState({ name: '', email: '', role: '', categoryId: '' });
+  const [addingSpecialist, setAddingSpecialist] = useState(false);
+  const [availableCategories, setAvailableCategories] = useState<Array<{ id: string; title: string; code: string }>>([]);
   const [targetCloseDate, setTargetCloseDate] = useState<string | null>(null);
   const [coreTeam, setCoreTeam] = useState<Array<{ full_name: string; email: string; role: string; contact_number: string; permission_level: string }>>([]);
   const [coreTeamModalOpen, setCoreTeamModalOpen] = useState(false);
@@ -137,17 +141,28 @@ const ExternalDealDashboard = () => {
 
       if (specialistsError) throw specialistsError;
 
-      // Map specialists with category names for display
+      // Map specialists with category names for display and sort by category order (A-N)
       const specialistsList = specialistsData.map(specialist => {
         const category = categoriesData.find(cat => cat.id === specialist.category_id);
         return {
+          id: specialist.id,
           name: specialist.name,
           email: specialist.email,
           role: specialist.role,
           category: category?.title || 'Unknown',
+          categoryId: specialist.category_id,
+          categoryOrder: category?.category_order || 999,
+          categoryCode: category?.category_code || '',
         };
-      });
+      }).sort((a, b) => a.categoryOrder - b.categoryOrder);
       setSpecialists(specialistsList);
+      
+      // Set available categories for the add specialist form
+      setAvailableCategories(categoriesData.map(cat => ({
+        id: cat.id,
+        title: cat.title,
+        code: cat.category_code,
+      })));
 
       // Build categories with tasks
       const categoriesWithTasks: Category[] = categoriesData.map(category => {
@@ -244,6 +259,40 @@ const ExternalDealDashboard = () => {
       // Revert on error
       await fetchDealData();
       toast.error("Failed to update close date. Please try again.");
+    }
+  };
+
+  const handleAddSpecialist = async () => {
+    if (!dealId || !newSpecialist.name || !newSpecialist.email || !newSpecialist.categoryId) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+
+    setAddingSpecialist(true);
+
+    try {
+      const { error } = await supabase
+        .from('deal_specialists')
+        .insert({
+          deal_id: dealId,
+          category_id: newSpecialist.categoryId,
+          name: newSpecialist.name,
+          email: newSpecialist.email,
+          role: newSpecialist.role || 'Specialist',
+        });
+
+      if (error) throw error;
+
+      toast.success(`${newSpecialist.name} has been added as a specialist.`);
+
+      // Reset form and refresh data
+      setNewSpecialist({ name: '', email: '', role: '', categoryId: '' });
+      await fetchDealData();
+    } catch (error) {
+      console.error('Error adding specialist:', error);
+      toast.error("Failed to add specialist. Please try again.");
+    } finally {
+      setAddingSpecialist(false);
     }
   };
 
@@ -604,24 +653,110 @@ const ExternalDealDashboard = () => {
         {/* Specialists Modal */}
         <Dialog open={specialistsModalOpen} onOpenChange={setSpecialistsModalOpen}>
           <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Specialists Assigned</DialogTitle>
-              <DialogDescription>View all specialists assigned to this deal</DialogDescription>
+            <DialogHeader className="flex flex-row items-start justify-between pr-8">
+              <div className="space-y-2">
+                <DialogTitle>Specialists Assigned</DialogTitle>
+                <DialogDescription className="mt-1.5">
+                  View and add specialists to this deal
+                </DialogDescription>
+              </div>
+              <Button
+                variant={showAddSpecialistForm ? "secondary" : "default"}
+                size="sm"
+                onClick={() => setShowAddSpecialistForm(!showAddSpecialistForm)}
+              >
+                {showAddSpecialistForm ? "Cancel" : "Add New"}
+              </Button>
             </DialogHeader>
-            <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+            
+            <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
+              {/* Add Specialist Form - Collapsible */}
+              {showAddSpecialistForm && (
+                <Card className="border-primary/20 bg-primary/5">
+                  <CardContent className="p-4">
+                    <div className="text-sm font-semibold text-primary mb-3">Add New Specialist</div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <Input
+                        placeholder="Name"
+                        value={newSpecialist.name}
+                        onChange={(e) => setNewSpecialist(prev => ({ ...prev, name: e.target.value }))}
+                        className="bg-background/50"
+                      />
+                      <Input
+                        placeholder="Email"
+                        type="email"
+                        value={newSpecialist.email}
+                        onChange={(e) => setNewSpecialist(prev => ({ ...prev, email: e.target.value }))}
+                        className="bg-background/50"
+                      />
+                      <Select
+                        value={newSpecialist.role}
+                        onValueChange={(value) => setNewSpecialist(prev => ({ ...prev, role: value }))}
+                      >
+                        <SelectTrigger className="bg-background/50">
+                          <SelectValue placeholder="Select role" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-card border-border/50">
+                          <SelectItem value="financial-advisor">Financial Advisor</SelectItem>
+                          <SelectItem value="legal-advisor">Legal Advisor</SelectItem>
+                          <SelectItem value="tax-specialist">Tax Specialist</SelectItem>
+                          <SelectItem value="compliance-officer">Compliance Officer</SelectItem>
+                          <SelectItem value="it-specialist">IT Specialist</SelectItem>
+                          <SelectItem value="hr-specialist">HR Specialist</SelectItem>
+                          <SelectItem value="environmental-consultant">Environmental Consultant</SelectItem>
+                          <SelectItem value="other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Select
+                        value={newSpecialist.categoryId}
+                        onValueChange={(value) => setNewSpecialist(prev => ({ ...prev, categoryId: value }))}
+                      >
+                        <SelectTrigger className="bg-background/50">
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-card border-border/50 max-h-60">
+                          {availableCategories.map((cat) => (
+                            <SelectItem key={cat.id} value={cat.id}>
+                              {cat.code}. {cat.title}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button 
+                      className="mt-3 w-full"
+                      onClick={async () => {
+                        await handleAddSpecialist();
+                        setShowAddSpecialistForm(false);
+                      }}
+                      disabled={addingSpecialist || !newSpecialist.name || !newSpecialist.email || !newSpecialist.categoryId}
+                    >
+                      {addingSpecialist ? "Adding..." : "Add Specialist"}
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Specialists List */}
               {specialists.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">No specialists have been assigned yet</div>
+                <div className="text-center py-8 text-muted-foreground">
+                  No specialists have been assigned yet
+                </div>
               ) : (
                 specialists.map((specialist, index) => (
-                  <Card key={index} className="border-border/50">
+                  <Card key={specialist.id || index} className="border-border/50">
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1">
                           <div className="font-semibold text-base">{specialist.name}</div>
                           <div className="text-sm text-muted-foreground mt-1">{specialist.email}</div>
-                          <Badge variant="outline" className="mt-2 text-xs">{specialist.role}</Badge>
+                          <Badge variant="outline" className="mt-2 text-xs">
+                            {specialist.role}
+                          </Badge>
                         </div>
-                        <div className="text-right text-sm text-muted-foreground">{specialist.category}</div>
+                        <Badge variant="secondary" className="text-xs">
+                          {specialist.categoryCode}. {specialist.category}
+                        </Badge>
                       </div>
                     </CardContent>
                   </Card>
