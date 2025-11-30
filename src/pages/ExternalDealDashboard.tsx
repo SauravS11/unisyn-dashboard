@@ -54,6 +54,7 @@ const ExternalDealDashboard = () => {
   const [openFlagPopover, setOpenFlagPopover] = useState<string | null>(null);
   const [openAssignPopover, setOpenAssignPopover] = useState<string | null>(null);
   const [openDatePopover, setOpenDatePopover] = useState<string | null>(null);
+  const [closeDateDialogOpen, setCloseDateDialogOpen] = useState(false);
 
   useEffect(() => {
     checkAuthorization();
@@ -218,6 +219,32 @@ const ExternalDealDashboard = () => {
     sessionStorage.removeItem("deal_passcode");
     sessionStorage.removeItem("deal_id");
     navigate("/");
+  };
+
+  const handleCloseDateChange = async (date: Date | undefined) => {
+    if (!dealId || !date) return;
+
+    const formattedDate = format(date, 'yyyy-MM-dd');
+    
+    // Optimistic update
+    setTargetCloseDate(formattedDate);
+    setCloseDateDialogOpen(false);
+
+    try {
+      const { error } = await supabase
+        .from('deals')
+        .update({ target_close_date: formattedDate })
+        .eq('id', dealId);
+
+      if (error) throw error;
+
+      toast.success(`Target close date set to ${format(date, 'PPP')}`);
+    } catch (error) {
+      console.error('Error updating close date:', error);
+      // Revert on error
+      await fetchDealData();
+      toast.error("Failed to update close date. Please try again.");
+    }
   };
 
   if (!isAuthorized || loading) {
@@ -432,7 +459,10 @@ const ExternalDealDashboard = () => {
           {/* Second Row - Days Until Close + Core Team + Documents */}
           <div className="grid md:grid-cols-5 gap-6">
             {/* Days Until Close Card */}
-            <Card className="md:col-span-2 backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl">
+            <Card 
+              className="md:col-span-2 backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl cursor-pointer hover:shadow-2xl transition-shadow"
+              onClick={() => setCloseDateDialogOpen(true)}
+            >
               <CardContent className="py-6">
                 <div className="flex items-center justify-center gap-8">
                   <div className="relative w-24 h-24 flex-shrink-0">
@@ -460,10 +490,41 @@ const ExternalDealDashboard = () => {
                     <p className="text-xs text-muted-foreground">
                       Target: {targetCloseDate ? new Date(targetCloseDate).toLocaleDateString() : 'Not set'}
                     </p>
+                    <Button variant="link" className="text-xs p-0 h-auto mt-1">
+                      Change Date
+                    </Button>
                   </div>
                 </div>
               </CardContent>
             </Card>
+
+            {/* Close Date Dialog */}
+            <Dialog open={closeDateDialogOpen} onOpenChange={setCloseDateDialogOpen}>
+              <DialogContent className="w-[90vw] sm:w-[70vw] lg:w-[50vw] max-w-none p-0 overflow-hidden backdrop-blur-2xl bg-background/80 border-border/50 shadow-2xl">
+                <div className="flex flex-col">
+                  <div className="flex items-center justify-between p-4 sm:p-5 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent">
+                    <div className="flex flex-col">
+                      <DialogTitle className="font-bold text-lg">Change Target Close Date</DialogTitle>
+                      <DialogDescription className="text-sm text-muted-foreground">
+                        Select a new target close date for this deal
+                      </DialogDescription>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-center p-6 sm:p-8">
+                    <CalendarComponent
+                      mode="single"
+                      selected={targetCloseDate ? new Date(targetCloseDate) : undefined}
+                      onSelect={handleCloseDateChange}
+                      disabled={(date) =>
+                        date < new Date() || date > new Date("2035-12-31")
+                      }
+                      initialFocus
+                      className="p-3 pointer-events-auto bg-card/60 backdrop-blur-xl rounded-lg border border-border/30"
+                    />
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
 
             <Card 
               className="md:col-span-2 backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl cursor-pointer hover:shadow-2xl transition-shadow"
