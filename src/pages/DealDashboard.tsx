@@ -317,45 +317,22 @@ const DealDashboard = () => {
     setAddingSpecialist(true);
 
     try {
-      // Check if a specialist already exists for this category
-      const existingSpecialist = specialists.find(s => s.categoryId === newSpecialist.categoryId);
-      
-      if (existingSpecialist?.id) {
-        // Update existing specialist
-        const { error } = await supabase
-          .from('deal_specialists')
-          .update({
-            name: newSpecialist.name,
-            email: newSpecialist.email,
-            role: newSpecialist.role || 'Specialist',
-          })
-          .eq('id', existingSpecialist.id);
-
-        if (error) throw error;
-
-        toast({
-          title: "Specialist Updated",
-          description: `${newSpecialist.name} has replaced the previous specialist for this category.`,
+      const { error } = await supabase
+        .from('deal_specialists')
+        .insert({
+          deal_id: dealId,
+          category_id: newSpecialist.categoryId,
+          name: newSpecialist.name,
+          email: newSpecialist.email,
+          role: newSpecialist.role || 'Specialist',
         });
-      } else {
-        // Insert new specialist
-        const { error } = await supabase
-          .from('deal_specialists')
-          .insert({
-            deal_id: dealId,
-            category_id: newSpecialist.categoryId,
-            name: newSpecialist.name,
-            email: newSpecialist.email,
-            role: newSpecialist.role || 'Specialist',
-          });
 
-        if (error) throw error;
+      if (error) throw error;
 
-        toast({
-          title: "Specialist Added",
-          description: `${newSpecialist.name} has been added as a specialist.`,
-        });
-      }
+      toast({
+        title: "Specialist Added",
+        description: `${newSpecialist.name} has been added as a specialist.`,
+      });
 
       // Reset form and refresh data
       setNewSpecialist({ name: '', email: '', role: '', categoryId: '' });
