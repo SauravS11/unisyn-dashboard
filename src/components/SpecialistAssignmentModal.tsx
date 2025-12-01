@@ -46,11 +46,22 @@ export function SpecialistAssignmentModal({
   const [isAdding, setIsAdding] = useState(false);
 
   const handleAddNewSpecialist = async () => {
-    if (!newSpecialist.name || !newSpecialist.email || !newSpecialist.categoryId) return;
+    console.log("handleAddNewSpecialist called", newSpecialist);
+    
+    if (!newSpecialist.name || !newSpecialist.email || !newSpecialist.categoryId) {
+      console.log("Validation failed", { 
+        hasName: !!newSpecialist.name, 
+        hasEmail: !!newSpecialist.email, 
+        hasCategoryId: !!newSpecialist.categoryId 
+      });
+      return;
+    }
 
     setIsAdding(true);
     try {
+      console.log("Calling onAddNew with:", newSpecialist);
       await onAddNew(newSpecialist);
+      console.log("onAddNew completed successfully");
       setNewSpecialist({ name: "", email: "", role: "", categoryId: "" });
       setShowAddForm(false);
       onOpenChange(false);
