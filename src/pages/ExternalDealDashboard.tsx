@@ -16,6 +16,7 @@ import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import unisynLogo from "@/assets/unisyn-logo.png";
+import { DocumentsModal } from "@/components/DocumentsModal";
 
 interface Task {
   id: string;
@@ -44,6 +45,7 @@ const ExternalDealDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [documentsCount, setDocumentsCount] = useState(0);
+  const [documentsModalOpen, setDocumentsModalOpen] = useState(false);
   const [specialists, setSpecialists] = useState<Array<{ id?: string; name: string; email: string; role: string; category: string; categoryId?: string; categoryOrder?: number; categoryCode?: string }>>([]);
   const [specialistsModalOpen, setSpecialistsModalOpen] = useState(false);
   const [showAddSpecialistForm, setShowAddSpecialistForm] = useState(false);
@@ -603,7 +605,10 @@ const ExternalDealDashboard = () => {
               </CardContent>
             </Card>
 
-            <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-xl">
+            <Card 
+              className="backdrop-blur-xl bg-card/60 border-border/50 shadow-xl cursor-pointer hover:shadow-2xl transition-shadow"
+              onClick={() => setDocumentsModalOpen(true)}
+            >
               <CardContent className="flex items-center justify-center py-8">
                 <div className="text-center">
                   <div className="text-4xl font-bold text-primary mb-2 flex items-center justify-center gap-2">
@@ -611,6 +616,9 @@ const ExternalDealDashboard = () => {
                     {documentsCount}
                   </div>
                   <div className="text-sm text-muted-foreground">Documents</div>
+                  <Button variant="link" className="mt-2 text-xs">
+                    View & Upload
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -1028,6 +1036,19 @@ const ExternalDealDashboard = () => {
           </Card>
         </div>
       </div>
+
+      {/* Documents Modal */}
+      <DocumentsModal
+        open={documentsModalOpen}
+        onOpenChange={(open) => {
+          setDocumentsModalOpen(open);
+          if (!open) {
+            // Refresh documents count when modal closes
+            fetchDealData();
+          }
+        }}
+        dealId={dealId || ''}
+      />
     </div>
   );
 };
