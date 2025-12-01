@@ -53,6 +53,9 @@ export function SpecialistAssignmentModal({
       await onAddNew(newSpecialist);
       setNewSpecialist({ name: "", email: "", role: "", categoryId: "" });
       setShowAddForm(false);
+      onOpenChange(false);
+    } catch (error) {
+      console.error("Error adding specialist:", error);
     } finally {
       setIsAdding(false);
     }
@@ -64,7 +67,16 @@ export function SpecialistAssignmentModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog 
+      open={open} 
+      onOpenChange={(isOpen) => {
+        onOpenChange(isOpen);
+        if (!isOpen) {
+          setShowAddForm(false);
+          setNewSpecialist({ name: "", email: "", role: "", categoryId: "" });
+        }
+      }}
+    >
       <DialogContent className="backdrop-blur-xl bg-background/95 border-border/50 shadow-2xl max-w-2xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold flex items-center gap-2">
@@ -183,7 +195,7 @@ export function SpecialistAssignmentModal({
                     <SelectTrigger className="mt-1.5">
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-background border-border/50">
                       {categories.map((category) => (
                         <SelectItem key={category.id} value={category.id}>
                           {category.code} - {category.title}
