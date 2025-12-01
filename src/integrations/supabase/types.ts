@@ -334,7 +334,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      deal_has_passcode: { Args: { deal_id_text: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
