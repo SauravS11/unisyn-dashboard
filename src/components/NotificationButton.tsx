@@ -164,7 +164,7 @@ export const NotificationButton = () => {
                   variant="ghost"
                   size="sm"
                   onClick={markAllAsRead}
-                  className="h-auto px-2 sm:px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:bg-background/50 transition-all"
+                  className="h-auto px-2 sm:px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:bg-background/50 transition-all mr-8"
                 >
                   <span className="hidden sm:inline">Mark all as read</span>
                   <span className="sm:hidden">Mark read</span>
