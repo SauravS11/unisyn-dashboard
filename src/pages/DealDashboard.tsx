@@ -16,6 +16,7 @@ import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { DocumentsModal } from "@/components/DocumentsModal";
+import { SpecialistAssignmentModal } from "@/components/SpecialistAssignmentModal";
 import unisynLogo from "@/assets/unisyn-logo.png";
 import { PageNavigation } from "@/components/PageNavigation";
 import { SignOutButton } from "@/components/SignOutButton";
@@ -55,7 +56,8 @@ const DealDashboard = () => {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
   const [openFlagPopover, setOpenFlagPopover] = useState<string | null>(null);
-  const [openAssignPopover, setOpenAssignPopover] = useState<string | null>(null);
+  const [assignModalOpen, setAssignModalOpen] = useState(false);
+  const [selectedTaskForAssignment, setSelectedTaskForAssignment] = useState<string | null>(null);
   const [openDatePopover, setOpenDatePopover] = useState<string | null>(null);
   const [newSpecialist, setNewSpecialist] = useState({ name: '', email: '', role: '', categoryId: '' });
   const [addingSpecialist, setAddingSpecialist] = useState(false);
@@ -308,39 +310,37 @@ const DealDashboard = () => {
     }
   };
 
-  const handleAddSpecialist = async () => {
-    if (!dealId || !newSpecialist.name || !newSpecialist.email || !newSpecialist.categoryId) {
-      toast({
-        title: "Error",
-        description: "Please fill in all required fields.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setAddingSpecialist(true);
+  const handleAddSpecialist = async (specialist: { name: string; email: string; role: string; categoryId: string }) => {
+    if (!dealId) return;
 
     try {
       const { error } = await supabase
         .from('deal_specialists')
         .insert({
           deal_id: dealId,
-          category_id: newSpecialist.categoryId,
-          name: newSpecialist.name,
-          email: newSpecialist.email,
-          role: newSpecialist.role || 'Specialist',
+          category_id: specialist.categoryId,
+          name: specialist.name,
+          email: specialist.email,
+          role: specialist.role || 'Specialist',
         });
 
       if (error) throw error;
 
       toast({
         title: "Specialist Added",
-        description: `${newSpecialist.name} has been added as a specialist.`,
+        description: `${specialist.name} has been added as a specialist.`,
       });
 
-      // Reset form and refresh data
-      setNewSpecialist({ name: '', email: '', role: '', categoryId: '' });
+      // Refresh data to get the new specialist
       await fetchDealData();
+      
+      // Assign the newly added specialist to the task
+      if (selectedTaskForAssignment) {
+        await handleTaskUpdate(selectedTaskForAssignment, {
+          assignedName: specialist.name,
+          assignedEmail: specialist.email,
+        });
+      }
     } catch (error) {
       console.error('Error adding specialist:', error);
       toast({
@@ -348,9 +348,16 @@ const DealDashboard = () => {
         description: "Failed to add specialist. Please try again.",
         variant: "destructive",
       });
-    } finally {
-      setAddingSpecialist(false);
     }
+  };
+
+  const handleAssignSpecialist = async (specialist: { name: string; email: string }) => {
+    if (!selectedTaskForAssignment) return;
+    
+    await handleTaskUpdate(selectedTaskForAssignment, {
+      assignedName: specialist.name,
+      assignedEmail: specialist.email,
+    });
   };
 
   const handleCloseDateChange = async (date: Date | undefined) => {
@@ -942,8 +949,17 @@ const DealDashboard = () => {
                     <Button 
                       className="mt-3 w-full"
                       onClick={async () => {
-                        await handleAddSpecialist();
+                        if (!newSpecialist.name || !newSpecialist.email || !newSpecialist.categoryId) return;
+                        setAddingSpecialist(true);
+                        await handleAddSpecialist({
+                          name: newSpecialist.name,
+                          email: newSpecialist.email,
+                          role: newSpecialist.role,
+                          categoryId: newSpecialist.categoryId,
+                        });
+                        setNewSpecialist({ name: '', email: '', role: '', categoryId: '' });
                         setShowAddSpecialistForm(false);
+                        setAddingSpecialist(false);
                       }}
                       disabled={addingSpecialist || !newSpecialist.name || !newSpecialist.email || !newSpecialist.categoryId}
                     >
@@ -1093,46 +1109,18 @@ const DealDashboard = () => {
                         {/* Action Buttons */}
                         <div className="flex flex-wrap items-center gap-2 mb-2">
                           {/* Assign Person */}
-                          <Popover open={openAssignPopover === task.id} onOpenChange={(open) => setOpenAssignPopover(open ? task.id : null)}>
-                            <PopoverTrigger asChild>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="h-7 text-xs gap-1"
-                              >
-                                <User className="h-3 w-3" />
-                                {task.assignedName ? task.assignedName : 'Assign'}
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-72 p-3 pointer-events-auto">
-                              <div className="space-y-2">
-                                <label className="text-sm font-medium">Assign Person</label>
-                                <Input
-                                  placeholder="Name"
-                                  defaultValue={task.assignedName}
-                                  onBlur={(e) => {
-                                    const value = e.target.value.trim();
-                                    if (value !== task.assignedName) {
-                                      handleTaskUpdate(task.id, { assignedName: value });
-                                    }
-                                  }}
-                                  className="h-8 text-sm"
-                                />
-                                <Input
-                                  placeholder="Email"
-                                  type="email"
-                                  defaultValue={task.assignedEmail}
-                                  onBlur={(e) => {
-                                    const value = e.target.value.trim();
-                                    if (value !== task.assignedEmail) {
-                                      handleTaskUpdate(task.id, { assignedEmail: value });
-                                    }
-                                  }}
-                                  className="h-8 text-sm"
-                                />
-                              </div>
-                            </PopoverContent>
-                          </Popover>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-7 text-xs gap-1"
+                            onClick={() => {
+                              setSelectedTaskForAssignment(task.id);
+                              setAssignModalOpen(true);
+                            }}
+                          >
+                            <User className="h-3 w-3" />
+                            {task.assignedName ? task.assignedName : 'Assign'}
+                          </Button>
 
                           {/* Due Date */}
                           <Popover open={openDatePopover === task.id} onOpenChange={(open) => setOpenDatePopover(open ? task.id : null)}>
@@ -1291,6 +1279,26 @@ const DealDashboard = () => {
           </Card>
         </div>
       </div>
+
+      {/* Specialist Assignment Modal */}
+      <SpecialistAssignmentModal
+        open={assignModalOpen}
+        onOpenChange={setAssignModalOpen}
+        specialists={specialists}
+        categories={availableCategories}
+        onAssign={handleAssignSpecialist}
+        onAddNew={handleAddSpecialist}
+        currentAssignment={
+          selectedTaskForAssignment
+            ? allTasks.find(t => t.id === selectedTaskForAssignment)
+              ? {
+                  name: allTasks.find(t => t.id === selectedTaskForAssignment)!.assignedName,
+                  email: allTasks.find(t => t.id === selectedTaskForAssignment)!.assignedEmail,
+                }
+              : undefined
+            : undefined
+        }
+      />
     </div>
   );
 };
