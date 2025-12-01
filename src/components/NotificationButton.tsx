@@ -126,11 +126,17 @@ export const NotificationButton = () => {
       setUnreadCount(prev => Math.max(0, prev - 1));
     }
     
-    // Then delete from database
-    await supabase
+    // Then delete from database and verify
+    const { error } = await supabase
       .from("notifications")
       .delete()
       .eq("id", notificationId);
+    
+    if (error) {
+      console.error('Error deleting notification:', error);
+      // Revert optimistic update if delete failed by refetching
+      fetchNotifications();
+    }
   };
 
   return (
