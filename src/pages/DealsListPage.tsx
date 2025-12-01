@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, FolderOpen, Calendar, Clock, ChevronRight, MoreVertical, CheckCircle2, Key } from "lucide-react";
+import { Plus, FolderOpen, Calendar, Clock, ChevronRight, MoreVertical, CheckCircle2, Key, Trash2 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import unisynLogo from "@/assets/unisyn-logo.png";
@@ -32,6 +33,8 @@ const DealsListPage = () => {
   const [viewMode, setViewMode] = useState<'active' | 'completed'>('active');
   const [passcodeDialogOpen, setPasscodeDialogOpen] = useState(false);
   const [selectedDealForPasscode, setSelectedDealForPasscode] = useState<Deal | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedDealForDelete, setSelectedDealForDelete] = useState<Deal | null>(null);
 
   const fetchDeals = async () => {
     try {
@@ -111,6 +114,35 @@ const DealsListPage = () => {
       navigate(`/deals/${deal.id}/checklist`);
     } else {
       navigate(`/deals/${deal.id}/dashboard`);
+    }
+  };
+
+  const handleOpenDeleteDialog = (deal: Deal, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedDealForDelete(deal);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteDeal = async () => {
+    if (!selectedDealForDelete) return;
+
+    try {
+      const { error } = await supabase
+        .from('deals')
+        .delete()
+        .eq('id', selectedDealForDelete.id);
+
+      if (error) throw error;
+
+      sonnerToast.success(`${selectedDealForDelete.name} has been deleted`);
+      setDeleteDialogOpen(false);
+      setSelectedDealForDelete(null);
+      
+      // Refresh deals list
+      fetchDeals();
+    } catch (error) {
+      console.error('Error deleting deal:', error);
+      sonnerToast.error("Failed to delete deal");
     }
   };
 
@@ -242,6 +274,13 @@ const DealsListPage = () => {
                             <Key className="h-4 w-4 mr-2" />
                             {deal.passcode ? "Edit Passcode" : "Add Passcode"}
                           </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={(e) => handleOpenDeleteDialog(deal, e)}
+                            className="text-destructive focus:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete Deal
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                       <span className="flex-1 truncate">{deal.name}</span>
@@ -284,6 +323,29 @@ const DealsListPage = () => {
           onPasscodeUpdate={fetchDeals}
         />
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Deal</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{selectedDealForDelete?.name}"? This action cannot be undone and will permanently delete the deal and all associated data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setSelectedDealForDelete(null)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteDeal}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
