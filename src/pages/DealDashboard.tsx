@@ -311,9 +311,16 @@ const DealDashboard = () => {
   };
 
   const handleAddSpecialist = async (specialist: { name: string; email: string; role: string; categoryId: string }) => {
-    if (!dealId) return;
+    console.log("handleAddSpecialist called with:", specialist);
+    console.log("dealId:", dealId);
+    
+    if (!dealId) {
+      console.error("No dealId found");
+      return;
+    }
 
     try {
+      console.log("Attempting to insert specialist into database");
       const { error } = await supabase
         .from('deal_specialists')
         .insert({
@@ -324,18 +331,24 @@ const DealDashboard = () => {
           role: specialist.role || 'Specialist',
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Database error:", error);
+        throw error;
+      }
 
+      console.log("Specialist added successfully");
       toast({
         title: "Specialist Added",
         description: `${specialist.name} has been added as a specialist.`,
       });
 
       // Refresh data to get the new specialist
+      console.log("Refreshing deal data");
       await fetchDealData();
       
       // Assign the newly added specialist to the task
       if (selectedTaskForAssignment) {
+        console.log("Assigning specialist to task:", selectedTaskForAssignment);
         await handleTaskUpdate(selectedTaskForAssignment, {
           assignedName: specialist.name,
           assignedEmail: specialist.email,
@@ -1114,6 +1127,7 @@ const DealDashboard = () => {
                             size="sm"
                             className="h-7 text-xs gap-1"
                             onClick={() => {
+                              console.log("Assign button clicked for task:", task.id);
                               setSelectedTaskForAssignment(task.id);
                               setAssignModalOpen(true);
                             }}
