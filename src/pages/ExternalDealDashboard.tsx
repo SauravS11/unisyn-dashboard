@@ -48,19 +48,12 @@ const ExternalDealDashboard = () => {
   const [documentsModalOpen, setDocumentsModalOpen] = useState(false);
   const [specialists, setSpecialists] = useState<Array<{ id?: string; name: string; email: string; role: string; category: string; categoryId?: string; categoryOrder?: number; categoryCode?: string }>>([]);
   const [specialistsModalOpen, setSpecialistsModalOpen] = useState(false);
-  const [showAddSpecialistForm, setShowAddSpecialistForm] = useState(false);
-  const [newSpecialist, setNewSpecialist] = useState({ name: '', email: '', role: '', categoryId: '' });
-  const [addingSpecialist, setAddingSpecialist] = useState(false);
   const [availableCategories, setAvailableCategories] = useState<Array<{ id: string; title: string; code: string }>>([]);
   const [targetCloseDate, setTargetCloseDate] = useState<string | null>(null);
   const [coreTeam, setCoreTeam] = useState<Array<{ full_name: string; email: string; role: string; contact_number: string; permission_level: string }>>([]);
   const [coreTeamModalOpen, setCoreTeamModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
-  const [openFlagPopover, setOpenFlagPopover] = useState<string | null>(null);
-  const [openAssignPopover, setOpenAssignPopover] = useState<string | null>(null);
-  const [openDatePopover, setOpenDatePopover] = useState<string | null>(null);
-  const [closeDateDialogOpen, setCloseDateDialogOpen] = useState(false);
 
   useEffect(() => {
     checkAuthorization();
@@ -238,66 +231,6 @@ const ExternalDealDashboard = () => {
     navigate("/");
   };
 
-  const handleCloseDateChange = async (date: Date | undefined) => {
-    if (!dealId || !date) return;
-
-    const formattedDate = format(date, 'yyyy-MM-dd');
-    
-    // Optimistic update
-    setTargetCloseDate(formattedDate);
-    setCloseDateDialogOpen(false);
-
-    try {
-      const { error } = await supabase
-        .from('deals')
-        .update({ target_close_date: formattedDate })
-        .eq('id', dealId);
-
-      if (error) throw error;
-
-      toast.success(`Target close date set to ${format(date, 'PPP')}`);
-    } catch (error) {
-      console.error('Error updating close date:', error);
-      // Revert on error
-      await fetchDealData();
-      toast.error("Failed to update close date. Please try again.");
-    }
-  };
-
-  const handleAddSpecialist = async () => {
-    if (!dealId || !newSpecialist.name || !newSpecialist.email || !newSpecialist.categoryId) {
-      toast.error("Please fill in all required fields.");
-      return;
-    }
-
-    setAddingSpecialist(true);
-
-    try {
-      const { error } = await supabase
-        .from('deal_specialists')
-        .insert({
-          deal_id: dealId,
-          category_id: newSpecialist.categoryId,
-          name: newSpecialist.name,
-          email: newSpecialist.email,
-          role: newSpecialist.role || 'Specialist',
-        });
-
-      if (error) throw error;
-
-      toast.success(`${newSpecialist.name} has been added as a specialist.`);
-
-      // Reset form and refresh data
-      setNewSpecialist({ name: '', email: '', role: '', categoryId: '' });
-      await fetchDealData();
-    } catch (error) {
-      console.error('Error adding specialist:', error);
-      toast.error("Failed to add specialist. Please try again.");
-    } finally {
-      setAddingSpecialist(false);
-    }
-  };
-
   if (!isAuthorized || loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 p-8 flex items-center justify-center">
@@ -308,64 +241,6 @@ const ExternalDealDashboard = () => {
       </div>
     );
   }
-
-  const handleTaskUpdate = async (taskId: string, partialUpdates: {
-    checked?: boolean;
-    status?: "pending" | "in-progress" | "completed";
-    priority?: "high" | "medium" | "low";
-    assignedName?: string;
-    assignedEmail?: string;
-    dueDate?: string | null;
-  }) => {
-    // Map UI field names to database column names
-    const dbUpdates: any = {};
-
-    if ("checked" in partialUpdates) dbUpdates.checked = partialUpdates.checked;
-    if ("status" in partialUpdates) dbUpdates.status = partialUpdates.status;
-    if ("priority" in partialUpdates) dbUpdates.priority = partialUpdates.priority;
-    if ("assignedName" in partialUpdates) dbUpdates.assigned_to = partialUpdates.assignedName;
-    if ("assignedEmail" in partialUpdates) dbUpdates.assigned_email = partialUpdates.assignedEmail;
-    if ("dueDate" in partialUpdates) dbUpdates.due_date = partialUpdates.dueDate;
-
-    // Optimistic update - update UI immediately
-    setCategories(prevCategories => 
-      prevCategories.map(category => ({
-        ...category,
-        tasks: category.tasks.map(task => 
-          task.id === taskId 
-            ? { ...task, ...partialUpdates }
-            : task
-        )
-      }))
-    );
-
-    // Also update selectedCategory if the task is in it
-    setSelectedCategory(prevSelected => {
-      if (!prevSelected) return prevSelected;
-      return {
-        ...prevSelected,
-        tasks: prevSelected.tasks.map(task =>
-          task.id === taskId
-            ? { ...task, ...partialUpdates }
-            : task
-        )
-      };
-    });
-
-    try {
-      const { error } = await supabase
-        .from('deal_tasks')
-        .update(dbUpdates)
-        .eq('id', taskId);
-
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error updating task:', error);
-      // Revert on error
-      await fetchDealData();
-      toast.error("Failed to update task. Please try again.");
-    }
-  };
 
   const getCategoryCompletion = (category: Category) => {
     const completed = category.tasks.filter((t) => t.checked).length;
@@ -509,10 +384,9 @@ const ExternalDealDashboard = () => {
 
           {/* Second Row - Days Until Close + Core Team + Documents */}
           <div className="grid md:grid-cols-5 gap-6">
-            {/* Days Until Close Card */}
+            {/* Days Until Close Card - Read Only */}
             <Card 
-              className="md:col-span-2 backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl cursor-pointer hover:shadow-2xl transition-shadow"
-              onClick={() => setCloseDateDialogOpen(true)}
+              className="md:col-span-2 backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl"
             >
               <CardContent className="py-6">
                 <div className="flex items-center justify-center gap-8">
@@ -541,41 +415,10 @@ const ExternalDealDashboard = () => {
                     <p className="text-xs text-muted-foreground">
                       Target: {targetCloseDate ? new Date(targetCloseDate).toLocaleDateString() : 'Not set'}
                     </p>
-                    <Button variant="link" className="text-xs p-0 h-auto mt-1">
-                      Change Date
-                    </Button>
                   </div>
                 </div>
               </CardContent>
             </Card>
-
-            {/* Close Date Dialog */}
-            <Dialog open={closeDateDialogOpen} onOpenChange={setCloseDateDialogOpen}>
-              <DialogContent className="w-[90vw] sm:w-[70vw] lg:w-[50vw] max-w-none p-0 overflow-hidden backdrop-blur-2xl bg-background/80 border-border/50 shadow-2xl">
-                <div className="flex flex-col">
-                  <div className="flex items-center justify-between p-4 sm:p-5 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent">
-                    <div className="flex flex-col">
-                      <DialogTitle className="font-bold text-lg">Change Target Close Date</DialogTitle>
-                      <DialogDescription className="text-sm text-muted-foreground">
-                        Select a new target close date for this deal
-                      </DialogDescription>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-center p-6 sm:p-8">
-                    <CalendarComponent
-                      mode="single"
-                      selected={targetCloseDate ? new Date(targetCloseDate) : undefined}
-                      onSelect={handleCloseDateChange}
-                      disabled={(date) =>
-                        date < new Date() || date > new Date("2035-12-31")
-                      }
-                      initialFocus
-                      className="p-3 pointer-events-auto bg-card/60 backdrop-blur-xl rounded-lg border border-border/30"
-                    />
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
 
             <Card 
               className="md:col-span-2 backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl cursor-pointer hover:shadow-2xl transition-shadow"
@@ -668,84 +511,10 @@ const ExternalDealDashboard = () => {
                   View and add specialists to this deal
                 </DialogDescription>
               </div>
-              <Button
-                variant={showAddSpecialistForm ? "secondary" : "default"}
-                size="sm"
-                onClick={() => setShowAddSpecialistForm(!showAddSpecialistForm)}
-              >
-                {showAddSpecialistForm ? "Cancel" : "Add New"}
-              </Button>
             </DialogHeader>
             
             <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
-              {/* Add Specialist Form - Collapsible */}
-              {showAddSpecialistForm && (
-                <Card className="border-primary/20 bg-primary/5">
-                  <CardContent className="p-4">
-                    <div className="text-sm font-semibold text-primary mb-3">Add New Specialist</div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <Input
-                        placeholder="Name"
-                        value={newSpecialist.name}
-                        onChange={(e) => setNewSpecialist(prev => ({ ...prev, name: e.target.value }))}
-                        className="bg-background/50"
-                      />
-                      <Input
-                        placeholder="Email"
-                        type="email"
-                        value={newSpecialist.email}
-                        onChange={(e) => setNewSpecialist(prev => ({ ...prev, email: e.target.value }))}
-                        className="bg-background/50"
-                      />
-                      <Select
-                        value={newSpecialist.role}
-                        onValueChange={(value) => setNewSpecialist(prev => ({ ...prev, role: value }))}
-                      >
-                        <SelectTrigger className="bg-background/50">
-                          <SelectValue placeholder="Select role" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-card border-border/50">
-                          <SelectItem value="financial-advisor">Financial Advisor</SelectItem>
-                          <SelectItem value="legal-advisor">Legal Advisor</SelectItem>
-                          <SelectItem value="tax-specialist">Tax Specialist</SelectItem>
-                          <SelectItem value="compliance-officer">Compliance Officer</SelectItem>
-                          <SelectItem value="it-specialist">IT Specialist</SelectItem>
-                          <SelectItem value="hr-specialist">HR Specialist</SelectItem>
-                          <SelectItem value="environmental-consultant">Environmental Consultant</SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <Select
-                        value={newSpecialist.categoryId}
-                        onValueChange={(value) => setNewSpecialist(prev => ({ ...prev, categoryId: value }))}
-                      >
-                        <SelectTrigger className="bg-background/50">
-                          <SelectValue placeholder="Select category" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-card border-border/50 max-h-60">
-                          {availableCategories.map((cat) => (
-                            <SelectItem key={cat.id} value={cat.id}>
-                              {cat.code}. {cat.title}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <Button 
-                      className="mt-3 w-full"
-                      onClick={async () => {
-                        await handleAddSpecialist();
-                        setShowAddSpecialistForm(false);
-                      }}
-                      disabled={addingSpecialist || !newSpecialist.name || !newSpecialist.email || !newSpecialist.categoryId}
-                    >
-                      {addingSpecialist ? "Adding..." : "Add Specialist"}
-                    </Button>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Specialists List */}
+              {/* Specialists List - View Only */}
               {specialists.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   No specialists have been assigned yet
@@ -797,50 +566,24 @@ const ExternalDealDashboard = () => {
               {selectedCategory?.tasks.map((task) => (
                 <Card key={task.id} className="backdrop-blur-xl bg-card/40 border border-border/40 hover:bg-card/60 transition-colors">
                   <CardContent className="p-4">
-                    <div className="flex items-start gap-3">
-                      {/* Checkbox for completion */}
+                  <div className="flex items-start gap-3">
+                      {/* Checkbox - Read Only */}
                       <Checkbox
                         checked={task.checked}
-                        onCheckedChange={(checked) => {
-                          const isChecked = checked === true;
-                          handleTaskUpdate(task.id, { 
-                            checked: isChecked,
-                            status: isChecked ? 'completed' : 'pending'
-                          });
-                        }}
+                        disabled
                         className="mt-1 rounded-full data-[state=checked]:bg-red-500 data-[state=checked]:border-red-500"
                       />
 
-                      {/* Priority Flag */}
+                      {/* Priority Flag - Display Only */}
                       <div className="flex-shrink-0 mt-0.5">
-                        <Popover open={openFlagPopover === task.id} onOpenChange={(open) => setOpenFlagPopover(open ? task.id : null)}>
-                          <PopoverTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                              <Flag className={`h-4 w-4 ${
-                                task.priority === 'high' ? 'text-red-500 fill-red-500' :
-                                task.priority === 'medium' ? 'text-yellow-500 fill-yellow-500' :
-                                task.priority === 'low' ? 'text-green-500 fill-green-500' :
-                                'text-muted-foreground'
-                              }`} />
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-56 p-2">
-                            <div className="space-y-1">
-                              <Button variant="ghost" className="w-full justify-start gap-2 text-red-500 hover:text-red-500"
-                                onClick={() => { handleTaskUpdate(task.id, { priority: 'high' }); setOpenFlagPopover(null); }}>
-                                <Flag className="h-4 w-4 fill-red-500" />High Priority
-                              </Button>
-                              <Button variant="ghost" className="w-full justify-start gap-2 text-yellow-500 hover:text-yellow-500"
-                                onClick={() => { handleTaskUpdate(task.id, { priority: 'medium' }); setOpenFlagPopover(null); }}>
-                                <Flag className="h-4 w-4 fill-yellow-500" />Medium Priority
-                              </Button>
-                              <Button variant="ghost" className="w-full justify-start gap-2 text-green-500 hover:text-green-500"
-                                onClick={() => { handleTaskUpdate(task.id, { priority: 'low' }); setOpenFlagPopover(null); }}>
-                                <Flag className="h-4 w-4 fill-green-500" />Low Priority
-                              </Button>
-                            </div>
-                          </PopoverContent>
-                        </Popover>
+                        <div className="h-8 w-8 flex items-center justify-center">
+                          <Flag className={`h-4 w-4 ${
+                            task.priority === 'high' ? 'text-red-500 fill-red-500' :
+                            task.priority === 'medium' ? 'text-yellow-500 fill-yellow-500' :
+                            task.priority === 'low' ? 'text-green-500 fill-green-500' :
+                            'text-muted-foreground'
+                          }`} />
+                        </div>
                       </div>
 
                       {/* Task Details */}
@@ -854,69 +597,23 @@ const ExternalDealDashboard = () => {
                           {getStatusBadge(task.status)}
                         </div>
 
-                        {/* Action Buttons */}
+                        {/* Display Only - No Actions Allowed */}
                         <div className="flex flex-wrap items-center gap-2 mb-2">
-                          {/* Assign Person */}
-                          <Popover open={openAssignPopover === task.id} onOpenChange={(open) => setOpenAssignPopover(open ? task.id : null)}>
-                            <PopoverTrigger asChild>
-                              <Button variant="outline" size="sm" className="h-7 text-xs gap-1">
-                                <User className="h-3 w-3" />
-                                {task.assignedName ? task.assignedName : 'Assign'}
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-72 p-3 pointer-events-auto">
-                              <div className="space-y-2">
-                                <label className="text-sm font-medium">Assign Person</label>
-                                <Input
-                                  placeholder="Name"
-                                  defaultValue={task.assignedName}
-                                  onBlur={(e) => {
-                                    const value = e.target.value.trim();
-                                    if (value !== task.assignedName) {
-                                      handleTaskUpdate(task.id, { assignedName: value });
-                                    }
-                                  }}
-                                  className="h-8 text-sm"
-                                />
-                                <Input
-                                  placeholder="Email"
-                                  type="email"
-                                  defaultValue={task.assignedEmail}
-                                  onBlur={(e) => {
-                                    const value = e.target.value.trim();
-                                    if (value !== task.assignedEmail) {
-                                      handleTaskUpdate(task.id, { assignedEmail: value });
-                                    }
-                                  }}
-                                  className="h-8 text-sm"
-                                />
-                              </div>
-                            </PopoverContent>
-                          </Popover>
+                          {/* Assigned Person - Display Only */}
+                          {task.assignedName && (
+                            <Badge variant="outline" className="h-7 text-xs gap-1">
+                              <User className="h-3 w-3" />
+                              {task.assignedName}
+                            </Badge>
+                          )}
 
-                          {/* Due Date */}
-                          <Popover open={openDatePopover === task.id} onOpenChange={(open) => setOpenDatePopover(open ? task.id : null)}>
-                            <PopoverTrigger asChild>
-                              <Button variant="outline" size="sm" className="h-7 text-xs gap-1">
-                                <Calendar className="h-3 w-3" />
-                                {task.dueDate ? format(new Date(task.dueDate), 'MMM dd, yyyy') : 'Set Due Date'}
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
-                              <CalendarComponent
-                                mode="single"
-                                selected={task.dueDate ? new Date(task.dueDate) : undefined}
-                                onSelect={(date) => {
-                                  if (date) {
-                                    handleTaskUpdate(task.id, { dueDate: format(date, 'yyyy-MM-dd') });
-                                    setOpenDatePopover(null);
-                                  }
-                                }}
-                                initialFocus
-                                className="pointer-events-auto"
-                              />
-                            </PopoverContent>
-                          </Popover>
+                          {/* Due Date - Display Only */}
+                          {task.dueDate && (
+                            <Badge variant="outline" className="h-7 text-xs gap-1">
+                              <Calendar className="h-3 w-3" />
+                              {format(new Date(task.dueDate), 'MMM dd, yyyy')}
+                            </Badge>
+                          )}
 
                           {task.hasAttachment && (
                             <Badge variant="outline" className="h-7 gap-1 text-xs">
