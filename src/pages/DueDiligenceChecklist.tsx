@@ -492,13 +492,24 @@ const DueDiligenceChecklist = () => {
         .filter(Boolean);
 
       if (specialists.length > 0) {
-        const { error: specialistError } = await supabase
-          .from('deal_specialists')
-          .upsert(specialists, {
-            onConflict: 'deal_id,category_id',
-          });
-
-        if (specialistError) throw specialistError;
+        // Insert specialists - skip if already exists with same email in same category
+        for (const spec of specialists) {
+          if (!spec) continue;
+          const { data: existing } = await supabase
+            .from('deal_specialists')
+            .select('id')
+            .eq('deal_id', spec.deal_id)
+            .eq('category_id', spec.category_id)
+            .eq('email', spec.email)
+            .maybeSingle();
+          
+          if (!existing) {
+            const { error: specialistError } = await supabase
+              .from('deal_specialists')
+              .insert(spec);
+            if (specialistError) throw specialistError;
+          }
+        }
       }
 
       // Batch insert all tasks
@@ -620,13 +631,24 @@ const DueDiligenceChecklist = () => {
         .filter(Boolean);
 
       if (specialists.length > 0) {
-        const { error: specialistError } = await supabase
-          .from('deal_specialists')
-          .upsert(specialists, {
-            onConflict: 'deal_id,category_id',
-          });
-
-        if (specialistError) throw specialistError;
+        // Insert specialists - skip if already exists with same email in same category
+        for (const spec of specialists) {
+          if (!spec) continue;
+          const { data: existing } = await supabase
+            .from('deal_specialists')
+            .select('id')
+            .eq('deal_id', spec.deal_id)
+            .eq('category_id', spec.category_id)
+            .eq('email', spec.email)
+            .maybeSingle();
+          
+          if (!existing) {
+            const { error: specialistError } = await supabase
+              .from('deal_specialists')
+              .insert(spec);
+            if (specialistError) throw specialistError;
+          }
+        }
       }
 
       // Batch insert all tasks
