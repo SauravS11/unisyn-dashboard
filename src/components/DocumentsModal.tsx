@@ -29,14 +29,20 @@ interface DocumentsModalProps {
 }
 
 const categories = [
-  "Financial",
-  "Legal",
-  "Compliance",
-  "Contracts",
-  "Assets",
-  "HR",
-  "Technical",
-  "Other",
+  { code: "A", name: "Legal Entity & Structure" },
+  { code: "B", name: "Financial Statements & Tax" },
+  { code: "C", name: "Operations & Contracts" },
+  { code: "D", name: "Human Resources" },
+  { code: "E", name: "Intellectual Property" },
+  { code: "F", name: "IT & Cybersecurity" },
+  { code: "G", name: "Environmental & Regulatory" },
+  { code: "H", name: "Insurance & Risk Management" },
+  { code: "I", name: "Real Estate & Assets" },
+  { code: "J", name: "Litigation & Disputes" },
+  { code: "K", name: "Customer & Supplier Relations" },
+  { code: "L", name: "Marketing & Brand" },
+  { code: "M", name: "Strategic & Management" },
+  { code: "N", name: "Integration Planning" },
 ];
 
 export const DocumentsModal = ({ open, onOpenChange, dealId }: DocumentsModalProps) => {
@@ -238,8 +244,8 @@ export const DocumentsModal = ({ open, onOpenChange, dealId }: DocumentsModalPro
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map((cat) => (
-                    <SelectItem key={cat} value={cat}>
-                      {cat}
+                    <SelectItem key={cat.code} value={`${cat.code} - ${cat.name}`}>
+                      {cat.code} - {cat.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -272,8 +278,8 @@ export const DocumentsModal = ({ open, onOpenChange, dealId }: DocumentsModalPro
           </Button>
         </div>
 
-        {/* Documents List */}
-        <div className="space-y-3">
+        {/* Documents List - Grouped by Category */}
+        <div className="space-y-4">
           <h3 className="text-lg font-semibold">Uploaded Documents</h3>
           {loading ? (
             <div className="text-center py-8 text-muted-foreground">
@@ -284,50 +290,103 @@ export const DocumentsModal = ({ open, onOpenChange, dealId }: DocumentsModalPro
               No documents uploaded yet
             </div>
           ) : (
-            <div className="space-y-2">
-              {documents.map((doc) => (
-                <Card key={doc.id} className="backdrop-blur-xl bg-card/40 border-border/40">
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex items-start gap-3 flex-1 min-w-0">
-                        <FileText className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium text-sm truncate">{doc.file_name}</div>
-                          <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground flex-wrap">
-                            {doc.category && (
-                              <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                                {doc.category}
-                              </span>
-                            )}
-                            <span>{formatFileSize(doc.file_size)}</span>
-                            <span>•</span>
-                            <span>{format(new Date(doc.uploaded_at), 'MMM d, yyyy')}</span>
+            <div className="space-y-4">
+              {categories.map((cat) => {
+                const categoryDocs = documents.filter(doc => 
+                  doc.category?.startsWith(cat.code)
+                );
+                if (categoryDocs.length === 0) return null;
+                
+                return (
+                  <div key={cat.code} className="space-y-2">
+                    <h4 className="text-sm font-bold text-destructive">
+                      {cat.code} - {cat.name}
+                    </h4>
+                    {categoryDocs.map((doc) => (
+                      <Card key={doc.id} className="backdrop-blur-xl bg-card/40 border-border/40">
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex items-start gap-3 flex-1 min-w-0">
+                              <FileText className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium text-sm truncate">{doc.file_name}</div>
+                                <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground flex-wrap">
+                                  <span>{formatFileSize(doc.file_size)}</span>
+                                  <span>•</span>
+                                  <span>{format(new Date(doc.uploaded_at), 'MMM d, yyyy')}</span>
+                                </div>
+                                {doc.notes && (
+                                  <p className="text-xs text-muted-foreground mt-1">{doc.notes}</p>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 flex-shrink-0">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handleDownload(doc)}
+                              >
+                                <Download className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handleDelete(doc)}
+                              >
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </div>
                           </div>
-                          {doc.notes && (
-                            <p className="text-xs text-muted-foreground mt-1">{doc.notes}</p>
-                          )}
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                );
+              })}
+              {/* Uncategorized documents */}
+              {documents.filter(doc => !doc.category || !categories.some(cat => doc.category?.startsWith(cat.code))).length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="text-sm font-bold text-muted-foreground">Uncategorized</h4>
+                  {documents.filter(doc => !doc.category || !categories.some(cat => doc.category?.startsWith(cat.code))).map((doc) => (
+                    <Card key={doc.id} className="backdrop-blur-xl bg-card/40 border-border/40">
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex items-start gap-3 flex-1 min-w-0">
+                            <FileText className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium text-sm truncate">{doc.file_name}</div>
+                              <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground flex-wrap">
+                                <span>{formatFileSize(doc.file_size)}</span>
+                                <span>•</span>
+                                <span>{format(new Date(doc.uploaded_at), 'MMM d, yyyy')}</span>
+                              </div>
+                              {doc.notes && (
+                                <p className="text-xs text-muted-foreground mt-1">{doc.notes}</p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleDownload(doc)}
+                            >
+                              <Download className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleDelete(doc)}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleDownload(doc)}
-                        >
-                          <Download className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleDelete(doc)}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
