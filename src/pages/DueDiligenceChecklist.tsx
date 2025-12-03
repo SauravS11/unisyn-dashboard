@@ -909,7 +909,7 @@ const DueDiligenceChecklist = () => {
                       </SelectTrigger>
                       <SelectContent className="bg-card border-border/50 max-h-[300px]">
                         <SelectGroup>
-                          <SelectLabel>Legal & Regulatory</SelectLabel>
+                          <SelectLabel className="font-bold text-destructive">Legal & Regulatory</SelectLabel>
                           <SelectItem value="Legal Advisor">Legal Advisor</SelectItem>
                           <SelectItem value="M&A Lawyer">M&A Lawyer</SelectItem>
                           <SelectItem value="Corporate Lawyer">Corporate Lawyer</SelectItem>
@@ -924,7 +924,7 @@ const DueDiligenceChecklist = () => {
                         </SelectGroup>
 
                         <SelectGroup>
-                          <SelectLabel>Financial & Deal Structuring</SelectLabel>
+                          <SelectLabel className="font-bold text-destructive">Financial & Deal Structuring</SelectLabel>
                           <SelectItem value="Financial Advisor">Financial Advisor</SelectItem>
                           <SelectItem value="Corporate Finance Analyst">Corporate Finance Analyst</SelectItem>
                           <SelectItem value="Valuation Specialist">Valuation Specialist</SelectItem>
@@ -938,7 +938,7 @@ const DueDiligenceChecklist = () => {
                         </SelectGroup>
 
                         <SelectGroup>
-                          <SelectLabel>Operations & Business</SelectLabel>
+                          <SelectLabel className="font-bold text-destructive">Operations & Business</SelectLabel>
                           <SelectItem value="Operations Consultant">Operations Consultant</SelectItem>
                           <SelectItem value="Business Analyst">Business Analyst</SelectItem>
                           <SelectItem value="Process Improvement Specialist">Process Improvement Specialist</SelectItem>
@@ -950,7 +950,7 @@ const DueDiligenceChecklist = () => {
                         </SelectGroup>
 
                         <SelectGroup>
-                          <SelectLabel>Technology & Systems</SelectLabel>
+                          <SelectLabel className="font-bold text-destructive">Technology & Systems</SelectLabel>
                           <SelectItem value="IT Specialist">IT Specialist</SelectItem>
                           <SelectItem value="Cybersecurity Specialist">Cybersecurity Specialist</SelectItem>
                           <SelectItem value="Cloud Architect">Cloud Architect</SelectItem>
@@ -962,7 +962,7 @@ const DueDiligenceChecklist = () => {
                         </SelectGroup>
 
                         <SelectGroup>
-                          <SelectLabel>Human Capital</SelectLabel>
+                          <SelectLabel className="font-bold text-destructive">Human Capital</SelectLabel>
                           <SelectItem value="HR Specialist">HR Specialist</SelectItem>
                           <SelectItem value="HR Compliance Lead">HR Compliance Lead</SelectItem>
                           <SelectItem value="Organisational Development Consultant">Organisational Development Consultant</SelectItem>
@@ -972,7 +972,7 @@ const DueDiligenceChecklist = () => {
                         </SelectGroup>
 
                         <SelectGroup>
-                          <SelectLabel>Industry-Specific Specialists</SelectLabel>
+                          <SelectLabel className="font-bold text-destructive">Industry-Specific Specialists</SelectLabel>
                           <SelectItem value="Healthcare Compliance Specialist">Healthcare Compliance Specialist</SelectItem>
                           <SelectItem value="Real Estate Valuer">Real Estate Valuer</SelectItem>
                           <SelectItem value="Engineering Consultant">Engineering Consultant</SelectItem>
@@ -985,7 +985,7 @@ const DueDiligenceChecklist = () => {
                         </SelectGroup>
 
                         <SelectGroup>
-                          <SelectLabel>Strategic & Management</SelectLabel>
+                          <SelectLabel className="font-bold text-destructive">Strategic & Management</SelectLabel>
                           <SelectItem value="Strategic Advisor">Strategic Advisor</SelectItem>
                           <SelectItem value="Board Consultant">Board Consultant</SelectItem>
                           <SelectItem value="Change Management Specialist">Change Management Specialist</SelectItem>
@@ -995,7 +995,7 @@ const DueDiligenceChecklist = () => {
                         </SelectGroup>
 
                         <SelectGroup>
-                          <SelectLabel>Other</SelectLabel>
+                          <SelectLabel className="font-bold text-destructive">Other</SelectLabel>
                           <SelectItem value="Other">Other</SelectItem>
                         </SelectGroup>
                       </SelectContent>
