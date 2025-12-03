@@ -59,6 +59,7 @@ export type Database = {
           file_type: string | null
           id: string
           notes: string | null
+          task_id: string | null
           uploaded_at: string
           uploaded_by: string | null
         }
@@ -71,6 +72,7 @@ export type Database = {
           file_type?: string | null
           id?: string
           notes?: string | null
+          task_id?: string | null
           uploaded_at?: string
           uploaded_by?: string | null
         }
@@ -83,6 +85,7 @@ export type Database = {
           file_type?: string | null
           id?: string
           notes?: string | null
+          task_id?: string | null
           uploaded_at?: string
           uploaded_by?: string | null
         }
@@ -92,6 +95,13 @@ export type Database = {
             columns: ["deal_id"]
             isOneToOne: false
             referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_documents_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "deal_tasks"
             referencedColumns: ["id"]
           },
         ]

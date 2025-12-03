@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import * as React from "react";
 import { useParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,7 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Paperclip, AlertCircle, CheckCircle2, Clock, FileText, Flag, User, Calendar } from "lucide-react";
+import { Paperclip, AlertCircle, CheckCircle2, Clock, FileText, Flag, User, Calendar, Upload } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
@@ -64,6 +64,9 @@ const DealDashboard = () => {
   const [showAddSpecialistForm, setShowAddSpecialistForm] = useState(false);
   const [availableCategories, setAvailableCategories] = useState<Array<{ id: string; title: string; code: string }>>([]);
   const [closeDateDialogOpen, setCloseDateDialogOpen] = useState(false);
+  const [uploadingTaskId, setUploadingTaskId] = useState<string | null>(null);
+  const taskFileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedTaskForUpload, setSelectedTaskForUpload] = useState<{ taskId: string; categoryCode: string; categoryName: string } | null>(null);
   const [dealParties, setDealParties] = useState<{
     buyerName: string | null;
     buyerEmail: string | null;
@@ -255,6 +258,7 @@ const DealDashboard = () => {
     assignedName?: string;
     assignedEmail?: string;
     dueDate?: string | null;
+    hasAttachment?: boolean;
   }) => {
     // Map UI field names to database column names
     const dbUpdates: any = {};
@@ -265,6 +269,7 @@ const DealDashboard = () => {
     if ("assignedName" in partialUpdates) dbUpdates.assigned_to = partialUpdates.assignedName;
     if ("assignedEmail" in partialUpdates) dbUpdates.assigned_email = partialUpdates.assignedEmail;
     if ("dueDate" in partialUpdates) dbUpdates.due_date = partialUpdates.dueDate;
+    if ("hasAttachment" in partialUpdates) dbUpdates.has_attachment = partialUpdates.hasAttachment;
 
     // Optimistic update - update UI immediately
     setCategories(prevCategories => 
@@ -406,6 +411,78 @@ const DealDashboard = () => {
     }
   };
 
+  const handleTaskFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0 || !selectedTaskForUpload || !dealId) return;
+
+    setUploadingTaskId(selectedTaskForUpload.taskId);
+    try {
+      const file = files[0];
+      const fileName = `${dealId}/${Date.now()}-${file.name}`;
+
+      // Upload file to storage
+      const { error: uploadError } = await supabase.storage
+        .from('deal-documents')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+
+      // Get category code for the document category
+      const categoryLabel = `${selectedTaskForUpload.categoryCode} - ${selectedTaskForUpload.categoryName}`;
+      
+      // Get task title for notes
+      const task = categories
+        .flatMap(c => c.tasks)
+        .find(t => t.id === selectedTaskForUpload.taskId);
+
+      // Save document metadata to database with task reference
+      const { error: dbError } = await supabase
+        .from('deal_documents')
+        .insert({
+          deal_id: dealId,
+          file_name: file.name,
+          file_path: fileName,
+          file_size: file.size,
+          file_type: file.type || null,
+          uploaded_by: user?.id,
+          category: categoryLabel,
+          notes: task ? `Uploaded from task: ${task.title} (${task.code})` : null,
+          task_id: selectedTaskForUpload.taskId,
+        });
+
+      if (dbError) throw dbError;
+
+      // Update task to show it has attachment
+      await handleTaskUpdate(selectedTaskForUpload.taskId, { hasAttachment: true });
+
+      // Update documents count
+      setDocumentsCount(prev => prev + 1);
+
+      toast({
+        title: "Document Uploaded",
+        description: `${file.name} has been uploaded to this task.`,
+      });
+
+      // Reset
+      if (taskFileInputRef.current) {
+        taskFileInputRef.current.value = '';
+      }
+      setSelectedTaskForUpload(null);
+    } catch (error) {
+      console.error('Error uploading document:', error);
+      toast({
+        title: "Upload Failed",
+        description: "There was an error uploading your document.",
+        variant: "destructive",
+      });
+    } finally {
+      setUploadingTaskId(null);
+    }
+  };
+
   const getCategoryCompletion = (category: Category) => {
     const completed = category.tasks.filter((t) => t.checked).length;
     return Math.round((completed / category.tasks.length) * 100);
@@ -471,6 +548,15 @@ const DealDashboard = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-background via-background to-muted">
+      {/* Hidden file input for task document uploads */}
+      <input
+        ref={taskFileInputRef}
+        type="file"
+        className="hidden"
+        onChange={handleTaskFileUpload}
+        accept="*"
+      />
+      
       {/* Geometric Background Pattern */}
       <div className="absolute inset-0 opacity-30">
         <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
@@ -1247,6 +1333,25 @@ const DealDashboard = () => {
                               />
                             </PopoverContent>
                           </Popover>
+
+                          {/* Upload Document */}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-7 text-xs gap-1"
+                            disabled={uploadingTaskId === task.id}
+                            onClick={() => {
+                              setSelectedTaskForUpload({
+                                taskId: task.id,
+                                categoryCode: selectedCategory?.id || '',
+                                categoryName: selectedCategory?.title || '',
+                              });
+                              taskFileInputRef.current?.click();
+                            }}
+                          >
+                            <Upload className="h-3 w-3" />
+                            {uploadingTaskId === task.id ? 'Uploading...' : 'Upload'}
+                          </Button>
 
                           {task.hasAttachment && (
                             <Badge variant="outline" className="h-7 gap-1 text-xs">
