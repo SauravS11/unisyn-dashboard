@@ -869,7 +869,7 @@ const DueDiligenceChecklist = () => {
             <div className="space-y-4">
               {/* Section Specialist Assignment - Now part of natural flow */}
               <div className="backdrop-blur-xl bg-primary/5 border-2 border-primary/20 rounded-lg p-5">
-                <Label className="text-sm font-semibold text-primary mb-4 block">Section Specialist</Label>
+                <Label className="text-sm font-semibold text-primary mb-4 block">Subject Matter Specialist</Label>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor={`section-${currentSection.id}-name`} className="text-xs">
