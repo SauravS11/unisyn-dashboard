@@ -34,7 +34,7 @@ const categories = [
   { code: "C", name: "Operations & Contracts" },
   { code: "D", name: "Human Resources" },
   { code: "E", name: "Intellectual Property" },
-  { code: "F", name: "IT & Cybersecurity" },
+  { code: "F", name: "Material Contracts" },
   { code: "G", name: "Environmental & Regulatory" },
   { code: "H", name: "Insurance & Risk Management" },
   { code: "I", name: "Real Estate & Assets" },
