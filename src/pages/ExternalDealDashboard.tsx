@@ -404,14 +404,18 @@ const ExternalDealDashboard = () => {
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
                       {daysUntilClose !== null ? (
-                        <span className="text-2xl font-bold">{daysUntilClose}</span>
+                        <span className={`text-2xl font-bold ${daysUntilClose < 0 ? 'text-destructive' : ''}`}>
+                          {daysUntilClose < 0 ? `+${Math.abs(daysUntilClose)}` : daysUntilClose}
+                        </span>
                       ) : (
                         <span className="text-sm font-semibold text-muted-foreground">N/A</span>
                       )}
                     </div>
                   </div>
                   <div className="text-center">
-                    <p className="text-sm text-muted-foreground mb-1">Days Until Close</p>
+                    <p className="text-sm text-muted-foreground mb-1">
+                      {daysUntilClose !== null && daysUntilClose < 0 ? 'Days Overdue' : 'Days Until Close'}
+                    </p>
                     <p className="text-xs text-muted-foreground">
                       Target: {targetCloseDate ? new Date(targetCloseDate).toLocaleDateString() : 'Not set'}
                     </p>
