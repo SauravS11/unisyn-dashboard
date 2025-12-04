@@ -220,9 +220,16 @@ const ExternalDealDashboard = () => {
   const highPriorityTasks = allTasks.filter((t) => t.priority === "high" && !t.checked).length;
   const specialistsAssigned = new Set(allTasks.filter((t) => t.assignedName).map((t) => t.assignedEmail)).size;
 
-  // Calculate days until close
+  // Calculate days until close (comparing dates without time)
   const daysUntilClose = targetCloseDate 
-    ? Math.ceil((new Date(targetCloseDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+    ? (() => {
+        const target = new Date(targetCloseDate);
+        const today = new Date();
+        // Reset both to start of day for accurate day comparison
+        target.setHours(0, 0, 0, 0);
+        today.setHours(0, 0, 0, 0);
+        return Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      })()
     : null;
 
   const handleExit = () => {
