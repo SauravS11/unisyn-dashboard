@@ -631,7 +631,7 @@ const DealDashboard = () => {
                       <span className="text-xl sm:text-2xl font-bold">{readinessScore}%</span>
                     </div>
                   </div>
-                  <div className="text-center sm:text-left">
+                  <div className="text-center flex-1">
                     <p className="text-base sm:text-lg font-semibold text-foreground mb-2">{dealName}</p>
                     <p className="text-sm text-muted-foreground mb-1">Readiness Score</p>
                     <p className="text-xs text-muted-foreground">
@@ -722,7 +722,7 @@ const DealDashboard = () => {
                       )}
                     </div>
                   </div>
-                  <div className="text-center">
+                  <div className="text-center flex-1">
                     <p className="text-sm text-muted-foreground mb-1">
                       {daysUntilClose !== null && daysUntilClose < 0 ? 'Days Overdue' : 'Days Until Close'}
                     </p>
@@ -805,7 +805,7 @@ const DealDashboard = () => {
                       </span>
                     </div>
                   </div>
-                  <div className="text-center">
+                  <div className="text-center flex-1">
                     <p className="text-sm text-muted-foreground mb-1">Core <span className="text-red-500">Team</span></p>
                     <Button variant="link" className="text-xs p-0 h-auto">
                       View Details
