@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreVertical, Trash2, Edit, UserPlus } from "lucide-react";
+import { MoreVertical, Trash2, Edit, UserPlus, X } from "lucide-react";
 import { PageNavigation } from "@/components/PageNavigation";
 import { SignOutButton } from "@/components/SignOutButton";
 
@@ -229,8 +229,16 @@ const CoreDealTeam = () => {
       </div>
       
       <div className="container mx-auto px-4 py-6 sm:py-8 max-w-5xl">
-        <div className="mb-6 sm:mb-8">
-          <h1 className="text-3xl sm:text-4xl font-bold mb-2">Add Core Deal <span className="text-red-500">Team</span></h1>
+        <div className="mb-6 sm:mb-8 relative">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate("/deals")}
+            className="absolute -top-2 right-0 h-8 w-8 rounded-full hover:bg-destructive/10 hover:text-destructive transition-colors"
+          >
+            <X className="h-5 w-5" />
+          </Button>
+          <h1 className="text-3xl sm:text-4xl font-bold mb-2 pr-10">Add Core Deal <span className="text-red-500">Team</span></h1>
           <p className="text-sm sm:text-base text-muted-foreground text-lg">
             Assign the primary team members who will oversee and manage this transaction. Core Team members will receive deal updates, dashboard access, and visibility across tasks.
           </p>
