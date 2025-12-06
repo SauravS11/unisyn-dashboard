@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/compone
 import { Calendar } from "@/components/ui/calendar";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, X } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import unisynLogo from "@/assets/unisyn-logo.png";
@@ -137,8 +137,16 @@ const CreateDeal = () => {
 
       {/* Content */}
       <div className="relative z-10 max-w-5xl mx-auto px-3 sm:px-6 py-6 sm:py-12">
-        <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl">
-          <CardHeader className="border-b border-border/50 pb-3 sm:pb-6 px-3 sm:px-6">
+        <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl relative">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate("/deals")}
+            className="absolute top-3 right-3 sm:top-4 sm:right-4 h-8 w-8 rounded-full hover:bg-destructive/10 hover:text-destructive transition-colors"
+          >
+            <X className="h-5 w-5" />
+          </Button>
+          <CardHeader className="border-b border-border/50 pb-3 sm:pb-6 px-3 sm:px-6 pr-12">
             <CardTitle className="text-2xl sm:text-3xl font-bold tracking-tight">
               New <span className="text-primary">Deal</span>
             </CardTitle>
