@@ -107,13 +107,22 @@ export const NotificationButton = () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    await supabase
+    // Optimistic UI update - mark all as read immediately
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    setUnreadCount(0);
+
+    // Then update database
+    const { error } = await supabase
       .from("notifications")
       .update({ read: true })
       .eq("user_id", user.id)
       .eq("read", false);
 
-    fetchNotifications();
+    if (error) {
+      console.error('Error marking all as read:', error);
+      // Revert on failure
+      fetchNotifications();
+    }
   };
 
   const deleteNotification = async (notificationId: string, e: React.MouseEvent) => {
