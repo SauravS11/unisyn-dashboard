@@ -52,6 +52,7 @@ export const DocumentsModal = ({ open, onOpenChange, dealId }: DocumentsModalPro
   const [uploading, setUploading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [notes, setNotes] = useState("");
+  const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -86,41 +87,89 @@ export const DocumentsModal = ({ open, onOpenChange, dealId }: DocumentsModalPro
     fileInputRef.current?.click();
   };
 
+  const uploadFile = async (file: File) => {
+    const fileName = `${dealId}/${Date.now()}-${file.name}`;
+
+    // Upload file to storage
+    const { error: uploadError } = await supabase.storage
+      .from('deal-documents')
+      .upload(fileName, file);
+
+    if (uploadError) throw uploadError;
+
+    // Get current user
+    const { data: { user } } = await supabase.auth.getUser();
+
+    // Save document metadata to database
+    const { error: dbError } = await supabase
+      .from('deal_documents')
+      .insert({
+        deal_id: dealId,
+        file_name: file.name,
+        file_path: fileName,
+        file_size: file.size,
+        file_type: file.type || null,
+        uploaded_by: user?.id,
+        category: selectedCategory || null,
+        notes: notes || null,
+      });
+
+    if (dbError) throw dbError;
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const files = e.dataTransfer.files;
+    if (!files || files.length === 0) return;
+
+    setUploading(true);
+    try {
+      await uploadFile(files[0]);
+
+      toast({
+        title: "Success",
+        description: "Document uploaded successfully.",
+      });
+
+      // Reset form
+      setSelectedCategory("");
+      setNotes("");
+
+      // Refresh documents list
+      fetchDocuments();
+    } catch (error) {
+      console.error('Error uploading document:', error);
+      toast({
+        title: "Upload failed",
+        description: "There was an error uploading your document.",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
     setUploading(true);
     try {
-      const file = files[0];
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${dealId}/${Date.now()}-${file.name}`;
-
-      // Upload file to storage
-      const { error: uploadError } = await supabase.storage
-        .from('deal-documents')
-        .upload(fileName, file);
-
-      if (uploadError) throw uploadError;
-
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser();
-
-      // Save document metadata to database
-      const { error: dbError } = await supabase
-        .from('deal_documents')
-        .insert({
-          deal_id: dealId,
-          file_name: file.name,
-          file_path: fileName,
-          file_size: file.size,
-          file_type: file.type || null,
-          uploaded_by: user?.id,
-          category: selectedCategory || null,
-          notes: notes || null,
-        });
-
-      if (dbError) throw dbError;
+      await uploadFile(files[0]);
 
       toast({
         title: "Success",
@@ -267,14 +316,29 @@ export const DocumentsModal = ({ open, onOpenChange, dealId }: DocumentsModalPro
             onChange={handleFileChange}
             accept="*"
           />
-          <Button
+          <div
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
             onClick={handleFileSelect}
-            disabled={uploading}
-            className="w-full"
+            className={`
+              relative border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
+              transition-all duration-200
+              ${isDragging 
+                ? 'border-primary bg-primary/10 scale-[1.02]' 
+                : 'border-border hover:border-primary/50 hover:bg-muted/50'
+              }
+              ${uploading ? 'pointer-events-none opacity-50' : ''}
+            `}
           >
-            <Upload className="h-4 w-4 mr-2" />
-            {uploading ? "Uploading..." : "Upload Document"}
-          </Button>
+            <Upload className={`h-8 w-8 mx-auto mb-3 ${isDragging ? 'text-primary' : 'text-muted-foreground'}`} />
+            <p className="text-sm font-medium">
+              {uploading ? "Uploading..." : isDragging ? "Drop file here" : "Drag & drop a file here"}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              or click to browse
+            </p>
+          </div>
         </div>
 
         {/* Documents List - Grouped by Category */}
