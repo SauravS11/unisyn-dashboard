@@ -134,67 +134,86 @@ export const DocumentsModal = ({ open, onOpenChange, dealId }: DocumentsModalPro
     e.stopPropagation();
     setIsDragging(false);
 
-    const files = e.dataTransfer.files;
+    const files = Array.from(e.dataTransfer.files);
     if (!files || files.length === 0) return;
 
     setUploading(true);
-    try {
-      await uploadFile(files[0]);
+    let successCount = 0;
+    let failCount = 0;
 
-      toast({
-        title: "Success",
-        description: "Document uploaded successfully.",
-      });
-
-      // Reset form
-      setSelectedCategory("");
-      setNotes("");
-
-      // Refresh documents list
-      fetchDocuments();
-    } catch (error) {
-      console.error('Error uploading document:', error);
-      toast({
-        title: "Upload failed",
-        description: "There was an error uploading your document.",
-        variant: "destructive",
-      });
-    } finally {
-      setUploading(false);
-    }
-  };
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
-
-    setUploading(true);
-    try {
-      await uploadFile(files[0]);
-
-      toast({
-        title: "Success",
-        description: "Document uploaded successfully.",
-      });
-
-      // Reset form
-      setSelectedCategory("");
-      setNotes("");
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+    for (const file of files) {
+      try {
+        await uploadFile(file);
+        successCount++;
+      } catch (error) {
+        console.error(`Error uploading ${file.name}:`, error);
+        failCount++;
       }
+    }
 
-      // Refresh documents list
-      fetchDocuments();
-    } catch (error) {
-      console.error('Error uploading document:', error);
+    if (successCount > 0) {
+      toast({
+        title: "Upload complete",
+        description: `${successCount} document${successCount > 1 ? 's' : ''} uploaded successfully${failCount > 0 ? `, ${failCount} failed` : ''}.`,
+      });
+    } else {
       toast({
         title: "Upload failed",
-        description: "There was an error uploading your document.",
+        description: "There was an error uploading your documents.",
         variant: "destructive",
       });
-    } finally {
-      setUploading(false);
     }
+
+    // Reset form
+    setSelectedCategory("");
+    setNotes("");
+
+    // Refresh documents list
+    fetchDocuments();
+    setUploading(false);
+  };
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    if (!files || files.length === 0) return;
+
+    setUploading(true);
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const file of files) {
+      try {
+        await uploadFile(file);
+        successCount++;
+      } catch (error) {
+        console.error(`Error uploading ${file.name}:`, error);
+        failCount++;
+      }
+    }
+
+    if (successCount > 0) {
+      toast({
+        title: "Upload complete",
+        description: `${successCount} document${successCount > 1 ? 's' : ''} uploaded successfully${failCount > 0 ? `, ${failCount} failed` : ''}.`,
+      });
+    } else {
+      toast({
+        title: "Upload failed",
+        description: "There was an error uploading your documents.",
+        variant: "destructive",
+      });
+    }
+
+    // Reset form
+    setSelectedCategory("");
+    setNotes("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+
+    // Refresh documents list
+    fetchDocuments();
+    setUploading(false);
   };
 
   const handleDownload = async (doc: Document) => {
@@ -315,6 +334,7 @@ export const DocumentsModal = ({ open, onOpenChange, dealId }: DocumentsModalPro
             className="hidden"
             onChange={handleFileChange}
             accept="*"
+            multiple
           />
           <div
             onDragOver={handleDragOver}
@@ -333,10 +353,10 @@ export const DocumentsModal = ({ open, onOpenChange, dealId }: DocumentsModalPro
           >
             <Upload className={`h-8 w-8 mx-auto mb-3 ${isDragging ? 'text-primary' : 'text-muted-foreground'}`} />
             <p className="text-sm font-medium">
-              {uploading ? "Uploading..." : isDragging ? "Drop file here" : "Drag & drop a file here"}
+              {uploading ? "Uploading..." : isDragging ? "Drop files here" : "Drag & drop files here"}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              or click to browse
+              or click to browse (multiple files supported)
             </p>
           </div>
         </div>
