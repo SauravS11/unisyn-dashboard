@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Upload, File, Download, Trash2, FileText, X } from "lucide-react";
+import { CloudStoragePicker } from "./CloudStoragePicker";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
@@ -149,6 +150,60 @@ export const DocumentsModal = ({ open, onOpenChange, dealId }: DocumentsModalPro
     }
   };
 
+  const handleCloudFileSelected = async (file: File, fileName: string) => {
+    setUploading(true);
+    try {
+      const storagePath = `${dealId}/${Date.now()}-${fileName}`;
+
+      // Upload file to storage
+      const { error: uploadError } = await supabase.storage
+        .from('deal-documents')
+        .upload(storagePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+
+      // Save document metadata to database
+      const { error: dbError } = await supabase
+        .from('deal_documents')
+        .insert({
+          deal_id: dealId,
+          file_name: fileName,
+          file_path: storagePath,
+          file_size: file.size,
+          file_type: file.type || null,
+          uploaded_by: user?.id,
+          category: selectedCategory || null,
+          notes: notes || null,
+        });
+
+      if (dbError) throw dbError;
+
+      toast({
+        title: "Success",
+        description: `Document "${fileName}" uploaded from cloud storage.`,
+      });
+
+      // Reset form
+      setSelectedCategory("");
+      setNotes("");
+
+      // Refresh documents list
+      fetchDocuments();
+    } catch (error) {
+      console.error('Error uploading cloud document:', error);
+      toast({
+        title: "Upload failed",
+        description: "There was an error uploading the document from cloud storage.",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleDownload = async (doc: Document) => {
     try {
       const { data, error } = await supabase.storage
@@ -268,14 +323,20 @@ export const DocumentsModal = ({ open, onOpenChange, dealId }: DocumentsModalPro
             onChange={handleFileChange}
             accept="*"
           />
-          <Button
-            onClick={handleFileSelect}
-            disabled={uploading}
-            className="w-full"
-          >
-            <Upload className="h-4 w-4 mr-2" />
-            {uploading ? "Uploading..." : "Upload Document"}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={handleFileSelect}
+              disabled={uploading}
+              className="flex-1"
+            >
+              <Upload className="h-4 w-4 mr-2" />
+              {uploading ? "Uploading..." : "Upload from Device"}
+            </Button>
+            <CloudStoragePicker 
+              onFileSelected={handleCloudFileSelected}
+              disabled={uploading}
+            />
+          </div>
         </div>
 
         {/* Documents List - Grouped by Category */}
