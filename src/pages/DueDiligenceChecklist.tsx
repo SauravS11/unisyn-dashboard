@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { Paperclip, ChevronLeft, ChevronRight, X, Upload, File } from "lucide-react";
+import { Paperclip, ChevronLeft, ChevronRight, X, Upload, File, Plus, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import unisynLogo from "@/assets/unisyn-logo.png";
@@ -272,14 +272,10 @@ const DueDiligenceChecklist = () => {
     return initial;
   });
 
-  const [sectionSpecialists, setSectionSpecialists] = useState<Record<string, SectionSpecialist>>(() => {
-    const initial: Record<string, SectionSpecialist> = {};
+  const [sectionSpecialists, setSectionSpecialists] = useState<Record<string, SectionSpecialist[]>>(() => {
+    const initial: Record<string, SectionSpecialist[]> = {};
     checklistData.forEach((section) => {
-      initial[section.id] = {
-        name: "",
-        email: "",
-        role: "",
-      };
+      initial[section.id] = [{ name: "", email: "", role: "" }];
     });
     return initial;
   });
@@ -361,15 +357,24 @@ const DueDiligenceChecklist = () => {
           if (specialists && specialists.length > 0) {
             setSectionSpecialists(prev => {
               const updated = { ...prev };
+              // Group specialists by category
+              const specialistsByCategory: Record<string, SectionSpecialist[]> = {};
               specialists.forEach(spec => {
                 const category = categories.find(c => c.id === spec.category_id);
                 if (category) {
-                  updated[category.category_code] = {
+                  if (!specialistsByCategory[category.category_code]) {
+                    specialistsByCategory[category.category_code] = [];
+                  }
+                  specialistsByCategory[category.category_code].push({
                     name: spec.name,
                     email: spec.email,
                     role: spec.role,
-                  };
+                  });
                 }
+              });
+              // Update state with loaded specialists
+              Object.keys(specialistsByCategory).forEach(categoryCode => {
+                updated[categoryCode] = specialistsByCategory[categoryCode];
               });
               return updated;
             });
@@ -421,11 +426,30 @@ const DueDiligenceChecklist = () => {
     }));
   };
 
-  const handleSectionSpecialistChange = (sectionId: string, field: keyof SectionSpecialist, value: string) => {
+  const handleSectionSpecialistChange = (sectionId: string, index: number, field: keyof SectionSpecialist, value: string) => {
+    setSectionSpecialists((prev) => {
+      const updated = [...prev[sectionId]];
+      updated[index] = { ...updated[index], [field]: value };
+      return { ...prev, [sectionId]: updated };
+    });
+  };
+
+  const addSpecialist = (sectionId: string) => {
     setSectionSpecialists((prev) => ({
       ...prev,
-      [sectionId]: { ...prev[sectionId], [field]: value },
+      [sectionId]: [...prev[sectionId], { name: "", email: "", role: "" }],
     }));
+  };
+
+  const removeSpecialist = (sectionId: string, index: number) => {
+    setSectionSpecialists((prev) => {
+      const updated = prev[sectionId].filter((_, i) => i !== index);
+      // Keep at least one empty specialist row
+      if (updated.length === 0) {
+        updated.push({ name: "", email: "", role: "" });
+      }
+      return { ...prev, [sectionId]: updated };
+    });
   };
 
   const handleSaveDraft = async () => {
@@ -474,20 +498,19 @@ const DueDiligenceChecklist = () => {
 
       // Batch insert all specialists
       const specialists = checklistData
-        .map(section => {
-          const specialist = sectionSpecialists[section.id];
+        .flatMap(section => {
+          const sectionSpecs = sectionSpecialists[section.id];
           const categoryId = categoryMap.get(section.id);
           
-          if (specialist.name && specialist.email && categoryId) {
-            return {
+          return sectionSpecs
+            .filter(spec => spec.name && spec.email && categoryId)
+            .map(spec => ({
               deal_id: dealId,
               category_id: categoryId,
-              name: specialist.name,
-              email: specialist.email,
-              role: specialist.role || 'Specialist',
-            };
-          }
-          return null;
+              name: spec.name,
+              email: spec.email,
+              role: spec.role || 'Specialist',
+            }));
         })
         .filter(Boolean);
 
@@ -613,20 +636,19 @@ const DueDiligenceChecklist = () => {
 
       // Batch insert all specialists
       const specialists = checklistData
-        .map(section => {
-          const specialist = sectionSpecialists[section.id];
+        .flatMap(section => {
+          const sectionSpecs = sectionSpecialists[section.id];
           const categoryId = categoryMap.get(section.id);
           
-          if (specialist.name && specialist.email && categoryId) {
-            return {
+          return sectionSpecs
+            .filter(spec => spec.name && spec.email && categoryId)
+            .map(spec => ({
               deal_id: dealId,
               category_id: categoryId,
-              name: specialist.name,
-              email: specialist.email,
-              role: specialist.role || 'Specialist',
-            };
-          }
-          return null;
+              name: spec.name,
+              email: spec.email,
+              role: spec.role || 'Specialist',
+            }));
         })
         .filter(Boolean);
 
@@ -867,140 +889,172 @@ const DueDiligenceChecklist = () => {
           <CardContent className="pt-8" ref={contentRef}>
             {/* Section Items - Natural scrolling flow with specialist at top */}
             <div className="space-y-4">
-              {/* Section Specialist Assignment - Now part of natural flow */}
+              {/* Section Specialist Assignment - Now supports multiple specialists */}
               <div className="backdrop-blur-xl bg-primary/5 border-2 border-primary/20 rounded-lg p-5">
-                <Label className="text-sm font-semibold text-primary mb-4 block">Subject Matter Specialist</Label>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor={`section-${currentSection.id}-name`} className="text-xs">
-                      Name
-                    </Label>
-                    <Input
-                      id={`section-${currentSection.id}-name`}
-                      placeholder="Specialist name"
-                      value={sectionSpecialists[currentSection.id].name}
-                      onChange={(e) => handleSectionSpecialistChange(currentSection.id, "name", e.target.value)}
-                      className="bg-background/50 border-border/40 text-sm"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor={`section-${currentSection.id}-email`} className="text-xs">
-                      Email
-                    </Label>
-                    <Input
-                      id={`section-${currentSection.id}-email`}
-                      type="email"
-                      placeholder="email@example.com"
-                      value={sectionSpecialists[currentSection.id].email}
-                      onChange={(e) => handleSectionSpecialistChange(currentSection.id, "email", e.target.value)}
-                      className="bg-background/50 border-border/40 text-sm"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor={`section-${currentSection.id}-role`} className="text-xs">
-                      Role
-                    </Label>
-                    <Select
-                      value={sectionSpecialists[currentSection.id].role}
-                      onValueChange={(value) => handleSectionSpecialistChange(currentSection.id, "role", value)}
-                    >
-                      <SelectTrigger className="bg-background/50 border-border/40 text-sm">
-                        <SelectValue placeholder="Select role" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-card border-border/50 max-h-[300px]">
-                        <SelectGroup>
-                          <SelectLabel className="font-bold text-destructive">Legal & Regulatory</SelectLabel>
-                          <SelectItem value="Legal Advisor">Legal Advisor</SelectItem>
-                          <SelectItem value="M&A Lawyer">M&A Lawyer</SelectItem>
-                          <SelectItem value="Corporate Lawyer">Corporate Lawyer</SelectItem>
-                          <SelectItem value="Contract Specialist">Contract Specialist</SelectItem>
-                          <SelectItem value="Regulatory Specialist">Regulatory Specialist</SelectItem>
-                          <SelectItem value="Compliance Officer">Compliance Officer</SelectItem>
-                          <SelectItem value="Governance & Risk Advisor">Governance & Risk Advisor</SelectItem>
-                          <SelectItem value="Intellectual Property Lawyer">Intellectual Property Lawyer</SelectItem>
-                          <SelectItem value="Data Privacy Officer">Data Privacy Officer</SelectItem>
-                          <SelectItem value="Labour Law Specialist">Labour Law Specialist</SelectItem>
-                          <SelectItem value="Environmental & Sustainability Legal Specialist">Environmental & Sustainability Legal Specialist</SelectItem>
-                        </SelectGroup>
+                <div className="flex items-center justify-between mb-4">
+                  <Label className="text-sm font-semibold text-primary">Subject Matter Specialists</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="bg-background/50 border-primary/30 hover:bg-primary/10 text-primary"
+                    onClick={() => addSpecialist(currentSection.id)}
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Add Specialist
+                  </Button>
+                </div>
+                <div className="space-y-4">
+                  {sectionSpecialists[currentSection.id].map((specialist, specIndex) => (
+                    <div key={specIndex} className="relative">
+                      {sectionSpecialists[currentSection.id].length > 1 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute -top-2 -right-2 h-6 w-6 p-0 hover:bg-destructive/10 hover:text-destructive rounded-full bg-background border border-border/50"
+                          onClick={() => removeSpecialist(currentSection.id, specIndex)}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      )}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor={`section-${currentSection.id}-name-${specIndex}`} className="text-xs">
+                            Name
+                          </Label>
+                          <Input
+                            id={`section-${currentSection.id}-name-${specIndex}`}
+                            placeholder="Specialist name"
+                            value={specialist.name}
+                            onChange={(e) => handleSectionSpecialistChange(currentSection.id, specIndex, "name", e.target.value)}
+                            className="bg-background/50 border-border/40 text-sm"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor={`section-${currentSection.id}-email-${specIndex}`} className="text-xs">
+                            Email
+                          </Label>
+                          <Input
+                            id={`section-${currentSection.id}-email-${specIndex}`}
+                            type="email"
+                            placeholder="email@example.com"
+                            value={specialist.email}
+                            onChange={(e) => handleSectionSpecialistChange(currentSection.id, specIndex, "email", e.target.value)}
+                            className="bg-background/50 border-border/40 text-sm"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor={`section-${currentSection.id}-role-${specIndex}`} className="text-xs">
+                            Role
+                          </Label>
+                          <Select
+                            value={specialist.role}
+                            onValueChange={(value) => handleSectionSpecialistChange(currentSection.id, specIndex, "role", value)}
+                          >
+                            <SelectTrigger className="bg-background/50 border-border/40 text-sm">
+                              <SelectValue placeholder="Select role" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-card border-border/50 max-h-[300px]">
+                              <SelectGroup>
+                                <SelectLabel className="font-bold text-destructive">Legal & Regulatory</SelectLabel>
+                                <SelectItem value="Legal Advisor">Legal Advisor</SelectItem>
+                                <SelectItem value="M&A Lawyer">M&A Lawyer</SelectItem>
+                                <SelectItem value="Corporate Lawyer">Corporate Lawyer</SelectItem>
+                                <SelectItem value="Contract Specialist">Contract Specialist</SelectItem>
+                                <SelectItem value="Regulatory Specialist">Regulatory Specialist</SelectItem>
+                                <SelectItem value="Compliance Officer">Compliance Officer</SelectItem>
+                                <SelectItem value="Governance & Risk Advisor">Governance & Risk Advisor</SelectItem>
+                                <SelectItem value="Intellectual Property Lawyer">Intellectual Property Lawyer</SelectItem>
+                                <SelectItem value="Data Privacy Officer">Data Privacy Officer</SelectItem>
+                                <SelectItem value="Labour Law Specialist">Labour Law Specialist</SelectItem>
+                                <SelectItem value="Environmental & Sustainability Legal Specialist">Environmental & Sustainability Legal Specialist</SelectItem>
+                              </SelectGroup>
 
-                        <SelectGroup>
-                          <SelectLabel className="font-bold text-destructive">Financial & Deal Structuring</SelectLabel>
-                          <SelectItem value="Financial Advisor">Financial Advisor</SelectItem>
-                          <SelectItem value="Corporate Finance Analyst">Corporate Finance Analyst</SelectItem>
-                          <SelectItem value="Valuation Specialist">Valuation Specialist</SelectItem>
-                          <SelectItem value="Investment Banker">Investment Banker</SelectItem>
-                          <SelectItem value="Financial Modelling Specialist">Financial Modelling Specialist</SelectItem>
-                          <SelectItem value="Tax Specialist">Tax Specialist</SelectItem>
-                          <SelectItem value="Commercial Due Diligence Analyst">Commercial Due Diligence Analyst</SelectItem>
-                          <SelectItem value="Audit & Assurance Specialist">Audit & Assurance Specialist</SelectItem>
-                          <SelectItem value="Forensic Accountant">Forensic Accountant</SelectItem>
-                          <SelectItem value="Treasury & Cashflow Specialist">Treasury & Cashflow Specialist</SelectItem>
-                        </SelectGroup>
+                              <SelectGroup>
+                                <SelectLabel className="font-bold text-destructive">Financial & Deal Structuring</SelectLabel>
+                                <SelectItem value="Financial Advisor">Financial Advisor</SelectItem>
+                                <SelectItem value="Corporate Finance Analyst">Corporate Finance Analyst</SelectItem>
+                                <SelectItem value="Valuation Specialist">Valuation Specialist</SelectItem>
+                                <SelectItem value="Investment Banker">Investment Banker</SelectItem>
+                                <SelectItem value="Financial Modelling Specialist">Financial Modelling Specialist</SelectItem>
+                                <SelectItem value="Tax Specialist">Tax Specialist</SelectItem>
+                                <SelectItem value="Commercial Due Diligence Analyst">Commercial Due Diligence Analyst</SelectItem>
+                                <SelectItem value="Audit & Assurance Specialist">Audit & Assurance Specialist</SelectItem>
+                                <SelectItem value="Forensic Accountant">Forensic Accountant</SelectItem>
+                                <SelectItem value="Treasury & Cashflow Specialist">Treasury & Cashflow Specialist</SelectItem>
+                              </SelectGroup>
 
-                        <SelectGroup>
-                          <SelectLabel className="font-bold text-destructive">Operations & Business</SelectLabel>
-                          <SelectItem value="Operations Consultant">Operations Consultant</SelectItem>
-                          <SelectItem value="Business Analyst">Business Analyst</SelectItem>
-                          <SelectItem value="Process Improvement Specialist">Process Improvement Specialist</SelectItem>
-                          <SelectItem value="KPI Analyst">KPI Analyst</SelectItem>
-                          <SelectItem value="Procurement Specialist">Procurement Specialist</SelectItem>
-                          <SelectItem value="Supply Chain Advisor">Supply Chain Advisor</SelectItem>
-                          <SelectItem value="Business Continuity Specialist">Business Continuity Specialist</SelectItem>
-                          <SelectItem value="Integration & Post-Merger Specialist">Integration & Post-Merger Specialist</SelectItem>
-                        </SelectGroup>
+                              <SelectGroup>
+                                <SelectLabel className="font-bold text-destructive">Operations & Business</SelectLabel>
+                                <SelectItem value="Operations Consultant">Operations Consultant</SelectItem>
+                                <SelectItem value="Business Analyst">Business Analyst</SelectItem>
+                                <SelectItem value="Process Improvement Specialist">Process Improvement Specialist</SelectItem>
+                                <SelectItem value="KPI Analyst">KPI Analyst</SelectItem>
+                                <SelectItem value="Procurement Specialist">Procurement Specialist</SelectItem>
+                                <SelectItem value="Supply Chain Advisor">Supply Chain Advisor</SelectItem>
+                                <SelectItem value="Business Continuity Specialist">Business Continuity Specialist</SelectItem>
+                                <SelectItem value="Integration & Post-Merger Specialist">Integration & Post-Merger Specialist</SelectItem>
+                              </SelectGroup>
 
-                        <SelectGroup>
-                          <SelectLabel className="font-bold text-destructive">Technology & Systems</SelectLabel>
-                          <SelectItem value="IT Specialist">IT Specialist</SelectItem>
-                          <SelectItem value="Cybersecurity Specialist">Cybersecurity Specialist</SelectItem>
-                          <SelectItem value="Cloud Architect">Cloud Architect</SelectItem>
-                          <SelectItem value="Systems Integration Consultant">Systems Integration Consultant</SelectItem>
-                          <SelectItem value="Software Compliance Specialist">Software Compliance Specialist</SelectItem>
-                          <SelectItem value="Data Migration Specialist">Data Migration Specialist</SelectItem>
-                          <SelectItem value="Technical Due Diligence Analyst">Technical Due Diligence Analyst</SelectItem>
-                          <SelectItem value="Infrastructure Engineer">Infrastructure Engineer</SelectItem>
-                        </SelectGroup>
+                              <SelectGroup>
+                                <SelectLabel className="font-bold text-destructive">Technology & Systems</SelectLabel>
+                                <SelectItem value="IT Specialist">IT Specialist</SelectItem>
+                                <SelectItem value="Cybersecurity Specialist">Cybersecurity Specialist</SelectItem>
+                                <SelectItem value="Cloud Architect">Cloud Architect</SelectItem>
+                                <SelectItem value="Systems Integration Consultant">Systems Integration Consultant</SelectItem>
+                                <SelectItem value="Software Compliance Specialist">Software Compliance Specialist</SelectItem>
+                                <SelectItem value="Data Migration Specialist">Data Migration Specialist</SelectItem>
+                                <SelectItem value="Technical Due Diligence Analyst">Technical Due Diligence Analyst</SelectItem>
+                                <SelectItem value="Infrastructure Engineer">Infrastructure Engineer</SelectItem>
+                              </SelectGroup>
 
-                        <SelectGroup>
-                          <SelectLabel className="font-bold text-destructive">Human Capital</SelectLabel>
-                          <SelectItem value="HR Specialist">HR Specialist</SelectItem>
-                          <SelectItem value="HR Compliance Lead">HR Compliance Lead</SelectItem>
-                          <SelectItem value="Organisational Development Consultant">Organisational Development Consultant</SelectItem>
-                          <SelectItem value="Talent Acquisition Lead">Talent Acquisition Lead</SelectItem>
-                          <SelectItem value="Compensation & Benefits Analyst">Compensation & Benefits Analyst</SelectItem>
-                          <SelectItem value="Culture & Transformation Specialist">Culture & Transformation Specialist</SelectItem>
-                        </SelectGroup>
+                              <SelectGroup>
+                                <SelectLabel className="font-bold text-destructive">Human Capital</SelectLabel>
+                                <SelectItem value="HR Specialist">HR Specialist</SelectItem>
+                                <SelectItem value="HR Compliance Lead">HR Compliance Lead</SelectItem>
+                                <SelectItem value="Organisational Development Consultant">Organisational Development Consultant</SelectItem>
+                                <SelectItem value="Talent Acquisition Lead">Talent Acquisition Lead</SelectItem>
+                                <SelectItem value="Compensation & Benefits Analyst">Compensation & Benefits Analyst</SelectItem>
+                                <SelectItem value="Culture & Transformation Specialist">Culture & Transformation Specialist</SelectItem>
+                              </SelectGroup>
 
-                        <SelectGroup>
-                          <SelectLabel className="font-bold text-destructive">Industry-Specific Specialists</SelectLabel>
-                          <SelectItem value="Healthcare Compliance Specialist">Healthcare Compliance Specialist</SelectItem>
-                          <SelectItem value="Real Estate Valuer">Real Estate Valuer</SelectItem>
-                          <SelectItem value="Engineering Consultant">Engineering Consultant</SelectItem>
-                          <SelectItem value="Manufacturing Efficiency Consultant">Manufacturing Efficiency Consultant</SelectItem>
-                          <SelectItem value="Retail Operations Specialist">Retail Operations Specialist</SelectItem>
-                          <SelectItem value="FinTech Regulatory Advisor">FinTech Regulatory Advisor</SelectItem>
-                          <SelectItem value="Telecommunications Engineer">Telecommunications Engineer</SelectItem>
-                          <SelectItem value="Energy Sector Analyst">Energy Sector Analyst</SelectItem>
-                          <SelectItem value="Mining Compliance Expert">Mining Compliance Expert</SelectItem>
-                        </SelectGroup>
+                              <SelectGroup>
+                                <SelectLabel className="font-bold text-destructive">Industry-Specific Specialists</SelectLabel>
+                                <SelectItem value="Healthcare Compliance Specialist">Healthcare Compliance Specialist</SelectItem>
+                                <SelectItem value="Real Estate Valuer">Real Estate Valuer</SelectItem>
+                                <SelectItem value="Engineering Consultant">Engineering Consultant</SelectItem>
+                                <SelectItem value="Manufacturing Efficiency Consultant">Manufacturing Efficiency Consultant</SelectItem>
+                                <SelectItem value="Retail Operations Specialist">Retail Operations Specialist</SelectItem>
+                                <SelectItem value="FinTech Regulatory Advisor">FinTech Regulatory Advisor</SelectItem>
+                                <SelectItem value="Telecommunications Engineer">Telecommunications Engineer</SelectItem>
+                                <SelectItem value="Energy Sector Analyst">Energy Sector Analyst</SelectItem>
+                                <SelectItem value="Mining Compliance Expert">Mining Compliance Expert</SelectItem>
+                              </SelectGroup>
 
-                        <SelectGroup>
-                          <SelectLabel className="font-bold text-destructive">Strategic & Management</SelectLabel>
-                          <SelectItem value="Strategic Advisor">Strategic Advisor</SelectItem>
-                          <SelectItem value="Board Consultant">Board Consultant</SelectItem>
-                          <SelectItem value="Change Management Specialist">Change Management Specialist</SelectItem>
-                          <SelectItem value="Project Manager">Project Manager</SelectItem>
-                          <SelectItem value="Risk Management Consultant">Risk Management Consultant</SelectItem>
-                          <SelectItem value="ESG Specialist">ESG Specialist</SelectItem>
-                        </SelectGroup>
+                              <SelectGroup>
+                                <SelectLabel className="font-bold text-destructive">Strategic & Management</SelectLabel>
+                                <SelectItem value="Strategic Advisor">Strategic Advisor</SelectItem>
+                                <SelectItem value="Board Consultant">Board Consultant</SelectItem>
+                                <SelectItem value="Change Management Specialist">Change Management Specialist</SelectItem>
+                                <SelectItem value="Project Manager">Project Manager</SelectItem>
+                                <SelectItem value="Risk Management Consultant">Risk Management Consultant</SelectItem>
+                                <SelectItem value="ESG Specialist">ESG Specialist</SelectItem>
+                              </SelectGroup>
 
-                        <SelectGroup>
-                          <SelectLabel className="font-bold text-destructive">Other</SelectLabel>
-                          <SelectItem value="Other">Other</SelectItem>
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                              <SelectGroup>
+                                <SelectLabel className="font-bold text-destructive">Other</SelectLabel>
+                                <SelectItem value="Other">Other</SelectItem>
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      {specIndex < sectionSpecialists[currentSection.id].length - 1 && (
+                        <div className="border-b border-primary/10 mt-4" />
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
               {currentSection.items.map((item, index) => {
