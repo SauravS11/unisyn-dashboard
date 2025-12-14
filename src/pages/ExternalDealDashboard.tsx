@@ -664,27 +664,23 @@ const ExternalDealDashboard = () => {
                   return (
                     <Card
                       key={category.id}
-                      className="backdrop-blur-xl bg-background/40 border-2 border-border/50 cursor-pointer hover:bg-background/60 transition-all hover:shadow-lg h-[88px]"
+                      className="backdrop-blur-xl bg-background/40 border-2 border-border/50 cursor-pointer hover:bg-background/60 transition-all hover:shadow-lg"
                       onClick={() => { setSelectedCategory(category); setCategoryModalOpen(true); }}
                     >
-                      <CardContent className="p-4 h-full flex items-center">
-                        <div className="flex items-center justify-between w-full">
-                          <div className="flex items-center gap-3 flex-1 min-w-0">
-                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                              <span className="text-primary font-bold">{category.id}</span>
-                            </div>
-                            <div className="text-left min-w-0 flex-1">
-                              <div className="font-semibold text-sm truncate">{category.title}</div>
-                              <div className="text-xs text-muted-foreground mt-1">
-                                {completedTasksCount} completed · {openTasksCount} remaining
-                              </div>
+                      <CardContent className="p-3 sm:p-4">
+                        <div className="flex items-center gap-2 sm:gap-3 w-full">
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                            <span className="text-primary font-bold text-sm sm:text-base">{category.id}</span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-semibold text-xs sm:text-sm truncate">{category.title}</div>
+                            <div className="text-xs text-muted-foreground mt-0.5 sm:mt-1">
+                              {completedTasksCount}/{category.tasks.length} done
                             </div>
                           </div>
-                          <div className="flex items-center gap-4 flex-shrink-0">
-                            <div className="text-right min-w-[80px]">
-                              <div className="text-sm font-semibold">{completion}%</div>
-                              <Progress value={completion} className="w-20 h-2 mt-1" />
-                            </div>
+                          <div className="flex-shrink-0 text-right">
+                            <div className="text-xs sm:text-sm font-semibold">{completion}%</div>
+                            <Progress value={completion} className="w-12 sm:w-20 h-1.5 sm:h-2 mt-0.5 sm:mt-1" />
                           </div>
                         </div>
                       </CardContent>
@@ -712,27 +708,23 @@ const ExternalDealDashboard = () => {
                   return (
                     <Card
                       key={category.id}
-                      className="backdrop-blur-xl bg-background/40 border-2 border-border/50 cursor-pointer hover:bg-background/60 transition-all hover:shadow-lg h-[88px]"
+                      className="backdrop-blur-xl bg-background/40 border-2 border-border/50 cursor-pointer hover:bg-background/60 transition-all hover:shadow-lg"
                       onClick={() => { setSelectedCategory(category); setCategoryModalOpen(true); }}
                     >
-                      <CardContent className="p-4 h-full flex items-center">
-                        <div className="flex items-center justify-between w-full">
-                          <div className="flex items-center gap-3 flex-1 min-w-0">
-                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                              <span className="text-primary font-bold">{category.id}</span>
-                            </div>
-                            <div className="text-left min-w-0 flex-1">
-                              <div className="font-semibold text-sm truncate">{category.title}</div>
-                              <div className="text-xs text-muted-foreground mt-1">
-                                {completedTasksCount} completed · {openTasksCount} remaining
-                              </div>
+                      <CardContent className="p-3 sm:p-4">
+                        <div className="flex items-center gap-2 sm:gap-3 w-full">
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                            <span className="text-primary font-bold text-sm sm:text-base">{category.id}</span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-semibold text-xs sm:text-sm truncate">{category.title}</div>
+                            <div className="text-xs text-muted-foreground mt-0.5 sm:mt-1">
+                              {completedTasksCount}/{category.tasks.length} done
                             </div>
                           </div>
-                          <div className="flex items-center gap-4 flex-shrink-0">
-                            <div className="text-right min-w-[80px]">
-                              <div className="text-sm font-semibold">{completion}%</div>
-                              <Progress value={completion} className="w-20 h-2 mt-1" />
-                            </div>
+                          <div className="flex-shrink-0 text-right">
+                            <div className="text-xs sm:text-sm font-semibold">{completion}%</div>
+                            <Progress value={completion} className="w-12 sm:w-20 h-1.5 sm:h-2 mt-0.5 sm:mt-1" />
                           </div>
                         </div>
                       </CardContent>
