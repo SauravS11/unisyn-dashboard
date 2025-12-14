@@ -1387,16 +1387,16 @@ const DealDashboard = () => {
         </Dialog>
 
         {/* Category Panels - Split into two cards */}
-        <div className="grid md:grid-cols-2 gap-6 items-start">
+        <div className="grid md:grid-cols-2 gap-4 sm:gap-6 items-start">
           {/* First Half - Categories 1-7 */}
-          <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl">
-            <CardHeader className="border-b border-border/50">
-              <CardTitle className="text-xl font-bold">
+          <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl overflow-hidden">
+            <CardHeader className="border-b border-border/50 px-3 sm:px-6">
+              <CardTitle className="text-base sm:text-xl font-bold">
                 Due Diligence <span className="text-primary">Categories (1-7)</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="pt-6">
-              <div className="space-y-4">
+            <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6">
+              <div className="space-y-3 sm:space-y-4">
                 {categories.slice(0, 7).map((category) => {
                   const completion = getCategoryCompletion(category);
                   const openTasksCount = getOpenTasksCount(category);
@@ -1405,26 +1405,26 @@ const DealDashboard = () => {
                   return (
                     <Card
                       key={category.id}
-                      className="backdrop-blur-xl bg-background/40 border-2 border-border/50 cursor-pointer hover:bg-background/60 transition-all hover:shadow-lg"
+                      className="backdrop-blur-xl bg-background/40 border-2 border-border/50 cursor-pointer hover:bg-background/60 transition-all hover:shadow-lg overflow-hidden"
                       onClick={() => {
                         setSelectedCategory(category);
                         setCategoryModalOpen(true);
                       }}
                     >
-                      <CardContent className="p-3 sm:p-4">
-                        <div className="flex items-center gap-2 sm:gap-3 w-full">
+                      <CardContent className="p-2.5 sm:p-4">
+                        <div className="flex items-center gap-2 sm:gap-3">
                           <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                            <span className="text-primary font-bold text-sm sm:text-base">{category.id}</span>
+                            <span className="text-primary font-bold text-xs sm:text-base">{category.id}</span>
                           </div>
-                          <div className="flex-1 min-w-0">
+                          <div className="flex-1 min-w-0 overflow-hidden">
                             <div className="font-semibold text-xs sm:text-sm truncate">{category.title}</div>
-                            <div className="text-xs text-muted-foreground mt-0.5 sm:mt-1">
+                            <div className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
                               {completedTasksCount}/{category.tasks.length} done
                             </div>
                           </div>
-                          <div className="flex-shrink-0 text-right">
-                            <div className="text-xs sm:text-sm font-semibold">{completion}%</div>
-                            <Progress value={completion} className="w-12 sm:w-20 h-1.5 sm:h-2 mt-0.5 sm:mt-1" />
+                          <div className="flex-shrink-0 text-right pl-1">
+                            <div className="text-xs sm:text-sm font-semibold whitespace-nowrap">{completion}%</div>
+                            <Progress value={completion} className="w-10 sm:w-20 h-1.5 sm:h-2 mt-0.5" />
                           </div>
                         </div>
                       </CardContent>
@@ -1436,14 +1436,14 @@ const DealDashboard = () => {
           </Card>
 
           {/* Second Half - Categories 8-14 */}
-          <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl">
-            <CardHeader className="border-b border-border/50">
-              <CardTitle className="text-xl font-bold">
+          <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl overflow-hidden">
+            <CardHeader className="border-b border-border/50 px-3 sm:px-6">
+              <CardTitle className="text-base sm:text-xl font-bold">
                 Due Diligence <span className="text-primary">Categories (8-14)</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="pt-6">
-              <div className="space-y-4">
+            <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6">
+              <div className="space-y-3 sm:space-y-4">
                 {categories.slice(7).map((category) => {
                   const completion = getCategoryCompletion(category);
                   const openTasksCount = getOpenTasksCount(category);
@@ -1452,26 +1452,26 @@ const DealDashboard = () => {
                   return (
                     <Card
                       key={category.id}
-                      className="backdrop-blur-xl bg-background/40 border-2 border-border/50 cursor-pointer hover:bg-background/60 transition-all hover:shadow-lg"
+                      className="backdrop-blur-xl bg-background/40 border-2 border-border/50 cursor-pointer hover:bg-background/60 transition-all hover:shadow-lg overflow-hidden"
                       onClick={() => {
                         setSelectedCategory(category);
                         setCategoryModalOpen(true);
                       }}
                     >
-                      <CardContent className="p-3 sm:p-4">
-                        <div className="flex items-center gap-2 sm:gap-3 w-full">
+                      <CardContent className="p-2.5 sm:p-4">
+                        <div className="flex items-center gap-2 sm:gap-3">
                           <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                            <span className="text-primary font-bold text-sm sm:text-base">{category.id}</span>
+                            <span className="text-primary font-bold text-xs sm:text-base">{category.id}</span>
                           </div>
-                          <div className="flex-1 min-w-0">
+                          <div className="flex-1 min-w-0 overflow-hidden">
                             <div className="font-semibold text-xs sm:text-sm truncate">{category.title}</div>
-                            <div className="text-xs text-muted-foreground mt-0.5 sm:mt-1">
+                            <div className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
                               {completedTasksCount}/{category.tasks.length} done
                             </div>
                           </div>
-                          <div className="flex-shrink-0 text-right">
-                            <div className="text-xs sm:text-sm font-semibold">{completion}%</div>
-                            <Progress value={completion} className="w-12 sm:w-20 h-1.5 sm:h-2 mt-0.5 sm:mt-1" />
+                          <div className="flex-shrink-0 text-right pl-1">
+                            <div className="text-xs sm:text-sm font-semibold whitespace-nowrap">{completion}%</div>
+                            <Progress value={completion} className="w-10 sm:w-20 h-1.5 sm:h-2 mt-0.5" />
                           </div>
                         </div>
                       </CardContent>
