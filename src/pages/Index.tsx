@@ -32,7 +32,7 @@ const Index = () => {
           <img 
             src={unisynLogo} 
             alt="UniSyn Technology" 
-            className="relative w-32 sm:w-40 md:w-48 h-auto drop-shadow-2xl"
+            className="relative w-48 sm:w-56 md:w-64 h-auto drop-shadow-2xl"
           />
         </div>
 

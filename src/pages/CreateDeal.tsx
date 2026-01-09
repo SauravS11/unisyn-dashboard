@@ -125,7 +125,7 @@ const CreateDeal = () => {
           <div className="absolute top-4 left-4 sm:top-6 sm:left-6">
             <SignOutButton />
           </div>
-          <img src={unisynLogo} alt="UniSyn Technology" className="w-20 sm:w-24 h-auto" />
+          <img src={unisynLogo} alt="UniSyn Technology" className="w-36 sm:w-44 h-auto" />
           <PageNavigation
             items={[
               { to: "/welcome", label: "Home" },

@@ -57,7 +57,7 @@ const Welcome = () => {
           <img 
             src={unisynLogo} 
             alt="UniSyn Technology" 
-            className="relative w-40 sm:w-48 md:w-56 h-auto drop-shadow-2xl"
+            className="relative w-52 sm:w-64 md:w-72 h-auto drop-shadow-2xl"
           />
         </div>
 
