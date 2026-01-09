@@ -169,7 +169,7 @@ const DealsListPage = () => {
           <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-10">
             <NotificationButton />
           </div>
-          <img src={unisynLogo} alt="UniSyn Technology" className="w-16 sm:w-24 h-auto mt-2 sm:mt-0" />
+          <img src={unisynLogo} alt="UniSyn Technology" className="w-32 sm:w-44 h-auto mt-2 sm:mt-0" />
           <PageNavigation
             items={[
               { to: "/welcome", label: "Home" },

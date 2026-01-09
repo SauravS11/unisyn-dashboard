@@ -316,7 +316,7 @@ const ExternalDealDashboard = () => {
             <Lock className="h-3 w-3 mr-1" />
             External View
           </Badge>
-          <img src={unisynLogo} alt="UniSyn Technology" className="w-20 sm:w-24 h-auto mt-8 sm:mt-0" />
+          <img src={unisynLogo} alt="UniSyn Technology" className="w-36 sm:w-44 h-auto mt-8 sm:mt-0" />
           <h1 className="text-lg sm:text-xl font-semibold text-center">{dealName}</h1>
         </div>
       </div>
