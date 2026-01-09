@@ -1,7 +1,7 @@
 import { SignInCard } from "@/components/SignInCard";
 import { SignUpCard } from "@/components/SignUpCard";
 import { DealCodeCard } from "@/components/DealCodeCard";
-import unisynLogo from "@/assets/unisyn-logo.png";
+import unisynLogo from "@/assets/unisyn-logo.svg";
 import { useState } from "react";
 
 const Index = () => {

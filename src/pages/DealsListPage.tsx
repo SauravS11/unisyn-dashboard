@@ -8,7 +8,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import unisynLogo from "@/assets/unisyn-logo.png";
+import unisynLogo from "@/assets/unisyn-logo.svg";
 import { format } from "date-fns";
 import { PageNavigation } from "@/components/PageNavigation";
 import { SignOutButton } from "@/components/SignOutButton";

@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { CalendarIcon, X } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import unisynLogo from "@/assets/unisyn-logo.png";
+import unisynLogo from "@/assets/unisyn-logo.svg";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { SignOutButton } from "@/components/SignOutButton";
