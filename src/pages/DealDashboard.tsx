@@ -17,7 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { DocumentsModal } from "@/components/DocumentsModal";
 import { SpecialistAssignmentModal } from "@/components/SpecialistAssignmentModal";
-import unisynLogo from "@/assets/unisyn-logo.png";
+import unisynLogo from "@/assets/unisyn-logo.svg";
 import { PageNavigation } from "@/components/PageNavigation";
 import { SignOutButton } from "@/components/SignOutButton";
 

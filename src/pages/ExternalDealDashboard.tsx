@@ -15,7 +15,7 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import unisynLogo from "@/assets/unisyn-logo.png";
+import unisynLogo from "@/assets/unisyn-logo.svg";
 import { DocumentsModal } from "@/components/DocumentsModal";
 
 interface Task {

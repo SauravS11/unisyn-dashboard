@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import unisynLogo from "@/assets/unisyn-logo.png";
+import unisynLogo from "@/assets/unisyn-logo.svg";
 import { Briefcase, FileSearch, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { SignOutButton } from "@/components/SignOutButton";
