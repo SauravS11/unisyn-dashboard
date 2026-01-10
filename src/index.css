@@ -37,8 +37,12 @@ All colors MUST be HSL.
     --input: 0 0% 95%;
     --ring: 0 85% 60%;
 
-    --glass: 0 0% 100% / 0.6;
-    --glow: 0 85% 60% / 0.15;
+    --glass: 0 0% 100% / 0.45;
+    --glass-border: 0 0% 100% / 0.25;
+    --glass-highlight: 0 0% 100% / 0.5;
+    --glow: 0 85% 60% / 0.12;
+    --glass-blur: 40px;
+    --glass-shadow: 0 8px 32px 0 0 0% 0% / 0.08;
 
     --radius: 0.75rem;
 
@@ -90,8 +94,12 @@ All colors MUST be HSL.
     --input: 0 0% 15%;
     --ring: 0 85% 60%;
 
-    --glass: 0 0% 12% / 0.6;
-    --glow: 0 85% 60% / 0.2;
+    --glass: 0 0% 15% / 0.5;
+    --glass-border: 0 0% 100% / 0.08;
+    --glass-highlight: 0 0% 100% / 0.12;
+    --glow: 0 85% 60% / 0.15;
+    --glass-blur: 40px;
+    --glass-shadow: 0 8px 32px 0 0 0% 0% / 0.25;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
