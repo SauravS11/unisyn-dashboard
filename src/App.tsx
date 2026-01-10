@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import LandingPage from "./pages/LandingPage";
 import Index from "./pages/Index";
 import Welcome from "./pages/Welcome";
 import DealsListPage from "./pages/DealsListPage";
@@ -23,7 +24,8 @@ const App = () => (
       <BrowserRouter>
         <div className="animate-fade-in">
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/auth" element={<Index />} />
             <Route path="/welcome" element={<Welcome />} />
             <Route path="/deals" element={<DealsListPage />} />
             <Route path="/deals/create" element={<CreateDeal />} />
