@@ -10,9 +10,21 @@ import { Key, ArrowRight } from "lucide-react";
 export const DealCodeCard = () => {
   const navigate = useNavigate();
   const [code, setCode] = useState("");
+  const [dealId, setDealId] = useState("");
+  const [step, setStep] = useState<"dealId" | "passcode">("dealId");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async () => {
+  const handleSubmitDealId = () => {
+    // Validate UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(dealId.trim())) {
+      toast.error("Please enter a valid deal ID");
+      return;
+    }
+    setStep("passcode");
+  };
+
+  const handleSubmitPasscode = async () => {
     if (code.length !== 5) {
       toast.error("Please enter a 5-digit code");
       return;
@@ -20,28 +32,34 @@ export const DealCodeCard = () => {
 
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
-        .from("deals")
-        .select("id, name")
-        .eq("passcode", code)
-        .maybeSingle();
+      // Call the secure edge function to verify passcode
+      const { data, error } = await supabase.functions.invoke("verify-passcode", {
+        body: {
+          dealId: dealId.trim(),
+          passcode: code,
+        },
+      });
 
-      if (error) throw error;
-
-      if (!data) {
-        toast.error("Invalid code. Please check and try again.");
+      if (error) {
+        console.error("Error verifying passcode:", error);
+        toast.error("Failed to verify passcode. Please try again.");
         return;
       }
 
-      // Store the passcode in sessionStorage for the external dashboard to use
-      sessionStorage.setItem("deal_passcode", code);
-      sessionStorage.setItem("deal_id", data.id);
+      if (!data?.success) {
+        toast.error(data?.message || "Invalid passcode. Please check and try again.");
+        return;
+      }
+
+      // Store the access token (NOT the passcode) in sessionStorage
+      sessionStorage.setItem("deal_access_token", data.accessToken);
+      sessionStorage.setItem("deal_id", data.dealId);
       
-      toast.success(`Accessing ${data.name}`);
-      navigate(`/external/deals/${data.id}/dashboard`);
+      toast.success("Access granted!");
+      navigate(`/external/deals/${data.dealId}/dashboard`);
     } catch (error) {
-      console.error("Error verifying code:", error);
-      toast.error("Failed to verify code. Please try again.");
+      console.error("Error verifying passcode:", error);
+      toast.error("Failed to verify passcode. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -54,37 +72,75 @@ export const DealCodeCard = () => {
           <Key className="h-6 w-6 text-primary" />
         </div>
         <CardTitle className="text-xl sm:text-2xl font-bold tracking-tight">
-          Enter Deal Code
+          {step === "dealId" ? "Enter Deal ID" : "Enter Passcode"}
         </CardTitle>
         <CardDescription className="text-sm sm:text-base">
-          Enter the 5-digit code shared with you to access the deal
+          {step === "dealId" 
+            ? "Enter the deal ID shared with you" 
+            : "Enter the 5-digit passcode to access the deal"}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 sm:space-y-6">
-        <div className="flex justify-center">
-          <InputOTP
-            maxLength={5}
-            value={code}
-            onChange={(value) => setCode(value)}
-          >
-            <InputOTPGroup>
-              <InputOTPSlot index={0} />
-              <InputOTPSlot index={1} />
-              <InputOTPSlot index={2} />
-              <InputOTPSlot index={3} />
-              <InputOTPSlot index={4} />
-            </InputOTPGroup>
-          </InputOTP>
-        </div>
+        {step === "dealId" ? (
+          <>
+            <div className="flex justify-center">
+              <input
+                type="text"
+                value={dealId}
+                onChange={(e) => setDealId(e.target.value)}
+                placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                className="w-full px-4 py-3 rounded-lg bg-background/50 border border-border/50 text-sm font-mono text-center focus:outline-none focus:ring-2 focus:ring-primary/50"
+              />
+            </div>
+            <Button 
+              className="w-full h-11 sm:h-12 text-base font-semibold gap-2"
+              onClick={handleSubmitDealId}
+              disabled={!dealId.trim()}
+            >
+              Continue
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </>
+        ) : (
+          <>
+            <div className="flex justify-center">
+              <InputOTP
+                maxLength={5}
+                value={code}
+                onChange={(value) => setCode(value)}
+              >
+                <InputOTPGroup>
+                  <InputOTPSlot index={0} />
+                  <InputOTPSlot index={1} />
+                  <InputOTPSlot index={2} />
+                  <InputOTPSlot index={3} />
+                  <InputOTPSlot index={4} />
+                </InputOTPGroup>
+              </InputOTP>
+            </div>
 
-        <Button 
-          className="w-full h-11 sm:h-12 text-base font-semibold gap-2"
-          onClick={handleSubmit}
-          disabled={isLoading || code.length !== 5}
-        >
-          {isLoading ? "Verifying..." : "Access Deal"}
-          <ArrowRight className="h-4 w-4" />
-        </Button>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline"
+                className="flex-1 h-11 sm:h-12"
+                onClick={() => {
+                  setStep("dealId");
+                  setCode("");
+                }}
+              >
+                Back
+              </Button>
+              <Button 
+                className="flex-1 h-11 sm:h-12 text-base font-semibold gap-2"
+                onClick={handleSubmitPasscode}
+                disabled={isLoading || code.length !== 5}
+              >
+                {isLoading ? "Verifying..." : "Access Deal"}
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </>
+        )}
       </CardContent>
     </Card>
   );

@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      deal_access_tokens: {
+        Row: {
+          created_at: string
+          deal_id: string
+          expires_at: string
+          id: string
+          ip_address: string | null
+          token_hash: string
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          deal_id: string
+          expires_at?: string
+          id?: string
+          ip_address?: string | null
+          token_hash: string
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          deal_id?: string
+          expires_at?: string
+          id?: string
+          ip_address?: string | null
+          token_hash?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_access_tokens_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deal_categories: {
         Row: {
           category_code: string
@@ -339,12 +377,57 @@ export type Database = {
         }
         Relationships: []
       }
+      passcode_attempts: {
+        Row: {
+          attempted_at: string
+          deal_id: string
+          id: string
+          ip_address: string
+          success: boolean
+        }
+        Insert: {
+          attempted_at?: string
+          deal_id: string
+          id?: string
+          ip_address: string
+          success?: boolean
+        }
+        Update: {
+          attempted_at?: string
+          deal_id?: string
+          id?: string
+          ip_address?: string
+          success?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "passcode_attempts_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      cleanup_expired_tokens: { Args: never; Returns: undefined }
       deal_has_passcode: { Args: { deal_id_text: string }; Returns: boolean }
+      validate_deal_access_token: {
+        Args: { p_access_token: string; p_deal_id: string }
+        Returns: boolean
+      }
+      verify_deal_passcode: {
+        Args: { p_deal_id: string; p_ip_address?: string; p_passcode: string }
+        Returns: {
+          access_token: string
+          message: string
+          success: boolean
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

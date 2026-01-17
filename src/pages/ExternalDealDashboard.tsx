@@ -60,85 +60,79 @@ const ExternalDealDashboard = () => {
   }, [dealId]);
 
   const checkAuthorization = async () => {
-    const storedPasscode = sessionStorage.getItem("deal_passcode");
+    const storedAccessToken = sessionStorage.getItem("deal_access_token");
     const storedDealId = sessionStorage.getItem("deal_id");
 
-    if (!storedPasscode || storedDealId !== dealId) {
+    if (!storedAccessToken || storedDealId !== dealId) {
       toast.error("Unauthorized access. Please enter the deal code.");
       navigate("/");
       return;
     }
 
-    // Verify passcode is still valid
-    const { data, error } = await supabase
-      .from("deals")
-      .select("id, passcode")
-      .eq("id", dealId)
-      .eq("passcode", storedPasscode)
-      .maybeSingle();
+    // Validate access token via secure edge function
+    try {
+      const { data, error } = await supabase.functions.invoke("validate-deal-access", {
+        body: {
+          dealId: dealId,
+          accessToken: storedAccessToken,
+        },
+      });
 
-    if (error || !data) {
-      sessionStorage.removeItem("deal_passcode");
+      if (error || !data?.valid) {
+        sessionStorage.removeItem("deal_access_token");
+        sessionStorage.removeItem("deal_id");
+        toast.error("Invalid or expired access. Please enter the deal code again.");
+        navigate("/");
+        return;
+      }
+
+      setIsAuthorized(true);
+      fetchDealData(storedAccessToken);
+    } catch (err) {
+      console.error("Error validating access:", err);
+      sessionStorage.removeItem("deal_access_token");
       sessionStorage.removeItem("deal_id");
-      toast.error("Invalid or expired access. Please enter the deal code again.");
+      toast.error("Failed to validate access. Please try again.");
+      navigate("/");
+    }
+  };
+
+  const fetchDealData = async (accessToken?: string) => {
+    if (!dealId) return;
+
+    const token = accessToken || sessionStorage.getItem("deal_access_token");
+    if (!token) {
+      toast.error("No access token found.");
       navigate("/");
       return;
     }
 
-    setIsAuthorized(true);
-    fetchDealData();
-  };
-
-  const fetchDealData = async () => {
-    if (!dealId) return;
-
     try {
-      // Fetch deal information
-      const { data: dealData, error: dealError } = await supabase
-        .from('deals')
-        .select('name, target_close_date')
-        .eq('id', dealId)
-        .single();
+      // Fetch all deal data via secure edge function
+      const { data, error } = await supabase.functions.invoke("get-deal-data", {
+        body: {
+          dealId: dealId,
+          accessToken: token,
+        },
+      });
 
-      if (dealError) throw dealError;
-      setDealName(dealData.name);
-      setTargetCloseDate(dealData.target_close_date);
+      if (error || !data?.success) {
+        console.error("Error fetching deal data:", error || data?.message);
+        toast.error("Failed to load deal data. Please try again.");
+        return;
+      }
 
-      // Fetch categories with their tasks and specialists
-      const { data: categoriesData, error: categoriesError } = await supabase
-        .from('deal_categories')
-        .select(`
-          id,
-          title,
-          category_code,
-          category_order
-        `)
-        .eq('deal_id', dealId)
-        .order('category_order');
+      // Set deal info
+      setDealName(data.deal.name);
+      setTargetCloseDate(data.deal.target_close_date);
 
-      if (categoriesError) throw categoriesError;
-
-      // Fetch tasks for all categories
-      const categoryIds = categoriesData.map(cat => cat.id);
-      const { data: tasksData, error: tasksError } = await supabase
-        .from('deal_tasks')
-        .select('*')
-        .in('category_id', categoryIds)
-        .order('task_order');
-
-      if (tasksError) throw tasksError;
-
-      // Fetch specialists for all categories
-      const { data: specialistsData, error: specialistsError } = await supabase
-        .from('deal_specialists')
-        .select('*')
-        .in('category_id', categoryIds);
-
-      if (specialistsError) throw specialistsError;
+      const categoriesData = data.categories || [];
+      const tasksData = data.tasks || [];
+      const specialistsData = data.specialists || [];
 
       // Map specialists with category names for display and sort by category order (A-N)
-      const specialistsList = specialistsData.map(specialist => {
-        const category = categoriesData.find(cat => cat.id === specialist.category_id);
+      const specialistsList = specialistsData.map((specialist: any) => {
+        const category = categoriesData.find((cat: any) => cat.id === specialist.category_id);
         return {
           id: specialist.id,
           name: specialist.name,
@@ -149,25 +143,25 @@ const ExternalDealDashboard = () => {
           categoryOrder: category?.category_order || 999,
           categoryCode: category?.category_code || '',
         };
-      }).sort((a, b) => a.categoryOrder - b.categoryOrder);
+      }).sort((a: any, b: any) => a.categoryOrder - b.categoryOrder);
       setSpecialists(specialistsList);
       
       // Set available categories for the add specialist form
-      setAvailableCategories(categoriesData.map(cat => ({
+      setAvailableCategories(categoriesData.map((cat: any) => ({
         id: cat.id,
         title: cat.title,
         code: cat.category_code,
       })));
 
       // Build categories with tasks
-      const categoriesWithTasks: Category[] = categoriesData.map(category => {
-        const categoryTasks = tasksData.filter(task => task.category_id === category.id);
-        const specialist = specialistsData.find(s => s.category_id === category.id);
+      const categoriesWithTasks: Category[] = categoriesData.map((category: any) => {
+        const categoryTasks = tasksData.filter((task: any) => task.category_id === category.id);
+        const specialist = specialistsData.find((s: any) => s.category_id === category.id);
 
         return {
           id: category.category_code,
           title: category.title,
-          tasks: categoryTasks.map(task => ({
+          tasks: categoryTasks.map((task: any) => ({
             id: task.id,
             code: task.task_code,
             title: task.title,
@@ -183,26 +177,8 @@ const ExternalDealDashboard = () => {
       });
 
       setCategories(categoriesWithTasks);
-
-      // Fetch documents count
-      const { count: docsCount, error: docsError } = await supabase
-        .from('deal_documents')
-        .select('*', { count: 'exact', head: true })
-        .eq('deal_id', dealId);
-
-      if (!docsError && docsCount !== null) {
-        setDocumentsCount(docsCount);
-      }
-
-      // Fetch core team members
-      const { data: coreTeamData, error: coreTeamError } = await supabase
-        .from('deal_team_members')
-        .select('*')
-        .eq('deal_id', dealId);
-
-      if (!coreTeamError && coreTeamData) {
-        setCoreTeam(coreTeamData);
-      }
+      setDocumentsCount(data.documentsCount || 0);
+      setCoreTeam(data.coreTeam || []);
     } catch (error) {
       console.error('Error fetching deal data:', error);
       toast.error("Failed to load deal data. Please try again.");
@@ -233,7 +209,7 @@ const ExternalDealDashboard = () => {
     : null;
 
   const handleExit = () => {
-    sessionStorage.removeItem("deal_passcode");
+    sessionStorage.removeItem("deal_access_token");
     sessionStorage.removeItem("deal_id");
     navigate("/");
   };
