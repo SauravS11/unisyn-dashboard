@@ -20,7 +20,6 @@ import { SpecialistAssignmentModal } from "@/components/SpecialistAssignmentModa
 import unisynLogo from "@/assets/unisyn-logo.svg";
 import { PageNavigation } from "@/components/PageNavigation";
 import { SignOutButton } from "@/components/SignOutButton";
-
 interface Task {
   id: string;
   code: string;
@@ -33,25 +32,44 @@ interface Task {
   hasAttachment: boolean;
   checked: boolean;
 }
-
 interface Category {
   id: string;
   title: string;
   tasks: Task[];
 }
-
 const DealDashboard = () => {
-  const { id: dealId } = useParams<{ id: string }>();
-  const { toast } = useToast();
+  const {
+    id: dealId
+  } = useParams<{
+    id: string;
+  }>();
+  const {
+    toast
+  } = useToast();
   const [dealName, setDealName] = useState<string>("Loading...");
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [documentsCount, setDocumentsCount] = useState(0);
   const [documentsModalOpen, setDocumentsModalOpen] = useState(false);
-  const [specialists, setSpecialists] = useState<Array<{ id?: string; name: string; email: string; role: string; category: string; categoryId?: string; categoryOrder?: number; categoryCode?: string }>>([]);
+  const [specialists, setSpecialists] = useState<Array<{
+    id?: string;
+    name: string;
+    email: string;
+    role: string;
+    category: string;
+    categoryId?: string;
+    categoryOrder?: number;
+    categoryCode?: string;
+  }>>([]);
   const [specialistsModalOpen, setSpecialistsModalOpen] = useState(false);
   const [targetCloseDate, setTargetCloseDate] = useState<string | null>(null);
-  const [coreTeam, setCoreTeam] = useState<Array<{ full_name: string; email: string; role: string; contact_number: string; permission_level: string }>>([]);
+  const [coreTeam, setCoreTeam] = useState<Array<{
+    full_name: string;
+    email: string;
+    role: string;
+    contact_number: string;
+    permission_level: string;
+  }>>([]);
   const [coreTeamModalOpen, setCoreTeamModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
@@ -59,14 +77,27 @@ const DealDashboard = () => {
   const [assignModalOpen, setAssignModalOpen] = useState(false);
   const [selectedTaskForAssignment, setSelectedTaskForAssignment] = useState<string | null>(null);
   const [openDatePopover, setOpenDatePopover] = useState<string | null>(null);
-  const [newSpecialist, setNewSpecialist] = useState({ name: '', email: '', role: '', categoryId: '' });
+  const [newSpecialist, setNewSpecialist] = useState({
+    name: '',
+    email: '',
+    role: '',
+    categoryId: ''
+  });
   const [addingSpecialist, setAddingSpecialist] = useState(false);
   const [showAddSpecialistForm, setShowAddSpecialistForm] = useState(false);
-  const [availableCategories, setAvailableCategories] = useState<Array<{ id: string; title: string; code: string }>>([]);
+  const [availableCategories, setAvailableCategories] = useState<Array<{
+    id: string;
+    title: string;
+    code: string;
+  }>>([]);
   const [closeDateDialogOpen, setCloseDateDialogOpen] = useState(false);
   const [uploadingTaskId, setUploadingTaskId] = useState<string | null>(null);
   const taskFileInputRef = useRef<HTMLInputElement>(null);
-  const [selectedTaskForUpload, setSelectedTaskForUpload] = useState<{ taskId: string; categoryCode: string; categoryName: string } | null>(null);
+  const [selectedTaskForUpload, setSelectedTaskForUpload] = useState<{
+    taskId: string;
+    categoryCode: string;
+    categoryName: string;
+  } | null>(null);
   const [dealParties, setDealParties] = useState<{
     buyerName: string | null;
     buyerEmail: string | null;
@@ -84,180 +115,163 @@ const DealDashboard = () => {
     buyerLegalName: null,
     buyerLegalEmail: null,
     sellerLegalName: null,
-    sellerLegalEmail: null,
+    sellerLegalEmail: null
   });
-
   useEffect(() => {
     fetchDealData();
   }, [dealId, toast]);
-
   const fetchDealData = async () => {
     if (!dealId) return;
-
     try {
-        // Fetch deal information
-        const { data: dealData, error: dealError } = await supabase
-          .from('deals')
-          .select('name, target_close_date, buyer_name, buyer_email, seller_name, seller_email, buyer_legal_name, buyer_legal_email, seller_legal_name, seller_legal_email')
-          .eq('id', dealId)
-          .single();
+      // Fetch deal information
+      const {
+        data: dealData,
+        error: dealError
+      } = await supabase.from('deals').select('name, target_close_date, buyer_name, buyer_email, seller_name, seller_email, buyer_legal_name, buyer_legal_email, seller_legal_name, seller_legal_email').eq('id', dealId).single();
+      if (dealError) throw dealError;
+      setDealName(dealData.name);
+      setTargetCloseDate(dealData.target_close_date);
+      setDealParties({
+        buyerName: dealData.buyer_name,
+        buyerEmail: dealData.buyer_email,
+        sellerName: dealData.seller_name,
+        sellerEmail: dealData.seller_email,
+        buyerLegalName: dealData.buyer_legal_name,
+        buyerLegalEmail: dealData.buyer_legal_email,
+        sellerLegalName: dealData.seller_legal_name,
+        sellerLegalEmail: dealData.seller_legal_email
+      });
 
-        if (dealError) throw dealError;
-        setDealName(dealData.name);
-        setTargetCloseDate(dealData.target_close_date);
-        setDealParties({
-          buyerName: dealData.buyer_name,
-          buyerEmail: dealData.buyer_email,
-          sellerName: dealData.seller_name,
-          sellerEmail: dealData.seller_email,
-          buyerLegalName: dealData.buyer_legal_name,
-          buyerLegalEmail: dealData.buyer_legal_email,
-          sellerLegalName: dealData.seller_legal_name,
-          sellerLegalEmail: dealData.seller_legal_email,
-        });
-
-        // Fetch categories with their tasks and specialists
-        const { data: categoriesData, error: categoriesError } = await supabase
-          .from('deal_categories')
-          .select(`
+      // Fetch categories with their tasks and specialists
+      const {
+        data: categoriesData,
+        error: categoriesError
+      } = await supabase.from('deal_categories').select(`
             id,
             title,
             category_code,
             category_order
-          `)
-          .eq('deal_id', dealId)
-          .order('category_order');
+          `).eq('deal_id', dealId).order('category_order');
+      if (categoriesError) throw categoriesError;
 
-        if (categoriesError) throw categoriesError;
+      // Fetch tasks for all categories
+      const categoryIds = categoriesData.map(cat => cat.id);
+      const {
+        data: tasksData,
+        error: tasksError
+      } = await supabase.from('deal_tasks').select('*').in('category_id', categoryIds).order('task_order');
+      if (tasksError) throw tasksError;
 
-        // Fetch tasks for all categories
-        const categoryIds = categoriesData.map(cat => cat.id);
-        const { data: tasksData, error: tasksError } = await supabase
-          .from('deal_tasks')
-          .select('*')
-          .in('category_id', categoryIds)
-          .order('task_order');
+      // Fetch specialists for all categories
+      const {
+        data: specialistsData,
+        error: specialistsError
+      } = await supabase.from('deal_specialists').select('*').in('category_id', categoryIds);
+      if (specialistsError) throw specialistsError;
 
-        if (tasksError) throw tasksError;
+      // Map specialists with category names for display and sort by category order (A-N)
+      const specialistsList = specialistsData.map(specialist => {
+        const category = categoriesData.find(cat => cat.id === specialist.category_id);
+        return {
+          id: specialist.id,
+          name: specialist.name,
+          email: specialist.email,
+          role: specialist.role,
+          category: category?.title || 'Unknown',
+          categoryId: specialist.category_id,
+          categoryOrder: category?.category_order || 999,
+          categoryCode: category?.category_code || 'Z'
+        };
+      }).sort((a, b) => a.categoryOrder - b.categoryOrder);
+      setSpecialists(specialistsList);
 
-        // Fetch specialists for all categories
-        const { data: specialistsData, error: specialistsError } = await supabase
-          .from('deal_specialists')
-          .select('*')
-          .in('category_id', categoryIds);
+      // Store available categories for the add specialist form
+      setAvailableCategories(categoriesData.map(cat => ({
+        id: cat.id,
+        title: cat.title,
+        code: cat.category_code
+      })));
 
-        if (specialistsError) throw specialistsError;
+      // Build categories with tasks
+      const categoriesWithTasks: Category[] = categoriesData.map(category => {
+        const categoryTasks = tasksData.filter(task => task.category_id === category.id);
+        const specialist = specialistsData.find(s => s.category_id === category.id);
+        return {
+          id: category.category_code,
+          title: category.title,
+          tasks: categoryTasks.map(task => ({
+            id: task.id,
+            code: task.task_code,
+            title: task.title,
+            priority: task.priority as "high" | "medium" | "low",
+            assignedName: task.assigned_to || specialist?.name || "",
+            assignedEmail: task.assigned_email || specialist?.email || "",
+            status: task.status as "pending" | "in-progress" | "completed",
+            dueDate: task.due_date,
+            hasAttachment: task.has_attachment,
+            checked: task.checked
+          }))
+        };
+      });
+      setCategories(categoriesWithTasks);
 
-        // Map specialists with category names for display and sort by category order (A-N)
-        const specialistsList = specialistsData.map(specialist => {
-          const category = categoriesData.find(cat => cat.id === specialist.category_id);
-          return {
-            id: specialist.id,
-            name: specialist.name,
-            email: specialist.email,
-            role: specialist.role,
-            category: category?.title || 'Unknown',
-            categoryId: specialist.category_id,
-            categoryOrder: category?.category_order || 999,
-            categoryCode: category?.category_code || 'Z',
-          };
-        }).sort((a, b) => a.categoryOrder - b.categoryOrder);
-        setSpecialists(specialistsList);
-
-        // Store available categories for the add specialist form
-        setAvailableCategories(categoriesData.map(cat => ({
-          id: cat.id,
-          title: cat.title,
-          code: cat.category_code,
-        })));
-
-        // Build categories with tasks
-        const categoriesWithTasks: Category[] = categoriesData.map(category => {
-          const categoryTasks = tasksData.filter(task => task.category_id === category.id);
-          const specialist = specialistsData.find(s => s.category_id === category.id);
-
-          return {
-            id: category.category_code,
-            title: category.title,
-            tasks: categoryTasks.map(task => ({
-              id: task.id,
-              code: task.task_code,
-              title: task.title,
-              priority: task.priority as "high" | "medium" | "low",
-              assignedName: task.assigned_to || specialist?.name || "",
-              assignedEmail: task.assigned_email || specialist?.email || "",
-              status: task.status as "pending" | "in-progress" | "completed",
-              dueDate: task.due_date,
-              hasAttachment: task.has_attachment,
-              checked: task.checked,
-            })),
-          };
-        });
-
-        setCategories(categoriesWithTasks);
-
-        // Fetch documents count
-        const { count: docsCount, error: docsError } = await supabase
-          .from('deal_documents')
-          .select('*', { count: 'exact', head: true })
-          .eq('deal_id', dealId);
-
-        if (!docsError && docsCount !== null) {
-          setDocumentsCount(docsCount);
-        }
-
-        // Fetch core team members
-        const { data: coreTeamData, error: coreTeamError } = await supabase
-          .from('deal_team_members')
-          .select('*')
-          .eq('deal_id', dealId);
-
-        if (!coreTeamError && coreTeamData) {
-          setCoreTeam(coreTeamData);
-        }
-      } catch (error) {
-        console.error('Error fetching deal data:', error);
-        toast({
-          title: "Error",
-          description: "Failed to load deal data. Please try again.",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
+      // Fetch documents count
+      const {
+        count: docsCount,
+        error: docsError
+      } = await supabase.from('deal_documents').select('*', {
+        count: 'exact',
+        head: true
+      }).eq('deal_id', dealId);
+      if (!docsError && docsCount !== null) {
+        setDocumentsCount(docsCount);
       }
-  };
-  
-  // Calculate stats
-  const allTasks = categories.flatMap((cat) => cat.tasks);
-  const completedTasks = allTasks.filter((t) => t.checked).length;
-  const totalTasks = allTasks.length || 1; // Prevent division by zero
-  const readinessScore = Math.round((completedTasks / totalTasks) * 100);
-  const openTasks = allTasks.filter((t) => !t.checked).length;
-  const highPriorityTasks = allTasks.filter((t) => t.priority === "high" && !t.checked).length;
-  const specialistsAssigned = new Set(allTasks.filter((t) => t.assignedName).map((t) => t.assignedEmail)).size;
-  
-  // Calculate days until close (comparing dates without time)
-  const daysUntilClose = targetCloseDate 
-    ? (() => {
-        const target = new Date(targetCloseDate);
-        const today = new Date();
-        // Reset both to start of day for accurate day comparison
-        target.setHours(0, 0, 0, 0);
-        today.setHours(0, 0, 0, 0);
-        return Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-      })()
-    : null;
 
+      // Fetch core team members
+      const {
+        data: coreTeamData,
+        error: coreTeamError
+      } = await supabase.from('deal_team_members').select('*').eq('deal_id', dealId);
+      if (!coreTeamError && coreTeamData) {
+        setCoreTeam(coreTeamData);
+      }
+    } catch (error) {
+      console.error('Error fetching deal data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load deal data. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Calculate stats
+  const allTasks = categories.flatMap(cat => cat.tasks);
+  const completedTasks = allTasks.filter(t => t.checked).length;
+  const totalTasks = allTasks.length || 1; // Prevent division by zero
+  const readinessScore = Math.round(completedTasks / totalTasks * 100);
+  const openTasks = allTasks.filter(t => !t.checked).length;
+  const highPriorityTasks = allTasks.filter(t => t.priority === "high" && !t.checked).length;
+  const specialistsAssigned = new Set(allTasks.filter(t => t.assignedName).map(t => t.assignedEmail)).size;
+
+  // Calculate days until close (comparing dates without time)
+  const daysUntilClose = targetCloseDate ? (() => {
+    const target = new Date(targetCloseDate);
+    const today = new Date();
+    // Reset both to start of day for accurate day comparison
+    target.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+    return Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  })() : null;
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 p-8 flex items-center justify-center">
+    return <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 p-8 flex items-center justify-center">
         <div className="text-center">
           <div className="text-lg text-muted-foreground">Loading deal data...</div>
         </div>
-      </div>
-    );
+      </div>;
   }
-
   const handleTaskUpdate = async (taskId: string, partialUpdates: {
     checked?: boolean;
     status?: "pending" | "in-progress" | "completed";
@@ -269,7 +283,6 @@ const DealDashboard = () => {
   }) => {
     // Map UI field names to database column names
     const dbUpdates: any = {};
-
     if ("checked" in partialUpdates) dbUpdates.checked = partialUpdates.checked;
     if ("status" in partialUpdates) dbUpdates.status = partialUpdates.status;
     if ("priority" in partialUpdates) dbUpdates.priority = partialUpdates.priority;
@@ -279,36 +292,29 @@ const DealDashboard = () => {
     if ("hasAttachment" in partialUpdates) dbUpdates.has_attachment = partialUpdates.hasAttachment;
 
     // Optimistic update - update UI immediately
-    setCategories(prevCategories => 
-      prevCategories.map(category => ({
-        ...category,
-        tasks: category.tasks.map(task => 
-          task.id === taskId 
-            ? { ...task, ...partialUpdates }
-            : task
-        )
-      }))
-    );
+    setCategories(prevCategories => prevCategories.map(category => ({
+      ...category,
+      tasks: category.tasks.map(task => task.id === taskId ? {
+        ...task,
+        ...partialUpdates
+      } : task)
+    })));
 
     // Also update selectedCategory if the task is in it
     setSelectedCategory(prevSelected => {
       if (!prevSelected) return prevSelected;
       return {
         ...prevSelected,
-        tasks: prevSelected.tasks.map(task =>
-          task.id === taskId
-            ? { ...task, ...partialUpdates }
-            : task
-        )
+        tasks: prevSelected.tasks.map(task => task.id === taskId ? {
+          ...task,
+          ...partialUpdates
+        } : task)
       };
     });
-
     try {
-      const { error } = await supabase
-        .from('deal_tasks')
-        .update(dbUpdates)
-        .eq('id', taskId);
-
+      const {
+        error
+      } = await supabase.from('deal_tasks').update(dbUpdates).eq('id', taskId);
       if (error) throw error;
     } catch (error) {
       console.error('Error updating task:', error);
@@ -317,53 +323,53 @@ const DealDashboard = () => {
       toast({
         title: "Error",
         description: "Failed to update task. Please try again.",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
-
-  const handleAddSpecialist = async (specialist: { name: string; email: string; role: string; categoryId: string }) => {
+  const handleAddSpecialist = async (specialist: {
+    name: string;
+    email: string;
+    role: string;
+    categoryId: string;
+  }) => {
     console.log("handleAddSpecialist called with:", specialist);
     console.log("dealId:", dealId);
-    
     if (!dealId) {
       console.error("No dealId found");
       return;
     }
-
     try {
       console.log("Attempting to insert specialist into database");
-      const { error } = await supabase
-        .from('deal_specialists')
-        .insert({
-          deal_id: dealId,
-          category_id: specialist.categoryId,
-          name: specialist.name,
-          email: specialist.email,
-          role: specialist.role || 'Specialist',
-        });
-
+      const {
+        error
+      } = await supabase.from('deal_specialists').insert({
+        deal_id: dealId,
+        category_id: specialist.categoryId,
+        name: specialist.name,
+        email: specialist.email,
+        role: specialist.role || 'Specialist'
+      });
       if (error) {
         console.error("Database error:", error);
         throw error;
       }
-
       console.log("Specialist added successfully");
       toast({
         title: "Specialist Added",
-        description: `${specialist.name} has been added as a specialist.`,
+        description: `${specialist.name} has been added as a specialist.`
       });
 
       // Refresh data to get the new specialist
       console.log("Refreshing deal data");
       await fetchDealData();
-      
+
       // Assign the newly added specialist to the task
       if (selectedTaskForAssignment) {
         console.log("Assigning specialist to task:", selectedTaskForAssignment);
         await handleTaskUpdate(selectedTaskForAssignment, {
           assignedName: specialist.name,
-          assignedEmail: specialist.email,
+          assignedEmail: specialist.email
         });
       }
     } catch (error) {
@@ -371,40 +377,37 @@ const DealDashboard = () => {
       toast({
         title: "Error",
         description: "Failed to add specialist. Please try again.",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
-
-  const handleAssignSpecialist = async (specialist: { name: string; email: string }) => {
+  const handleAssignSpecialist = async (specialist: {
+    name: string;
+    email: string;
+  }) => {
     if (!selectedTaskForAssignment) return;
-    
     await handleTaskUpdate(selectedTaskForAssignment, {
       assignedName: specialist.name,
-      assignedEmail: specialist.email,
+      assignedEmail: specialist.email
     });
   };
-
   const handleCloseDateChange = async (date: Date | undefined) => {
     if (!dealId || !date) return;
-
     const formattedDate = format(date, 'yyyy-MM-dd');
-    
+
     // Optimistic update
     setTargetCloseDate(formattedDate);
     setCloseDateDialogOpen(false);
-
     try {
-      const { error } = await supabase
-        .from('deals')
-        .update({ target_close_date: formattedDate })
-        .eq('id', dealId);
-
+      const {
+        error
+      } = await supabase.from('deals').update({
+        target_close_date: formattedDate
+      }).eq('id', dealId);
       if (error) throw error;
-
       toast({
         title: "Date Updated",
-        description: `Target close date set to ${format(date, 'PPP')}`,
+        description: `Target close date set to ${format(date, 'PPP')}`
       });
     } catch (error) {
       console.error('Error updating close date:', error);
@@ -413,64 +416,63 @@ const DealDashboard = () => {
       toast({
         title: "Error",
         description: "Failed to update close date. Please try again.",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
-
   const handleTaskFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files || files.length === 0 || !selectedTaskForUpload || !dealId) return;
-
     setUploadingTaskId(selectedTaskForUpload.taskId);
     try {
       const file = files[0];
       const fileName = `${dealId}/${Date.now()}-${file.name}`;
 
       // Upload file to storage
-      const { error: uploadError } = await supabase.storage
-        .from('deal-documents')
-        .upload(fileName, file);
-
+      const {
+        error: uploadError
+      } = await supabase.storage.from('deal-documents').upload(fileName, file);
       if (uploadError) throw uploadError;
 
       // Get current user
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
 
       // Get category code for the document category
       const categoryLabel = `${selectedTaskForUpload.categoryCode} - ${selectedTaskForUpload.categoryName}`;
-      
+
       // Get task title for notes
-      const task = categories
-        .flatMap(c => c.tasks)
-        .find(t => t.id === selectedTaskForUpload.taskId);
+      const task = categories.flatMap(c => c.tasks).find(t => t.id === selectedTaskForUpload.taskId);
 
       // Save document metadata to database with task reference
-      const { error: dbError } = await supabase
-        .from('deal_documents')
-        .insert({
-          deal_id: dealId,
-          file_name: file.name,
-          file_path: fileName,
-          file_size: file.size,
-          file_type: file.type || null,
-          uploaded_by: user?.id,
-          category: categoryLabel,
-          notes: task ? `Uploaded from task: ${task.title} (${task.code})` : null,
-          task_id: selectedTaskForUpload.taskId,
-        });
-
+      const {
+        error: dbError
+      } = await supabase.from('deal_documents').insert({
+        deal_id: dealId,
+        file_name: file.name,
+        file_path: fileName,
+        file_size: file.size,
+        file_type: file.type || null,
+        uploaded_by: user?.id,
+        category: categoryLabel,
+        notes: task ? `Uploaded from task: ${task.title} (${task.code})` : null,
+        task_id: selectedTaskForUpload.taskId
+      });
       if (dbError) throw dbError;
 
       // Update task to show it has attachment
-      await handleTaskUpdate(selectedTaskForUpload.taskId, { hasAttachment: true });
+      await handleTaskUpdate(selectedTaskForUpload.taskId, {
+        hasAttachment: true
+      });
 
       // Update documents count
       setDocumentsCount(prev => prev + 1);
-
       toast({
         title: "Document Uploaded",
-        description: `${file.name} has been uploaded to this task.`,
+        description: `${file.name} has been uploaded to this task.`
       });
 
       // Reset
@@ -483,22 +485,19 @@ const DealDashboard = () => {
       toast({
         title: "Upload Failed",
         description: "There was an error uploading your document.",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setUploadingTaskId(null);
     }
   };
-
   const getCategoryCompletion = (category: Category) => {
-    const completed = category.tasks.filter((t) => t.checked).length;
-    return Math.round((completed / category.tasks.length) * 100);
+    const completed = category.tasks.filter(t => t.checked).length;
+    return Math.round(completed / category.tasks.length * 100);
   };
-
   const getOpenTasksCount = (category: Category) => {
-    return category.tasks.filter((t) => !t.checked).length;
+    return category.tasks.filter(t => !t.checked).length;
   };
-
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "high":
@@ -511,7 +510,6 @@ const DealDashboard = () => {
         return "bg-muted";
     }
   };
-
   const getPriorityLabel = (priority: string) => {
     switch (priority) {
       case "high":
@@ -524,45 +522,30 @@ const DealDashboard = () => {
         return "Set Priority";
     }
   };
-
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "completed":
-        return (
-          <Badge className="bg-green-500/10 text-green-500 border-green-500/20">
+        return <Badge className="bg-green-500/10 text-green-500 border-green-500/20">
             <CheckCircle2 className="h-3 w-3 mr-1" />
             Completed
-          </Badge>
-        );
+          </Badge>;
       case "in-progress":
-        return (
-          <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20">
+        return <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20">
             <Clock className="h-3 w-3 mr-1" />
             In Progress
-          </Badge>
-        );
+          </Badge>;
       case "pending":
-        return (
-          <Badge className="bg-muted/50 text-muted-foreground border-border/50">
+        return <Badge className="bg-muted/50 text-muted-foreground border-border/50">
             <AlertCircle className="h-3 w-3 mr-1" />
             Pending
-          </Badge>
-        );
+          </Badge>;
       default:
         return null;
     }
   };
-
-  return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-background via-background to-muted">
+  return <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-background via-background to-muted">
       {/* Hidden file input for task document uploads */}
-      <input
-        ref={taskFileInputRef}
-        type="file"
-        className="hidden"
-        onChange={handleTaskFileUpload}
-        accept="*"
-      />
+      <input ref={taskFileInputRef} type="file" className="hidden" onChange={handleTaskFileUpload} accept="*" />
       
       {/* Geometric Background Pattern */}
       <div className="absolute inset-0 opacity-30">
@@ -583,13 +566,17 @@ const DealDashboard = () => {
             <SignOutButton />
           </div>
           <img src={unisynLogo} alt="UniSyn Technology" className="w-36 sm:w-44 h-auto" />
-          <PageNavigation
-            items={[
-              { to: "/welcome", label: "Home" },
-              { to: "/deals", label: "Deals" },
-              { to: `/deals/${dealId}/dashboard`, label: dealName, isActive: true },
-            ]}
-          />
+          <PageNavigation items={[{
+          to: "/welcome",
+          label: "Home"
+        }, {
+          to: "/deals",
+          label: "Deals"
+        }, {
+          to: `/deals/${dealId}/dashboard`,
+          label: dealName,
+          isActive: true
+        }]} />
         </div>
       </div>
 
@@ -605,27 +592,8 @@ const DealDashboard = () => {
                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
                   <div className="relative w-24 h-24 flex-shrink-0">
                     <svg className="w-full h-full transform -rotate-90">
-                      <circle
-                        cx="48"
-                        cy="48"
-                        r="40"
-                        stroke="currentColor"
-                        strokeWidth="8"
-                        fill="none"
-                        className="text-muted"
-                      />
-                      <circle
-                        cx="48"
-                        cy="48"
-                        r="40"
-                        stroke="currentColor"
-                        strokeWidth="8"
-                        fill="none"
-                        strokeDasharray={`${2 * Math.PI * 40}`}
-                        strokeDashoffset={`${2 * Math.PI * 40 * (1 - readinessScore / 100)}`}
-                        className="text-primary transition-all duration-500"
-                        strokeLinecap="round"
-                      />
+                      <circle cx="48" cy="48" r="40" stroke="currentColor" strokeWidth="8" fill="none" className="text-muted" />
+                      <circle cx="48" cy="48" r="40" stroke="currentColor" strokeWidth="8" fill="none" strokeDasharray={`${2 * Math.PI * 40}`} strokeDashoffset={`${2 * Math.PI * 40 * (1 - readinessScore / 100)}`} className="text-primary transition-all duration-500" strokeLinecap="round" />
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
                       <span className="text-xl sm:text-2xl font-bold">{readinessScore}%</span>
@@ -661,10 +629,7 @@ const DealDashboard = () => {
               </CardContent>
             </Card>
 
-            <Card 
-              className="backdrop-blur-xl bg-card/60 border-border/50 shadow-xl cursor-pointer hover:shadow-2xl transition-shadow"
-              onClick={() => setSpecialistsModalOpen(true)}
-            >
+            <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-xl cursor-pointer hover:shadow-2xl transition-shadow" onClick={() => setSpecialistsModalOpen(true)}>
               <CardContent className="flex items-center justify-center py-8">
                 <div className="text-center">
                   <div className="text-4xl font-bold text-primary mb-2">{specialistsAssigned}</div>
@@ -680,46 +645,18 @@ const DealDashboard = () => {
           {/* Second Row - Days Until Close + Core Team + Documents */}
           <div className="grid md:grid-cols-5 gap-6">
             {/* Days Until Close Card */}
-            <Card 
-              className="md:col-span-2 backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl cursor-pointer hover:shadow-2xl transition-shadow"
-              onClick={() => setCloseDateDialogOpen(true)}
-            >
+            <Card className="md:col-span-2 backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl cursor-pointer hover:shadow-2xl transition-shadow" onClick={() => setCloseDateDialogOpen(true)}>
               <CardContent className="py-6">
                 <div className="flex items-center justify-center gap-8">
                   <div className="relative w-24 h-24 flex-shrink-0">
                     <svg className="w-24 h-24 transform -rotate-90">
-                      <circle
-                        cx="48"
-                        cy="48"
-                        r="40"
-                        stroke="currentColor"
-                        strokeWidth="8"
-                        fill="none"
-                        className="text-muted"
-                      />
-                      {daysUntilClose !== null && (
-                        <circle
-                          cx="48"
-                          cy="48"
-                          r="40"
-                          stroke="currentColor"
-                          strokeWidth="8"
-                          fill="none"
-                          strokeDasharray={`${2 * Math.PI * 40}`}
-                          strokeDashoffset={`${2 * Math.PI * 40 * 0.25}`}
-                          className="text-accent transition-all duration-500"
-                          strokeLinecap="round"
-                        />
-                      )}
+                      <circle cx="48" cy="48" r="40" stroke="currentColor" strokeWidth="8" fill="none" className="text-muted" />
+                      {daysUntilClose !== null && <circle cx="48" cy="48" r="40" stroke="currentColor" strokeWidth="8" fill="none" strokeDasharray={`${2 * Math.PI * 40}`} strokeDashoffset={`${2 * Math.PI * 40 * 0.25}`} className="text-accent transition-all duration-500" strokeLinecap="round" />}
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      {daysUntilClose !== null ? (
-                        <span className={`text-2xl font-bold ${daysUntilClose < 0 ? 'text-destructive' : ''}`}>
+                      {daysUntilClose !== null ? <span className={`text-2xl font-bold ${daysUntilClose < 0 ? 'text-destructive' : ''}`}>
                           {daysUntilClose < 0 ? `+${Math.abs(daysUntilClose)}` : daysUntilClose}
-                        </span>
-                      ) : (
-                        <span className="text-sm font-semibold text-muted-foreground">N/A</span>
-                      )}
+                        </span> : <span className="text-sm font-semibold text-muted-foreground">N/A</span>}
                     </div>
                   </div>
                   <div className="text-center">
@@ -750,58 +687,23 @@ const DealDashboard = () => {
                     </div>
                   </div>
                   <div className="flex items-center justify-center p-6 sm:p-8">
-                    <CalendarComponent
-                      mode="single"
-                      selected={targetCloseDate ? new Date(targetCloseDate) : undefined}
-                      onSelect={handleCloseDateChange}
-                      disabled={(date) =>
-                        date < new Date() || date > new Date("2035-12-31")
-                      }
-                      initialFocus
-                      className="p-3 pointer-events-auto bg-card/60 backdrop-blur-xl rounded-lg border border-border/30"
-                    />
+                    <CalendarComponent mode="single" selected={targetCloseDate ? new Date(targetCloseDate) : undefined} onSelect={handleCloseDateChange} disabled={date => date < new Date() || date > new Date("2035-12-31")} initialFocus className="p-3 pointer-events-auto bg-card/60 backdrop-blur-xl rounded-lg border border-border/30" />
                   </div>
                 </div>
               </DialogContent>
             </Dialog>
 
-            <Card 
-              className="md:col-span-2 backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl cursor-pointer hover:shadow-2xl transition-shadow"
-              onClick={() => setCoreTeamModalOpen(true)}
-            >
+            <Card className="md:col-span-2 backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl cursor-pointer hover:shadow-2xl transition-shadow" onClick={() => setCoreTeamModalOpen(true)}>
               <CardContent className="py-6">
                 <div className="flex items-center justify-center gap-8">
                   <div className="relative w-24 h-24 flex-shrink-0">
                     <svg className="w-24 h-24 transform -rotate-90">
-                      <circle
-                        cx="48"
-                        cy="48"
-                        r="40"
-                        stroke="currentColor"
-                        strokeWidth="8"
-                        fill="none"
-                        className="text-muted"
-                      />
-                      <circle
-                        cx="48"
-                        cy="48"
-                        r="40"
-                        stroke="currentColor"
-                        strokeWidth="8"
-                        fill="none"
-                        strokeDasharray={`${2 * Math.PI * 40}`}
-                        strokeDashoffset={`${2 * Math.PI * 40 * 0.25}`}
-                        className="text-accent transition-all duration-500"
-                        strokeLinecap="round"
-                      />
+                      <circle cx="48" cy="48" r="40" stroke="currentColor" strokeWidth="8" fill="none" className="text-muted" />
+                      <circle cx="48" cy="48" r="40" stroke="currentColor" strokeWidth="8" fill="none" strokeDasharray={`${2 * Math.PI * 40}`} strokeDashoffset={`${2 * Math.PI * 40 * 0.25}`} className="text-accent transition-all duration-500" strokeLinecap="round" />
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
                       <span className="text-2xl font-bold">
-                        {coreTeam.length + 
-                          (dealParties.buyerName ? 1 : 0) + 
-                          (dealParties.sellerName ? 1 : 0) + 
-                          (dealParties.buyerLegalName ? 1 : 0) + 
-                          (dealParties.sellerLegalName ? 1 : 0)}
+                        {coreTeam.length + (dealParties.buyerName ? 1 : 0) + (dealParties.sellerName ? 1 : 0) + (dealParties.buyerLegalName ? 1 : 0) + (dealParties.sellerLegalName ? 1 : 0)}
                       </span>
                     </div>
                   </div>
@@ -815,10 +717,7 @@ const DealDashboard = () => {
               </CardContent>
             </Card>
 
-            <Card 
-              className="backdrop-blur-xl bg-card/60 border-border/50 shadow-xl cursor-pointer hover:shadow-2xl transition-shadow"
-              onClick={() => setDocumentsModalOpen(true)}
-            >
+            <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-xl cursor-pointer hover:shadow-2xl transition-shadow" onClick={() => setDocumentsModalOpen(true)}>
               <CardContent className="flex items-center justify-center py-8">
                 <div className="text-center">
                   <div className="text-4xl font-bold text-primary mb-2 flex items-center justify-center gap-2">
@@ -836,17 +735,13 @@ const DealDashboard = () => {
         </div>
 
         {/* Documents Modal */}
-        <DocumentsModal
-          open={documentsModalOpen}
-          onOpenChange={(open) => {
-            setDocumentsModalOpen(open);
-            if (!open) {
-              // Refresh documents count when modal closes
-              fetchDealData();
-            }
-          }}
-          dealId={dealId!}
-        />
+        <DocumentsModal open={documentsModalOpen} onOpenChange={open => {
+        setDocumentsModalOpen(open);
+        if (!open) {
+          // Refresh documents count when modal closes
+          fetchDealData();
+        }
+      }} dealId={dealId!} />
 
         {/* Core Team Modal */}
         <Dialog open={coreTeamModalOpen} onOpenChange={setCoreTeamModalOpen}>
@@ -859,98 +754,78 @@ const DealDashboard = () => {
             </DialogHeader>
             <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
               {/* Deal Parties Section */}
-              {(dealParties.buyerName || dealParties.sellerName) && (
-                <div className="space-y-4">
+              {(dealParties.buyerName || dealParties.sellerName) && <div className="space-y-4">
                   <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">Deal Parties</h3>
                   
                   {/* Buyer */}
-                  {dealParties.buyerName && (
-                    <Card className="border-border/50 bg-primary/5">
+                  {dealParties.buyerName && <Card className="border-border/50 bg-primary/5">
                       <CardContent className="p-4">
                         <div className="flex justify-between items-start">
                           <div>
                             <h3 className="font-semibold text-lg">{dealParties.buyerName}</h3>
                             <p className="text-sm text-muted-foreground">Buyer</p>
-                            {dealParties.buyerEmail && (
-                              <p className="text-sm mt-2">
+                            {dealParties.buyerEmail && <p className="text-sm mt-2">
                                 <span className="text-muted-foreground">Email:</span> {dealParties.buyerEmail}
-                              </p>
-                            )}
+                              </p>}
                           </div>
                           <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20">Buyer</Badge>
                         </div>
                       </CardContent>
-                    </Card>
-                  )}
+                    </Card>}
 
                   {/* Buyer Legal Party */}
-                  {dealParties.buyerLegalName && (
-                    <Card className="border-border/50 bg-blue-500/5 ml-4">
+                  {dealParties.buyerLegalName && <Card className="border-border/50 bg-blue-500/5 ml-4">
                       <CardContent className="p-4">
                         <div className="flex justify-between items-start">
                           <div>
                             <h3 className="font-semibold text-lg">{dealParties.buyerLegalName}</h3>
                             <p className="text-sm text-muted-foreground">Buyer's Legal Representative</p>
-                            {dealParties.buyerLegalEmail && (
-                              <p className="text-sm mt-2">
+                            {dealParties.buyerLegalEmail && <p className="text-sm mt-2">
                                 <span className="text-muted-foreground">Email:</span> {dealParties.buyerLegalEmail}
-                              </p>
-                            )}
+                              </p>}
                           </div>
                           <Badge variant="outline" className="text-blue-500 border-blue-500/50">Legal Party</Badge>
                         </div>
                       </CardContent>
-                    </Card>
-                  )}
+                    </Card>}
 
                   {/* Seller */}
-                  {dealParties.sellerName && (
-                    <Card className="border-border/50 bg-primary/5">
+                  {dealParties.sellerName && <Card className="border-border/50 bg-primary/5">
                       <CardContent className="p-4">
                         <div className="flex justify-between items-start">
                           <div>
                             <h3 className="font-semibold text-lg">{dealParties.sellerName}</h3>
                             <p className="text-sm text-muted-foreground">Seller</p>
-                            {dealParties.sellerEmail && (
-                              <p className="text-sm mt-2">
+                            {dealParties.sellerEmail && <p className="text-sm mt-2">
                                 <span className="text-muted-foreground">Email:</span> {dealParties.sellerEmail}
-                              </p>
-                            )}
+                              </p>}
                           </div>
                           <Badge className="bg-green-500/10 text-green-500 border-green-500/20">Seller</Badge>
                         </div>
                       </CardContent>
-                    </Card>
-                  )}
+                    </Card>}
 
                   {/* Seller Legal Party */}
-                  {dealParties.sellerLegalName && (
-                    <Card className="border-border/50 bg-green-500/5 ml-4">
+                  {dealParties.sellerLegalName && <Card className="border-border/50 bg-green-500/5 ml-4">
                       <CardContent className="p-4">
                         <div className="flex justify-between items-start">
                           <div>
                             <h3 className="font-semibold text-lg">{dealParties.sellerLegalName}</h3>
                             <p className="text-sm text-muted-foreground">Seller's Legal Representative</p>
-                            {dealParties.sellerLegalEmail && (
-                              <p className="text-sm mt-2">
+                            {dealParties.sellerLegalEmail && <p className="text-sm mt-2">
                                 <span className="text-muted-foreground">Email:</span> {dealParties.sellerLegalEmail}
-                              </p>
-                            )}
+                              </p>}
                           </div>
                           <Badge variant="outline" className="text-green-500 border-green-500/50">Legal Party</Badge>
                         </div>
                       </CardContent>
-                    </Card>
-                  )}
-                </div>
-              )}
+                    </Card>}
+                </div>}
 
               {/* Core Team Members Section */}
-              {coreTeam.length > 0 && (
-                <div className="space-y-4">
+              {coreTeam.length > 0 && <div className="space-y-4">
                   <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">Core Team Members</h3>
-                  {coreTeam.map((member, index) => (
-                    <Card key={index} className="border-border/50">
+                  {coreTeam.map((member, index) => <Card key={index} className="border-border/50">
                       <CardContent className="p-4">
                         <div className="flex justify-between items-start">
                           <div>
@@ -968,17 +843,13 @@ const DealDashboard = () => {
                           <Badge variant="outline">{member.permission_level}</Badge>
                         </div>
                       </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
+                    </Card>)}
+                </div>}
 
               {/* Empty State */}
-              {coreTeam.length === 0 && !dealParties.buyerName && !dealParties.sellerName && (
-                <div className="text-center py-8 text-muted-foreground">
+              {coreTeam.length === 0 && !dealParties.buyerName && !dealParties.sellerName && <div className="text-center py-8 text-muted-foreground">
                   No core team members or deal parties have been added yet
-                </div>
-              )}
+                </div>}
             </div>
           </DialogContent>
         </Dialog>
@@ -993,39 +864,29 @@ const DealDashboard = () => {
                   View and add specialists to this deal
                 </DialogDescription>
               </div>
-              <Button
-                variant={showAddSpecialistForm ? "secondary" : "default"}
-                size="sm"
-                onClick={() => setShowAddSpecialistForm(!showAddSpecialistForm)}
-              >
+              <Button variant={showAddSpecialistForm ? "secondary" : "default"} size="sm" onClick={() => setShowAddSpecialistForm(!showAddSpecialistForm)}>
                 {showAddSpecialistForm ? "Cancel" : "Add New"}
               </Button>
             </DialogHeader>
             
             <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
               {/* Add Specialist Form - Collapsible */}
-              {showAddSpecialistForm && (
-                <Card className="border-primary/20 bg-primary/5">
+              {showAddSpecialistForm && <Card className="border-primary/20 bg-primary/5">
                   <CardContent className="p-4">
                     <div className="text-sm font-semibold text-primary mb-3">Add New Specialist</div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <Input
-                        placeholder="Name"
-                        value={newSpecialist.name}
-                        onChange={(e) => setNewSpecialist(prev => ({ ...prev, name: e.target.value }))}
-                        className="bg-background/50"
-                      />
-                      <Input
-                        placeholder="Email"
-                        type="email"
-                        value={newSpecialist.email}
-                        onChange={(e) => setNewSpecialist(prev => ({ ...prev, email: e.target.value }))}
-                        className="bg-background/50"
-                      />
-                      <Select
-                        value={newSpecialist.role}
-                        onValueChange={(value) => setNewSpecialist(prev => ({ ...prev, role: value }))}
-                      >
+                      <Input placeholder="Name" value={newSpecialist.name} onChange={e => setNewSpecialist(prev => ({
+                    ...prev,
+                    name: e.target.value
+                  }))} className="bg-background/50" />
+                      <Input placeholder="Email" type="email" value={newSpecialist.email} onChange={e => setNewSpecialist(prev => ({
+                    ...prev,
+                    email: e.target.value
+                  }))} className="bg-background/50" />
+                      <Select value={newSpecialist.role} onValueChange={value => setNewSpecialist(prev => ({
+                    ...prev,
+                    role: value
+                  }))}>
                         <SelectTrigger className="bg-background/50">
                           <SelectValue placeholder="Select role" />
                         </SelectTrigger>
@@ -1122,53 +983,47 @@ const DealDashboard = () => {
                           </SelectGroup>
                         </SelectContent>
                       </Select>
-                      <Select
-                        value={newSpecialist.categoryId}
-                        onValueChange={(value) => setNewSpecialist(prev => ({ ...prev, categoryId: value }))}
-                      >
+                      <Select value={newSpecialist.categoryId} onValueChange={value => setNewSpecialist(prev => ({
+                    ...prev,
+                    categoryId: value
+                  }))}>
                         <SelectTrigger className="bg-background/50">
                           <SelectValue placeholder="Select category" />
                         </SelectTrigger>
                         <SelectContent className="bg-card border-border/50 max-h-60">
-                          {availableCategories.map((cat) => (
-                            <SelectItem key={cat.id} value={cat.id}>
+                          {availableCategories.map(cat => <SelectItem key={cat.id} value={cat.id}>
                               {cat.code}. {cat.title}
-                            </SelectItem>
-                          ))}
+                            </SelectItem>)}
                         </SelectContent>
                       </Select>
                     </div>
-                    <Button 
-                      className="mt-3 w-full"
-                      onClick={async () => {
-                        if (!newSpecialist.name || !newSpecialist.email || !newSpecialist.categoryId) return;
-                        setAddingSpecialist(true);
-                        await handleAddSpecialist({
-                          name: newSpecialist.name,
-                          email: newSpecialist.email,
-                          role: newSpecialist.role,
-                          categoryId: newSpecialist.categoryId,
-                        });
-                        setNewSpecialist({ name: '', email: '', role: '', categoryId: '' });
-                        setShowAddSpecialistForm(false);
-                        setAddingSpecialist(false);
-                      }}
-                      disabled={addingSpecialist || !newSpecialist.name || !newSpecialist.email || !newSpecialist.categoryId}
-                    >
+                    <Button className="mt-3 w-full" onClick={async () => {
+                  if (!newSpecialist.name || !newSpecialist.email || !newSpecialist.categoryId) return;
+                  setAddingSpecialist(true);
+                  await handleAddSpecialist({
+                    name: newSpecialist.name,
+                    email: newSpecialist.email,
+                    role: newSpecialist.role,
+                    categoryId: newSpecialist.categoryId
+                  });
+                  setNewSpecialist({
+                    name: '',
+                    email: '',
+                    role: '',
+                    categoryId: ''
+                  });
+                  setShowAddSpecialistForm(false);
+                  setAddingSpecialist(false);
+                }} disabled={addingSpecialist || !newSpecialist.name || !newSpecialist.email || !newSpecialist.categoryId}>
                       {addingSpecialist ? "Adding..." : "Add Specialist"}
                     </Button>
                   </CardContent>
-                </Card>
-              )}
+                </Card>}
 
               {/* Specialists List */}
-              {specialists.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
+              {specialists.length === 0 ? <div className="text-center py-8 text-muted-foreground">
                   No specialists have been assigned yet
-                </div>
-              ) : (
-                specialists.map((specialist, index) => (
-                  <Card key={specialist.id || index} className="border-border/50">
+                </div> : specialists.map((specialist, index) => <Card key={specialist.id || index} className="border-border/50">
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1">
@@ -1183,9 +1038,7 @@ const DealDashboard = () => {
                         </Badge>
                       </div>
                     </CardContent>
-                  </Card>
-                ))
-              )}
+                  </Card>)}
             </div>
           </DialogContent>
         </Dialog>
@@ -1201,84 +1054,59 @@ const DealDashboard = () => {
                 {selectedCategory?.title}
               </DialogTitle>
               <DialogDescription>
-                {selectedCategory && (
-                  <>
-                    {selectedCategory.tasks.filter((t) => t.checked).length} completed · {" "}
-                    {selectedCategory.tasks.filter((t) => !t.checked).length} remaining
-                  </>
-                )}
+                {selectedCategory && <>
+                    {selectedCategory.tasks.filter(t => t.checked).length} completed · {" "}
+                    {selectedCategory.tasks.filter(t => !t.checked).length} remaining
+                  </>}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-3 overflow-y-auto pr-2 max-h-[calc(80vh-12rem)] scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
-              {selectedCategory?.tasks.map((task) => (
-                <Card
-                  key={task.id}
-                  className="backdrop-blur-xl bg-card/40 border border-border/40 hover:bg-card/60 transition-colors"
-                >
+              {selectedCategory?.tasks.map(task => <Card key={task.id} className="backdrop-blur-xl bg-card/40 border border-border/40 hover:bg-card/60 transition-colors">
                   <CardContent className="p-4">
                     <div className="flex items-start gap-3">
                       {/* Checkbox for completion */}
-                      <Checkbox
-                        checked={task.checked}
-                        onCheckedChange={(checked) => {
-                          const isChecked = checked === true;
-                          handleTaskUpdate(task.id, { 
-                            checked: isChecked,
-                            status: isChecked ? 'completed' : 'pending'
-                          });
-                        }}
-                        className="mt-1 rounded-full data-[state=checked]:bg-red-500 data-[state=checked]:border-red-500"
-                      />
+                      <Checkbox checked={task.checked} onCheckedChange={checked => {
+                    const isChecked = checked === true;
+                    handleTaskUpdate(task.id, {
+                      checked: isChecked,
+                      status: isChecked ? 'completed' : 'pending'
+                    });
+                  }} className="mt-1 rounded-full data-[state=checked]:bg-red-500 data-[state=checked]:border-red-500" />
 
                       {/* Priority Flag */}
                       <div className="flex-shrink-0 mt-0.5">
-                        <Popover open={openFlagPopover === task.id} onOpenChange={(open) => setOpenFlagPopover(open ? task.id : null)}>
+                        <Popover open={openFlagPopover === task.id} onOpenChange={open => setOpenFlagPopover(open ? task.id : null)}>
                           <PopoverTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0"
-                            >
-                              <Flag className={`h-4 w-4 ${
-                                task.priority === 'high' ? 'text-red-500 fill-red-500' :
-                                task.priority === 'medium' ? 'text-yellow-500 fill-yellow-500' :
-                                task.priority === 'low' ? 'text-green-500 fill-green-500' :
-                                'text-muted-foreground'
-                              }`} />
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                              <Flag className={`h-4 w-4 ${task.priority === 'high' ? 'text-red-500 fill-red-500' : task.priority === 'medium' ? 'text-yellow-500 fill-yellow-500' : task.priority === 'low' ? 'text-green-500 fill-green-500' : 'text-muted-foreground'}`} />
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-56 p-2">
                             <div className="space-y-1">
-                              <Button
-                                variant="ghost"
-                                className="w-full justify-start gap-2 text-red-500 hover:text-red-500"
-                                onClick={() => {
-                                  handleTaskUpdate(task.id, { priority: 'high' });
-                                  setOpenFlagPopover(null);
-                                }}
-                              >
+                              <Button variant="ghost" className="w-full justify-start gap-2 text-red-500 hover:text-red-500" onClick={() => {
+                            handleTaskUpdate(task.id, {
+                              priority: 'high'
+                            });
+                            setOpenFlagPopover(null);
+                          }}>
                                 <Flag className="h-4 w-4 fill-red-500" />
                                 High Priority
                               </Button>
-                              <Button
-                                variant="ghost"
-                                className="w-full justify-start gap-2 text-yellow-500 hover:text-yellow-500"
-                                onClick={() => {
-                                  handleTaskUpdate(task.id, { priority: 'medium' });
-                                  setOpenFlagPopover(null);
-                                }}
-                              >
+                              <Button variant="ghost" className="w-full justify-start gap-2 text-yellow-500 hover:text-yellow-500" onClick={() => {
+                            handleTaskUpdate(task.id, {
+                              priority: 'medium'
+                            });
+                            setOpenFlagPopover(null);
+                          }}>
                                 <Flag className="h-4 w-4 fill-yellow-500" />
                                 Medium Priority
                               </Button>
-                              <Button
-                                variant="ghost"
-                                className="w-full justify-start gap-2 text-green-500 hover:text-green-500"
-                                onClick={() => {
-                                  handleTaskUpdate(task.id, { priority: 'low' });
-                                  setOpenFlagPopover(null);
-                                }}
-                              >
+                              <Button variant="ghost" className="w-full justify-start gap-2 text-green-500 hover:text-green-500" onClick={() => {
+                            handleTaskUpdate(task.id, {
+                              priority: 'low'
+                            });
+                            setOpenFlagPopover(null);
+                          }}>
                                 <Flag className="h-4 w-4 fill-green-500" />
                                 Low Priority
                               </Button>
@@ -1301,87 +1129,61 @@ const DealDashboard = () => {
                         {/* Action Buttons */}
                         <div className="flex flex-wrap items-center gap-2 mb-2">
                           {/* Assign Person */}
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-7 text-xs gap-1"
-                            onClick={() => {
-                              console.log("Assign button clicked for task:", task.id);
-                              setSelectedTaskForAssignment(task.id);
-                              setAssignModalOpen(true);
-                            }}
-                          >
+                          <Button variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => {
+                        console.log("Assign button clicked for task:", task.id);
+                        setSelectedTaskForAssignment(task.id);
+                        setAssignModalOpen(true);
+                      }}>
                             <User className="h-3 w-3" />
                             {task.assignedName ? task.assignedName : 'Assign'}
                           </Button>
 
                           {/* Due Date */}
-                          <Popover open={openDatePopover === task.id} onOpenChange={(open) => setOpenDatePopover(open ? task.id : null)}>
+                          <Popover open={openDatePopover === task.id} onOpenChange={open => setOpenDatePopover(open ? task.id : null)}>
                             <PopoverTrigger asChild>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="h-7 text-xs gap-1"
-                              >
+                              <Button variant="outline" size="sm" className="h-7 text-xs gap-1">
                                 <Calendar className="h-3 w-3" />
                                 {task.dueDate ? format(new Date(task.dueDate), 'MMM dd, yyyy') : 'Set Due Date'}
                               </Button>
                             </PopoverTrigger>
                             <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
-                              <CalendarComponent
-                                mode="single"
-                                selected={task.dueDate ? new Date(task.dueDate) : undefined}
-                                onSelect={(date) => {
-                                  if (date) {
-                                    handleTaskUpdate(task.id, { 
-                                      dueDate: format(date, 'yyyy-MM-dd')
-                                    });
-                                    setOpenDatePopover(null);
-                                  }
-                                }}
-                                initialFocus
-                                className="pointer-events-auto"
-                              />
+                              <CalendarComponent mode="single" selected={task.dueDate ? new Date(task.dueDate) : undefined} onSelect={date => {
+                            if (date) {
+                              handleTaskUpdate(task.id, {
+                                dueDate: format(date, 'yyyy-MM-dd')
+                              });
+                              setOpenDatePopover(null);
+                            }
+                          }} initialFocus className="pointer-events-auto" />
                             </PopoverContent>
                           </Popover>
 
                           {/* Upload Document */}
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-7 text-xs gap-1"
-                            disabled={uploadingTaskId === task.id}
-                            onClick={() => {
-                              setSelectedTaskForUpload({
-                                taskId: task.id,
-                                categoryCode: selectedCategory?.id || '',
-                                categoryName: selectedCategory?.title || '',
-                              });
-                              taskFileInputRef.current?.click();
-                            }}
-                          >
+                          <Button variant="outline" size="sm" className="h-7 text-xs gap-1" disabled={uploadingTaskId === task.id} onClick={() => {
+                        setSelectedTaskForUpload({
+                          taskId: task.id,
+                          categoryCode: selectedCategory?.id || '',
+                          categoryName: selectedCategory?.title || ''
+                        });
+                        taskFileInputRef.current?.click();
+                      }}>
                             <Upload className="h-3 w-3" />
                             {uploadingTaskId === task.id ? 'Uploading...' : 'Upload'}
                           </Button>
 
-                          {task.hasAttachment && (
-                            <Badge variant="outline" className="h-7 gap-1 text-xs">
+                          {task.hasAttachment && <Badge variant="outline" className="h-7 gap-1 text-xs">
                               <Paperclip className="h-3 w-3" />
                               Attachment
-                            </Badge>
-                          )}
+                            </Badge>}
                         </div>
 
-                        {task.assignedEmail && (
-                          <div className="text-xs text-muted-foreground">
+                        {task.assignedEmail && <div className="text-xs text-muted-foreground">
                             {task.assignedEmail}
-                          </div>
-                        )}
+                          </div>}
                       </div>
                     </div>
                   </CardContent>
-                </Card>
-              ))}
+                </Card>)}
             </div>
           </DialogContent>
         </Dialog>
@@ -1392,25 +1194,19 @@ const DealDashboard = () => {
           <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl overflow-hidden">
             <CardHeader className="border-b border-border/50 px-3 sm:px-6">
               <CardTitle className="text-base sm:text-xl font-bold">
-                Due Diligence <span className="text-primary">Categories (1-7)</span>
+                Due Diligence <span className="text-primary">Categories (1-7):</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6">
               <div className="space-y-3 sm:space-y-4">
-                {categories.slice(0, 7).map((category) => {
-                  const completion = getCategoryCompletion(category);
-                  const openTasksCount = getOpenTasksCount(category);
-                  const completedTasksCount = category.tasks.filter((t) => t.checked).length;
-
-                  return (
-                    <Card
-                      key={category.id}
-                      className="backdrop-blur-xl bg-background/40 border-2 border-border/50 cursor-pointer hover:bg-background/60 transition-all hover:shadow-lg overflow-hidden"
-                      onClick={() => {
-                        setSelectedCategory(category);
-                        setCategoryModalOpen(true);
-                      }}
-                    >
+                {categories.slice(0, 7).map(category => {
+                const completion = getCategoryCompletion(category);
+                const openTasksCount = getOpenTasksCount(category);
+                const completedTasksCount = category.tasks.filter(t => t.checked).length;
+                return <Card key={category.id} className="backdrop-blur-xl bg-background/40 border-2 border-border/50 cursor-pointer hover:bg-background/60 transition-all hover:shadow-lg overflow-hidden" onClick={() => {
+                  setSelectedCategory(category);
+                  setCategoryModalOpen(true);
+                }}>
                       <CardContent className="p-2.5 sm:p-4">
                         <div className="flex items-center gap-2 sm:gap-3">
                           <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -1428,9 +1224,8 @@ const DealDashboard = () => {
                           </div>
                         </div>
                       </CardContent>
-                    </Card>
-                  );
-                })}
+                    </Card>;
+              })}
               </div>
             </CardContent>
           </Card>
@@ -1439,25 +1234,19 @@ const DealDashboard = () => {
           <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl overflow-hidden">
             <CardHeader className="border-b border-border/50 px-3 sm:px-6">
               <CardTitle className="text-base sm:text-xl font-bold">
-                Due Diligence <span className="text-primary">Categories (8-14)</span>
+                Due Diligence <span className="text-primary">Categories (8-14):</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6">
               <div className="space-y-3 sm:space-y-4">
-                {categories.slice(7).map((category) => {
-                  const completion = getCategoryCompletion(category);
-                  const openTasksCount = getOpenTasksCount(category);
-                  const completedTasksCount = category.tasks.filter((t) => t.checked).length;
-
-                  return (
-                    <Card
-                      key={category.id}
-                      className="backdrop-blur-xl bg-background/40 border-2 border-border/50 cursor-pointer hover:bg-background/60 transition-all hover:shadow-lg overflow-hidden"
-                      onClick={() => {
-                        setSelectedCategory(category);
-                        setCategoryModalOpen(true);
-                      }}
-                    >
+                {categories.slice(7).map(category => {
+                const completion = getCategoryCompletion(category);
+                const openTasksCount = getOpenTasksCount(category);
+                const completedTasksCount = category.tasks.filter(t => t.checked).length;
+                return <Card key={category.id} className="backdrop-blur-xl bg-background/40 border-2 border-border/50 cursor-pointer hover:bg-background/60 transition-all hover:shadow-lg overflow-hidden" onClick={() => {
+                  setSelectedCategory(category);
+                  setCategoryModalOpen(true);
+                }}>
                       <CardContent className="p-2.5 sm:p-4">
                         <div className="flex items-center gap-2 sm:gap-3">
                           <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -1475,9 +1264,8 @@ const DealDashboard = () => {
                           </div>
                         </div>
                       </CardContent>
-                    </Card>
-                  );
-                })}
+                    </Card>;
+              })}
               </div>
             </CardContent>
           </Card>
@@ -1485,26 +1273,10 @@ const DealDashboard = () => {
       </div>
 
       {/* Specialist Assignment Modal */}
-      <SpecialistAssignmentModal
-        open={assignModalOpen}
-        onOpenChange={setAssignModalOpen}
-        specialists={specialists}
-        categories={availableCategories}
-        onAssign={handleAssignSpecialist}
-        onAddNew={handleAddSpecialist}
-        currentAssignment={
-          selectedTaskForAssignment
-            ? allTasks.find(t => t.id === selectedTaskForAssignment)
-              ? {
-                  name: allTasks.find(t => t.id === selectedTaskForAssignment)!.assignedName,
-                  email: allTasks.find(t => t.id === selectedTaskForAssignment)!.assignedEmail,
-                }
-              : undefined
-            : undefined
-        }
-      />
-    </div>
-  );
+      <SpecialistAssignmentModal open={assignModalOpen} onOpenChange={setAssignModalOpen} specialists={specialists} categories={availableCategories} onAssign={handleAssignSpecialist} onAddNew={handleAddSpecialist} currentAssignment={selectedTaskForAssignment ? allTasks.find(t => t.id === selectedTaskForAssignment) ? {
+      name: allTasks.find(t => t.id === selectedTaskForAssignment)!.assignedName,
+      email: allTasks.find(t => t.id === selectedTaskForAssignment)!.assignedEmail
+    } : undefined : undefined} />
+    </div>;
 };
-
 export default DealDashboard;
