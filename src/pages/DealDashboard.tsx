@@ -20,6 +20,9 @@ import { SpecialistAssignmentModal } from "@/components/SpecialistAssignmentModa
 import unisynLogo from "@/assets/unisyn-logo.svg";
 import { PageNavigation } from "@/components/PageNavigation";
 import { SignOutButton } from "@/components/SignOutButton";
+import { specialistSchema, validateInput } from "@/lib/validation";
+import { handleError, logDebug } from "@/lib/errorHandler";
+
 interface Task {
   id: string;
   code: string;
@@ -236,10 +239,10 @@ const DealDashboard = () => {
         setCoreTeam(coreTeamData);
       }
     } catch (error) {
-      console.error('Error fetching deal data:', error);
+      const { message } = handleError("fetching deal data", error);
       toast({
         title: "Error",
-        description: "Failed to load deal data. Please try again.",
+        description: message,
         variant: "destructive"
       });
     } finally {
@@ -317,12 +320,12 @@ const DealDashboard = () => {
       } = await supabase.from('deal_tasks').update(dbUpdates).eq('id', taskId);
       if (error) throw error;
     } catch (error) {
-      console.error('Error updating task:', error);
+      const { message } = handleError("updating task", error);
       // Revert on error
       await fetchDealData();
       toast({
         title: "Error",
-        description: "Failed to update task. Please try again.",
+        description: message,
         variant: "destructive"
       });
     }
@@ -333,50 +336,63 @@ const DealDashboard = () => {
     role: string;
     categoryId: string;
   }) => {
-    console.log("handleAddSpecialist called with:", specialist);
-    console.log("dealId:", dealId);
+    logDebug("handleAddSpecialist", "called with", specialist);
+    
     if (!dealId) {
-      console.error("No dealId found");
+      logDebug("handleAddSpecialist", "No dealId found");
       return;
     }
+
+    // Validate specialist input
+    const validationResult = validateInput(specialistSchema, specialist);
+    if (validationResult.success === false) {
+      toast({
+        title: "Validation Error",
+        description: validationResult.errors[0] || "Invalid input",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const validatedData = validationResult.data;
+
     try {
-      console.log("Attempting to insert specialist into database");
+      logDebug("handleAddSpecialist", "Inserting specialist into database");
       const {
         error
       } = await supabase.from('deal_specialists').insert({
         deal_id: dealId,
-        category_id: specialist.categoryId,
-        name: specialist.name,
-        email: specialist.email,
-        role: specialist.role || 'Specialist'
+        category_id: validatedData.categoryId,
+        name: validatedData.name,
+        email: validatedData.email,
+        role: validatedData.role || 'Specialist'
       });
       if (error) {
-        console.error("Database error:", error);
         throw error;
       }
-      console.log("Specialist added successfully");
+      logDebug("handleAddSpecialist", "Specialist added successfully");
       toast({
         title: "Specialist Added",
-        description: `${specialist.name} has been added as a specialist.`
+        description: `${validatedData.name} has been added as a specialist.`
       });
 
       // Refresh data to get the new specialist
-      console.log("Refreshing deal data");
+      logDebug("handleAddSpecialist", "Refreshing deal data");
       await fetchDealData();
 
       // Assign the newly added specialist to the task
       if (selectedTaskForAssignment) {
-        console.log("Assigning specialist to task:", selectedTaskForAssignment);
+        logDebug("handleAddSpecialist", "Assigning specialist to task", selectedTaskForAssignment);
         await handleTaskUpdate(selectedTaskForAssignment, {
-          assignedName: specialist.name,
-          assignedEmail: specialist.email
+          assignedName: validatedData.name,
+          assignedEmail: validatedData.email
         });
       }
     } catch (error) {
-      console.error('Error adding specialist:', error);
+      const { message } = handleError("adding specialist", error);
       toast({
         title: "Error",
-        description: "Failed to add specialist. Please try again.",
+        description: message,
         variant: "destructive"
       });
     }
@@ -410,12 +426,12 @@ const DealDashboard = () => {
         description: `Target close date set to ${format(date, 'PPP')}`
       });
     } catch (error) {
-      console.error('Error updating close date:', error);
+      const { message } = handleError("updating close date", error);
       // Revert on error
       await fetchDealData();
       toast({
         title: "Error",
-        description: "Failed to update close date. Please try again.",
+        description: message,
         variant: "destructive"
       });
     }

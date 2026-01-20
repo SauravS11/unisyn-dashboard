@@ -57,7 +57,8 @@ Deno.serve(async (req) => {
     });
 
     if (error) {
-      console.error("Error validating access token:", error);
+      // Log error code only, not full error details
+      console.error("Token validation failed:", error.code || "UNKNOWN");
       return new Response(
         JSON.stringify({ valid: false, message: "Validation failed" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -77,7 +78,8 @@ Deno.serve(async (req) => {
     );
 
   } catch (err) {
-    console.error("Unexpected error:", err);
+    // Log generic error indicator, not full error details
+    console.error("Token validation error occurred");
     return new Response(
       JSON.stringify({ valid: false, message: "An unexpected error occurred" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }

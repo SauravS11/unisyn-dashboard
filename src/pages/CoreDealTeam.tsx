@@ -11,6 +11,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { MoreVertical, Trash2, Edit, UserPlus, X } from "lucide-react";
 import { PageNavigation } from "@/components/PageNavigation";
 import { SignOutButton } from "@/components/SignOutButton";
+import { teamMemberSchema, validateInput } from "@/lib/validation";
+import { handleError } from "@/lib/errorHandler";
 
 interface TeamMember {
   id: string;
@@ -58,10 +60,10 @@ const CoreDealTeam = () => {
       if (error) throw error;
       setDealName(data.name);
     } catch (error) {
-      console.error("Error fetching deal:", error);
+      const { message } = handleError("fetching deal", error);
       toast({
         title: "Error",
-        description: "Failed to load deal information",
+        description: message,
         variant: "destructive",
       });
     } finally {
@@ -80,41 +82,43 @@ const CoreDealTeam = () => {
       if (error) throw error;
       setTeamMembers(data || []);
     } catch (error) {
-      console.error("Error fetching team members:", error);
+      handleError("fetching team members", error);
     }
   };
 
   const handleAddOrUpdateMember = async () => {
-    if (!formData.full_name || !formData.email || !formData.contact_number || !formData.permission_level) {
-      toast({
-        title: "Missing fields",
-        description: "Please fill in all required fields",
-        variant: "destructive",
-      });
-      return;
-    }
-
     const finalRole = formData.role === "Other" ? formData.custom_role : formData.role;
-    if (!finalRole) {
+    
+    // Validate input using schema
+    const validationResult = validateInput(teamMemberSchema, {
+      full_name: formData.full_name,
+      email: formData.email,
+      contact_number: formData.contact_number,
+      role: finalRole,
+      permission_level: formData.permission_level,
+    });
+
+    if (validationResult.success === false) {
       toast({
-        title: "Missing role",
-        description: "Please select or enter a role",
+        title: "Validation Error",
+        description: validationResult.errors[0] || "Invalid input",
         variant: "destructive",
       });
       return;
     }
 
+    const validatedData = validationResult.data;
     setIsSubmitting(true);
     try {
       if (editingMember) {
         const { error } = await supabase
           .from("deal_team_members")
           .update({
-            full_name: formData.full_name,
-            email: formData.email,
-            contact_number: formData.contact_number,
-            role: finalRole,
-            permission_level: formData.permission_level,
+            full_name: validatedData.full_name,
+            email: validatedData.email,
+            contact_number: validatedData.contact_number,
+            role: validatedData.role,
+            permission_level: validatedData.permission_level,
           })
           .eq("id", editingMember.id);
 
@@ -127,11 +131,11 @@ const CoreDealTeam = () => {
       } else {
         const { error } = await supabase.from("deal_team_members").insert({
           deal_id: id,
-          full_name: formData.full_name,
-          email: formData.email,
-          contact_number: formData.contact_number,
-          role: finalRole,
-          permission_level: formData.permission_level,
+          full_name: validatedData.full_name,
+          email: validatedData.email,
+          contact_number: validatedData.contact_number,
+          role: validatedData.role,
+          permission_level: validatedData.permission_level,
         });
 
         if (error) throw error;
@@ -151,10 +155,10 @@ const CoreDealTeam = () => {
       });
       fetchTeamMembers();
     } catch (error) {
-      console.error("Error saving team member:", error);
+      const { message } = handleError("saving team member", error);
       toast({
         title: "Error",
-        description: "Failed to save team member",
+        description: message,
         variant: "destructive",
       });
     } finally {
@@ -196,10 +200,10 @@ const CoreDealTeam = () => {
       });
       fetchTeamMembers();
     } catch (error) {
-      console.error("Error deleting team member:", error);
+      const { message } = handleError("removing team member", error);
       toast({
         title: "Error",
-        description: "Failed to remove team member",
+        description: message,
         variant: "destructive",
       });
     }

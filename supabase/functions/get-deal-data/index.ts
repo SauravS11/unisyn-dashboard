@@ -85,7 +85,7 @@ Deno.serve(async (req) => {
       .order("category_order");
 
     if (categoriesError) {
-      console.error("Error fetching categories:", categoriesError);
+      console.error("Categories fetch failed:", categoriesError.code || "UNKNOWN");
     }
 
     // Fetch tasks
@@ -97,7 +97,7 @@ Deno.serve(async (req) => {
       .order("task_order");
 
     if (tasksError) {
-      console.error("Error fetching tasks:", tasksError);
+      console.error("Tasks fetch failed:", tasksError.code || "UNKNOWN");
     }
 
     // Fetch specialists
@@ -107,7 +107,7 @@ Deno.serve(async (req) => {
       .in("category_id", categoryIds.length > 0 ? categoryIds : ["00000000-0000-0000-0000-000000000000"]);
 
     if (specialistsError) {
-      console.error("Error fetching specialists:", specialistsError);
+      console.error("Specialists fetch failed:", specialistsError.code || "UNKNOWN");
     }
 
     // Fetch documents count (excluding sensitive metadata)
@@ -117,7 +117,7 @@ Deno.serve(async (req) => {
       .eq("deal_id", dealId);
 
     if (docsError) {
-      console.error("Error fetching documents count:", docsError);
+      console.error("Documents count fetch failed:", docsError.code || "UNKNOWN");
     }
 
     // Fetch core team members (excluding sensitive fields)
@@ -127,7 +127,7 @@ Deno.serve(async (req) => {
       .eq("deal_id", dealId);
 
     if (coreTeamError) {
-      console.error("Error fetching core team:", coreTeamError);
+      console.error("Core team fetch failed:", coreTeamError.code || "UNKNOWN");
     }
 
     return new Response(
@@ -144,7 +144,8 @@ Deno.serve(async (req) => {
     );
 
   } catch (err) {
-    console.error("Unexpected error:", err);
+    // Log generic error indicator, not full error details
+    console.error("Deal data fetch error occurred");
     return new Response(
       JSON.stringify({ success: false, message: "An unexpected error occurred" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
