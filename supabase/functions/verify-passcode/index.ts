@@ -63,7 +63,8 @@ Deno.serve(async (req) => {
     });
 
     if (error) {
-      console.error("Error verifying passcode:", error);
+      // Log error code only, not full error details
+      console.error("Passcode verification failed:", error.code || "UNKNOWN");
       return new Response(
         JSON.stringify({ success: false, message: "Verification failed. Please try again." }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -94,7 +95,8 @@ Deno.serve(async (req) => {
     );
 
   } catch (err) {
-    console.error("Unexpected error:", err);
+    // Log generic error indicator, not full error details
+    console.error("Passcode verification error occurred");
     return new Response(
       JSON.stringify({ success: false, message: "An unexpected error occurred" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }

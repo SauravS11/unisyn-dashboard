@@ -5,6 +5,8 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Key, Copy, Check } from "lucide-react";
+import { passcodeSchema } from "@/lib/validation";
+import { handleError } from "@/lib/errorHandler";
 
 interface PasscodeDialogProps {
   isOpen: boolean;
@@ -28,8 +30,10 @@ export const PasscodeDialog = ({
   const [copied, setCopied] = useState(false);
 
   const handleSave = async () => {
-    if (passcode.length !== 5) {
-      toast.error("Passcode must be exactly 5 digits");
+    // Validate passcode contains only digits
+    const validationResult = passcodeSchema.safeParse(passcode);
+    if (!validationResult.success) {
+      toast.error(validationResult.error.errors[0]?.message || "Invalid passcode format");
       return;
     }
 
@@ -37,7 +41,7 @@ export const PasscodeDialog = ({
     try {
       const { error } = await supabase
         .from("deals")
-        .update({ passcode })
+        .update({ passcode: validationResult.data })
         .eq("id", dealId);
 
       if (error) throw error;
@@ -46,8 +50,8 @@ export const PasscodeDialog = ({
       onPasscodeUpdate();
       onClose();
     } catch (error) {
-      console.error("Error saving passcode:", error);
-      toast.error("Failed to save passcode");
+      const { message } = handleError("saving passcode", error);
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
@@ -68,8 +72,8 @@ export const PasscodeDialog = ({
       onPasscodeUpdate();
       onClose();
     } catch (error) {
-      console.error("Error removing passcode:", error);
-      toast.error("Failed to remove passcode");
+      const { message } = handleError("removing passcode", error);
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
