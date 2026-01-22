@@ -16,17 +16,10 @@ export const DealCodeCard = () => {
 
   const handleSubmitDealId = () => {
     const trimmedDealId = dealId.trim();
-    console.log("Deal ID entered:", trimmedDealId, "Length:", trimmedDealId.length);
     
-    // Check if it's empty
+    // Only check if it's empty - let the backend validate the format
     if (!trimmedDealId) {
       toast.error("Please enter a deal ID");
-      return;
-    }
-    
-    // Basic length check - let the backend do the real validation
-    if (trimmedDealId.length < 6) {
-      toast.error("Deal ID is too short");
       return;
     }
     
