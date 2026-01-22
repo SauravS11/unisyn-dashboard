@@ -39,9 +39,9 @@ Deno.serve(async (req) => {
       );
     }
 
-    if (!passcode || typeof passcode !== "string" || passcode.length !== 5) {
+    if (!passcode || typeof passcode !== "string" || passcode.length !== 6) {
       return new Response(
-        JSON.stringify({ success: false, message: "Valid 5-digit passcode is required" }),
+        JSON.stringify({ success: false, message: "Valid 6-digit passcode is required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }

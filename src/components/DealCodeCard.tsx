@@ -27,8 +27,8 @@ export const DealCodeCard = () => {
   };
 
   const handleSubmitPasscode = async () => {
-    if (code.length !== 5) {
-      toast.error("Please enter a 5-digit code");
+    if (code.length !== 6) {
+      toast.error("Please enter a 6-digit code");
       return;
     }
 
@@ -79,7 +79,7 @@ export const DealCodeCard = () => {
         <CardDescription className="text-sm sm:text-base">
           {step === "dealId" 
             ? "Enter the deal ID shared with you" 
-            : "Enter the 5-digit passcode to access the deal"}
+            : "Enter the 6-digit passcode to access the deal"}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 sm:space-y-6">
@@ -107,7 +107,7 @@ export const DealCodeCard = () => {
           <>
             <div className="flex justify-center">
               <InputOTP
-                maxLength={5}
+                maxLength={6}
                 value={code}
                 onChange={(value) => setCode(value)}
               >
@@ -117,6 +117,7 @@ export const DealCodeCard = () => {
                   <InputOTPSlot index={2} />
                   <InputOTPSlot index={3} />
                   <InputOTPSlot index={4} />
+                  <InputOTPSlot index={5} />
                 </InputOTPGroup>
               </InputOTP>
             </div>
@@ -135,7 +136,7 @@ export const DealCodeCard = () => {
               <Button 
                 className="flex-1 h-11 sm:h-12 text-base font-semibold gap-2"
                 onClick={handleSubmitPasscode}
-                disabled={isLoading || code.length !== 5}
+                disabled={isLoading || code.length !== 6}
               >
                 {isLoading ? "Verifying..." : "Access Deal"}
                 <ArrowRight className="h-4 w-4" />
