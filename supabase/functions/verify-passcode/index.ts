@@ -46,13 +46,11 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Validate dealId format - accept UUID or alphanumeric code (6-20 chars)
+    // Try to parse as UUID - if not valid UUID format, return helpful error
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    const dealCodeRegex = /^[a-zA-Z0-9]{6,20}$/;
-    
-    if (!uuidRegex.test(dealId) && !dealCodeRegex.test(dealId)) {
+    if (!uuidRegex.test(dealId)) {
       return new Response(
-        JSON.stringify({ success: false, message: "Invalid deal ID format" }),
+        JSON.stringify({ success: false, message: "Invalid deal ID. Please enter the full deal ID (e.g., b5504160-eba2-4a39-8de8-f8910f5b02c9)" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
