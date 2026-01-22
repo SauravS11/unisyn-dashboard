@@ -15,12 +15,23 @@ export const DealCodeCard = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmitDealId = () => {
-    // Validate UUID format
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(dealId.trim())) {
-      toast.error("Please enter a valid deal ID");
+    const trimmedDealId = dealId.trim();
+    
+    // Check if it's empty
+    if (!trimmedDealId) {
+      toast.error("Please enter a deal ID");
       return;
     }
+    
+    // Accept either UUID format or alphanumeric deal codes (6-20 characters)
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const dealCodeRegex = /^[a-zA-Z0-9]{6,20}$/;
+    
+    if (!uuidRegex.test(trimmedDealId) && !dealCodeRegex.test(trimmedDealId)) {
+      toast.error("Please enter a valid deal ID (UUID or 6-20 character code)");
+      return;
+    }
+    
     setStep("passcode");
   };
 
@@ -88,7 +99,7 @@ export const DealCodeCard = () => {
                 type="text"
                 value={dealId}
                 onChange={(e) => setDealId(e.target.value)}
-                placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                placeholder="Enter your deal ID or code"
                 className="w-full px-4 py-3 rounded-lg bg-background/50 border border-border/50 text-sm font-mono text-center focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
             </div>
