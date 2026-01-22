@@ -16,6 +16,7 @@ export const DealCodeCard = () => {
 
   const handleSubmitDealId = () => {
     const trimmedDealId = dealId.trim();
+    console.log("Deal ID entered:", trimmedDealId, "Length:", trimmedDealId.length);
     
     // Check if it's empty
     if (!trimmedDealId) {
@@ -23,12 +24,9 @@ export const DealCodeCard = () => {
       return;
     }
     
-    // Accept either UUID format or alphanumeric deal codes (6-20 characters)
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    const dealCodeRegex = /^[a-zA-Z0-9]{6,20}$/;
-    
-    if (!uuidRegex.test(trimmedDealId) && !dealCodeRegex.test(trimmedDealId)) {
-      toast.error("Please enter a valid deal ID (UUID or 6-20 character code)");
+    // Basic length check - let the backend do the real validation
+    if (trimmedDealId.length < 6) {
+      toast.error("Deal ID is too short");
       return;
     }
     
