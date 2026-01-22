@@ -95,14 +95,14 @@ export const PasscodeDialog = ({
             Deal Passcode
           </DialogTitle>
           <DialogDescription>
-            Set a 5-digit passcode for "{dealName}" to allow external users to view this deal without signing in.
+            Set a 6-digit passcode for "{dealName}" to allow external users to view this deal without signing in.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
           <div className="flex flex-col items-center gap-4">
             <InputOTP
-              maxLength={5}
+              maxLength={6}
               value={passcode}
               onChange={(value) => setPasscode(value)}
             >
@@ -112,10 +112,11 @@ export const PasscodeDialog = ({
                 <InputOTPSlot index={2} />
                 <InputOTPSlot index={3} />
                 <InputOTPSlot index={4} />
+                <InputOTPSlot index={5} />
               </InputOTPGroup>
             </InputOTP>
 
-            {passcode.length === 5 && (
+            {passcode.length === 6 && (
               <Button
                 variant="outline"
                 size="sm"
@@ -149,7 +150,7 @@ export const PasscodeDialog = ({
             )}
             <Button
               onClick={handleSave}
-              disabled={isLoading || passcode.length !== 5}
+              disabled={isLoading || passcode.length !== 6}
             >
               {isLoading ? "Saving..." : "Save Passcode"}
             </Button>

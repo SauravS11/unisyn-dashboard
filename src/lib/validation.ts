@@ -55,11 +55,11 @@ export const specialistSchema = z.object({
     .uuid("Invalid category ID"),
 });
 
-// Passcode validation schema - must be exactly 5 numeric digits
+// Passcode validation schema - must be exactly 6 numeric digits
 export const passcodeSchema = z
   .string()
-  .length(5, "Passcode must be exactly 5 digits")
-  .regex(/^\d{5}$/, "Passcode must contain only digits (0-9)");
+  .length(6, "Passcode must be exactly 6 digits")
+  .regex(/^\d{6}$/, "Passcode must contain only digits (0-9)");
 
 // UUID validation
 export const uuidSchema = z.string().uuid("Invalid ID format");
