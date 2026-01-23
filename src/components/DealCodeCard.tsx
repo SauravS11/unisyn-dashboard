@@ -17,9 +17,9 @@ export const DealCodeCard = () => {
   const handleSubmitDealId = () => {
     const trimmedDealId = dealId.trim();
     
-    // Only check if it's empty - let the backend validate the format
+    // Only check if it's empty
     if (!trimmedDealId) {
-      toast.error("Please enter a deal ID");
+      toast.error("Please enter a deal code");
       return;
     }
     
@@ -74,11 +74,11 @@ export const DealCodeCard = () => {
           <Key className="h-6 w-6 text-primary" />
         </div>
         <CardTitle className="text-xl sm:text-2xl font-bold tracking-tight">
-          {step === "dealId" ? "Enter Deal ID" : "Enter Passcode"}
+77:           {step === "dealId" ? "Enter Deal Code" : "Enter Passcode"}
         </CardTitle>
         <CardDescription className="text-sm sm:text-base">
           {step === "dealId" 
-            ? "Enter the deal ID shared with you" 
+            ? "Enter the deal code shared with you" 
             : "Enter the 6-digit passcode to access the deal"}
         </CardDescription>
       </CardHeader>
@@ -90,7 +90,7 @@ export const DealCodeCard = () => {
                 type="text"
                 value={dealId}
                 onChange={(e) => setDealId(e.target.value)}
-                placeholder="Enter your deal ID or code"
+                placeholder="Enter deal code (e.g., acme-corp-deal)"
                 className="w-full px-4 py-3 rounded-lg bg-background/50 border border-border/50 text-sm font-mono text-center focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
             </div>

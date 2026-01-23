@@ -46,18 +46,10 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Try to parse as UUID - if not valid UUID format, return helpful error
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(dealId)) {
-      return new Response(
-        JSON.stringify({ success: false, message: "Invalid deal ID. Please enter the full deal ID (e.g., b5504160-eba2-4a39-8de8-f8910f5b02c9)" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
     // Call the database function to verify passcode with rate limiting
+    // The DB function now accepts both UUID and deal_code
     const { data, error } = await supabase.rpc("verify_deal_passcode", {
-      p_deal_id: dealId,
+      p_deal_id: dealId.trim().toLowerCase(),
       p_passcode: passcode,
       p_ip_address: clientIp,
     });
@@ -83,13 +75,13 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Return success with access token
+    // Return success with access token and the actual deal UUID
     return new Response(
       JSON.stringify({ 
         success: true, 
         message: "Access granted",
         accessToken: result.access_token,
-        dealId: dealId 
+        dealId: result.deal_uuid
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );

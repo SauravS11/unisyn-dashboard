@@ -41,18 +41,30 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Validate dealId is a valid UUID
+    // Resolve deal ID (could be UUID or deal_code)
+    let resolvedDealId = dealId;
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    
     if (!uuidRegex.test(dealId)) {
-      return new Response(
-        JSON.stringify({ valid: false, message: "Invalid deal ID format" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      // Try to find deal by deal_code
+      const { data: dealByCode, error: lookupError } = await supabase
+        .from("deals")
+        .select("id")
+        .eq("deal_code", dealId.toLowerCase())
+        .maybeSingle();
+      
+      if (lookupError || !dealByCode) {
+        return new Response(
+          JSON.stringify({ valid: false, message: "Deal not found" }),
+          { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      resolvedDealId = dealByCode.id;
     }
 
     // Call the database function to validate access token
     const { data, error } = await supabase.rpc("validate_deal_access_token", {
-      p_deal_id: dealId,
+      p_deal_id: resolvedDealId,
       p_access_token: accessToken,
     });
 
