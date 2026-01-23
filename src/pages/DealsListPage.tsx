@@ -23,6 +23,7 @@ interface Deal {
   updated_at: string;
   status: string;
   passcode?: string | null;
+  deal_code: string;
 }
 
 const DealsListPage = () => {
@@ -318,6 +319,7 @@ const DealsListPage = () => {
             setSelectedDealForPasscode(null);
           }}
           dealId={selectedDealForPasscode.id}
+          dealCode={selectedDealForPasscode.deal_code}
           dealName={selectedDealForPasscode.name}
           currentPasscode={selectedDealForPasscode.passcode}
           onPasscodeUpdate={fetchDeals}

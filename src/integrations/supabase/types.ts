@@ -294,6 +294,7 @@ export type Database = {
           buyer_legal_name: string | null
           buyer_name: string | null
           created_at: string
+          deal_code: string
           id: string
           name: string
           passcode: string | null
@@ -312,6 +313,7 @@ export type Database = {
           buyer_legal_name?: string | null
           buyer_name?: string | null
           created_at?: string
+          deal_code: string
           id?: string
           name: string
           passcode?: string | null
@@ -330,6 +332,7 @@ export type Database = {
           buyer_legal_name?: string | null
           buyer_name?: string | null
           created_at?: string
+          deal_code?: string
           id?: string
           name?: string
           passcode?: string | null
@@ -416,18 +419,37 @@ export type Database = {
     Functions: {
       cleanup_expired_tokens: { Args: never; Returns: undefined }
       deal_has_passcode: { Args: { deal_id_text: string }; Returns: boolean }
+      generate_deal_code: { Args: { deal_name: string }; Returns: string }
       validate_deal_access_token: {
         Args: { p_access_token: string; p_deal_id: string }
         Returns: boolean
       }
-      verify_deal_passcode: {
-        Args: { p_deal_id: string; p_ip_address?: string; p_passcode: string }
-        Returns: {
-          access_token: string
-          message: string
-          success: boolean
-        }[]
-      }
+      verify_deal_passcode:
+        | {
+            Args: {
+              p_deal_id: string
+              p_ip_address?: string
+              p_passcode: string
+            }
+            Returns: {
+              access_token: string
+              deal_uuid: string
+              message: string
+              success: boolean
+            }[]
+          }
+        | {
+            Args: {
+              p_deal_id: string
+              p_ip_address?: string
+              p_passcode: string
+            }
+            Returns: {
+              access_token: string
+              message: string
+              success: boolean
+            }[]
+          }
     }
     Enums: {
       [_ in never]: never

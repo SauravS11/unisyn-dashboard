@@ -41,18 +41,30 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Validate dealId is a valid UUID
+    // Resolve deal ID (could be UUID or deal_code)
+    let resolvedDealId = dealId;
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    
     if (!uuidRegex.test(dealId)) {
-      return new Response(
-        JSON.stringify({ success: false, message: "Invalid deal ID format" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      // Try to find deal by deal_code
+      const { data: dealByCode, error: lookupError } = await supabase
+        .from("deals")
+        .select("id")
+        .eq("deal_code", dealId.toLowerCase())
+        .maybeSingle();
+      
+      if (lookupError || !dealByCode) {
+        return new Response(
+          JSON.stringify({ success: false, message: "Deal not found" }),
+          { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      resolvedDealId = dealByCode.id;
     }
 
     // Validate access token first
     const { data: isValid, error: validationError } = await supabase.rpc("validate_deal_access_token", {
-      p_deal_id: dealId,
+      p_deal_id: resolvedDealId,
       p_access_token: accessToken,
     });
 
@@ -66,8 +78,8 @@ Deno.serve(async (req) => {
     // Fetch deal data (excluding sensitive fields like passcode)
     const { data: dealData, error: dealError } = await supabase
       .from("deals")
-      .select("id, name, target_close_date, status, buyer_name, seller_name, created_at, updated_at")
-      .eq("id", dealId)
+      .select("id, name, deal_code, target_close_date, status, buyer_name, seller_name, created_at, updated_at")
+      .eq("id", resolvedDealId)
       .single();
 
     if (dealError || !dealData) {
@@ -81,7 +93,7 @@ Deno.serve(async (req) => {
     const { data: categoriesData, error: categoriesError } = await supabase
       .from("deal_categories")
       .select("id, title, category_code, category_order")
-      .eq("deal_id", dealId)
+      .eq("deal_id", resolvedDealId)
       .order("category_order");
 
     if (categoriesError) {
@@ -114,7 +126,7 @@ Deno.serve(async (req) => {
     const { count: documentsCount, error: docsError } = await supabase
       .from("deal_documents")
       .select("*", { count: "exact", head: true })
-      .eq("deal_id", dealId);
+      .eq("deal_id", resolvedDealId);
 
     if (docsError) {
       console.error("Documents count fetch failed:", docsError.code || "UNKNOWN");
@@ -124,7 +136,7 @@ Deno.serve(async (req) => {
     const { data: coreTeamData, error: coreTeamError } = await supabase
       .from("deal_team_members")
       .select("id, full_name, email, role, contact_number, permission_level")
-      .eq("deal_id", dealId);
+      .eq("deal_id", resolvedDealId);
 
     if (coreTeamError) {
       console.error("Core team fetch failed:", coreTeamError.code || "UNKNOWN");

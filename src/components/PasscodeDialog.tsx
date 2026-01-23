@@ -12,6 +12,7 @@ interface PasscodeDialogProps {
   isOpen: boolean;
   onClose: () => void;
   dealId: string;
+  dealCode: string;
   dealName: string;
   currentPasscode?: string | null;
   onPasscodeUpdate: () => void;
@@ -21,6 +22,7 @@ export const PasscodeDialog = ({
   isOpen, 
   onClose, 
   dealId, 
+  dealCode,
   dealName, 
   currentPasscode,
   onPasscodeUpdate 
@@ -100,19 +102,19 @@ export const PasscodeDialog = ({
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          {/* Deal ID Section */}
+          {/* Deal Code Section */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">Deal ID (share this with external users)</label>
+            <label className="text-sm font-medium text-muted-foreground">Deal Code (share this with external users)</label>
             <div className="flex items-center gap-2">
               <code className="flex-1 px-3 py-2 rounded-md bg-muted font-mono text-sm break-all">
-                {dealId}
+                {dealCode}
               </code>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  navigator.clipboard.writeText(dealId);
-                  toast.success("Deal ID copied to clipboard");
+                  navigator.clipboard.writeText(dealCode);
+                  toast.success("Deal Code copied to clipboard");
                 }}
                 className="shrink-0"
               >
@@ -169,13 +171,13 @@ export const PasscodeDialog = ({
               variant="secondary"
               className="w-full gap-2"
               onClick={() => {
-                const accessInfo = `Deal ID: ${dealId}\nPasscode: ${passcode}`;
+                const accessInfo = `Deal Code: ${dealCode}\nPasscode: ${passcode}`;
                 navigator.clipboard.writeText(accessInfo);
-                toast.success("Deal ID and Passcode copied to clipboard");
+                toast.success("Deal Code and Passcode copied to clipboard");
               }}
             >
               <Copy className="h-4 w-4" />
-              Copy Both (Deal ID + Passcode)
+              Copy Both (Deal Code + Passcode)
             </Button>
           )}
 
