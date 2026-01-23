@@ -92,51 +92,92 @@ export const PasscodeDialog = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Key className="h-5 w-5 text-primary" />
-            Deal Passcode
+            Deal Access Credentials
           </DialogTitle>
           <DialogDescription>
-            Set a 6-digit passcode for "{dealName}" to allow external users to view this deal without signing in.
+            Set a 6-digit passcode for "{dealName}". Share both the Deal ID and passcode with external users to grant access.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          <div className="flex flex-col items-center gap-4">
-            <InputOTP
-              maxLength={6}
-              value={passcode}
-              onChange={(value) => setPasscode(value)}
-            >
-              <InputOTPGroup>
-                <InputOTPSlot index={0} />
-                <InputOTPSlot index={1} />
-                <InputOTPSlot index={2} />
-                <InputOTPSlot index={3} />
-                <InputOTPSlot index={4} />
-                <InputOTPSlot index={5} />
-              </InputOTPGroup>
-            </InputOTP>
-
-            {passcode.length === 6 && (
+          {/* Deal ID Section */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-muted-foreground">Deal ID (share this with external users)</label>
+            <div className="flex items-center gap-2">
+              <code className="flex-1 px-3 py-2 rounded-md bg-muted font-mono text-sm break-all">
+                {dealId}
+              </code>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={copyPasscode}
-                className="gap-2"
+                onClick={() => {
+                  navigator.clipboard.writeText(dealId);
+                  toast.success("Deal ID copied to clipboard");
+                }}
+                className="shrink-0"
               >
-                {copied ? (
-                  <>
-                    <Check className="h-4 w-4" />
-                    Copied!
-                  </>
-                ) : (
-                  <>
-                    <Copy className="h-4 w-4" />
-                    Copy Passcode
-                  </>
-                )}
+                <Copy className="h-4 w-4" />
               </Button>
-            )}
+            </div>
           </div>
+
+          {/* Passcode Section */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-muted-foreground">6-Digit Passcode</label>
+            <div className="flex flex-col items-center gap-4">
+              <InputOTP
+                maxLength={6}
+                value={passcode}
+                onChange={(value) => setPasscode(value)}
+              >
+                <InputOTPGroup>
+                  <InputOTPSlot index={0} />
+                  <InputOTPSlot index={1} />
+                  <InputOTPSlot index={2} />
+                  <InputOTPSlot index={3} />
+                  <InputOTPSlot index={4} />
+                  <InputOTPSlot index={5} />
+                </InputOTPGroup>
+              </InputOTP>
+
+              {passcode.length === 6 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={copyPasscode}
+                  className="gap-2"
+                >
+                  {copied ? (
+                    <>
+                      <Check className="h-4 w-4" />
+                      Copied!
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-4 w-4" />
+                      Copy Passcode
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
+          </div>
+
+          {/* Copy Both Button */}
+          {passcode.length === 6 && (
+            <Button
+              variant="secondary"
+              className="w-full gap-2"
+              onClick={() => {
+                const accessInfo = `Deal ID: ${dealId}\nPasscode: ${passcode}`;
+                navigator.clipboard.writeText(accessInfo);
+                toast.success("Deal ID and Passcode copied to clipboard");
+              }}
+            >
+              <Copy className="h-4 w-4" />
+              Copy Both (Deal ID + Passcode)
+            </Button>
+          )}
 
           <div className="flex gap-2 justify-end">
             {currentPasscode && (
