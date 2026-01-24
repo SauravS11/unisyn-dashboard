@@ -424,6 +424,15 @@ export type Database = {
         Args: { p_access_token: string; p_deal_id: string }
         Returns: boolean
       }
+      verify_deal_code: {
+        Args: { p_deal_code: string; p_ip_address?: string }
+        Returns: {
+          access_token: string
+          deal_uuid: string
+          message: string
+          success: boolean
+        }[]
+      }
       verify_deal_passcode:
         | {
             Args: {
