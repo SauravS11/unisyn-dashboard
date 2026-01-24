@@ -5,9 +5,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-interface VerifyPasscodeRequest {
-  dealId: string;
-  passcode: string;
+interface VerifyDealCodeRequest {
+  dealCode: string;
 }
 
 Deno.serve(async (req) => {
@@ -29,34 +28,26 @@ Deno.serve(async (req) => {
                      "unknown";
 
     // Parse request body
-    const { dealId, passcode }: VerifyPasscodeRequest = await req.json();
+    const { dealCode }: VerifyDealCodeRequest = await req.json();
 
-    // Validate input
-    if (!dealId || typeof dealId !== "string") {
+    // Validate input - must be exactly 6 digits
+    if (!dealCode || typeof dealCode !== "string" || !/^\d{6}$/.test(dealCode)) {
       return new Response(
-        JSON.stringify({ success: false, message: "Deal ID is required" }),
+        JSON.stringify({ success: false, message: "Valid 6-digit deal code is required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    if (!passcode || typeof passcode !== "string" || passcode.length !== 6) {
-      return new Response(
-        JSON.stringify({ success: false, message: "Valid 6-digit passcode is required" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+    console.log("Verifying deal code:", dealCode);
 
-    // Call the database function to verify passcode with rate limiting
-    // The DB function now accepts both UUID and deal_code
-    const { data, error } = await supabase.rpc("verify_deal_passcode", {
-      p_deal_id: dealId.trim().toLowerCase(),
-      p_passcode: passcode,
+    // Call the new database function to verify deal code
+    const { data, error } = await supabase.rpc("verify_deal_code", {
+      p_deal_code: dealCode,
       p_ip_address: clientIp,
     });
 
     if (error) {
-      // Log error code only, not full error details
-      console.error("Passcode verification failed:", error.code || "UNKNOWN");
+      console.error("Deal code verification failed:", error.code || "UNKNOWN", error.message);
       return new Response(
         JSON.stringify({ success: false, message: "Verification failed. Please try again." }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -69,7 +60,7 @@ Deno.serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          message: result?.message || "Invalid passcode" 
+          message: result?.message || "Invalid deal code" 
         }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
@@ -87,8 +78,7 @@ Deno.serve(async (req) => {
     );
 
   } catch (err) {
-    // Log generic error indicator, not full error details
-    console.error("Passcode verification error occurred");
+    console.error("Deal code verification error occurred:", err);
     return new Response(
       JSON.stringify({ success: false, message: "An unexpected error occurred" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }

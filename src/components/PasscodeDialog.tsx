@@ -1,12 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Key, Copy, Check } from "lucide-react";
-import { passcodeSchema } from "@/lib/validation";
-import { handleError } from "@/lib/errorHandler";
+import { Key, Copy, Check, RefreshCw } from "lucide-react";
 
 interface PasscodeDialogProps {
   isOpen: boolean;
@@ -24,67 +22,66 @@ export const PasscodeDialog = ({
   dealId, 
   dealCode,
   dealName, 
-  currentPasscode,
   onPasscodeUpdate 
 }: PasscodeDialogProps) => {
-  const [passcode, setPasscode] = useState(currentPasscode || "");
+  const [code, setCode] = useState(dealCode || "");
   const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  useEffect(() => {
+    setCode(dealCode || "");
+  }, [dealCode]);
+
+  const generateRandomCode = () => {
+    const newCode = Math.floor(100000 + Math.random() * 900000).toString();
+    setCode(newCode);
+  };
+
   const handleSave = async () => {
-    // Validate passcode contains only digits
-    const validationResult = passcodeSchema.safeParse(passcode);
-    if (!validationResult.success) {
-      toast.error(validationResult.error.errors[0]?.message || "Invalid passcode format");
+    // Validate code is exactly 6 digits
+    if (!/^\d{6}$/.test(code)) {
+      toast.error("Deal code must be exactly 6 digits");
       return;
     }
 
     setIsLoading(true);
     try {
+      // Check if code is already used by another deal
+      const { data: existingDeal } = await supabase
+        .from("deals")
+        .select("id")
+        .eq("deal_code", code)
+        .neq("id", dealId)
+        .maybeSingle();
+
+      if (existingDeal) {
+        toast.error("This deal code is already in use. Please choose a different one.");
+        setIsLoading(false);
+        return;
+      }
+
       const { error } = await supabase
         .from("deals")
-        .update({ passcode: validationResult.data })
+        .update({ deal_code: code })
         .eq("id", dealId);
 
       if (error) throw error;
 
-      toast.success("Passcode saved successfully");
+      toast.success("Deal code saved successfully");
       onPasscodeUpdate();
       onClose();
     } catch (error) {
-      const { message } = handleError("saving passcode", error);
-      toast.error(message);
+      console.error("Error saving deal code:", error);
+      toast.error("Failed to save deal code");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleRemove = async () => {
-    setIsLoading(true);
-    try {
-      const { error } = await supabase
-        .from("deals")
-        .update({ passcode: null })
-        .eq("id", dealId);
-
-      if (error) throw error;
-
-      toast.success("Passcode removed");
-      setPasscode("");
-      onPasscodeUpdate();
-      onClose();
-    } catch (error) {
-      const { message } = handleError("removing passcode", error);
-      toast.error(message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const copyPasscode = () => {
-    navigator.clipboard.writeText(passcode);
+  const copyCode = () => {
+    navigator.clipboard.writeText(code);
     setCopied(true);
-    toast.success("Passcode copied to clipboard");
+    toast.success("Deal code copied to clipboard");
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -94,43 +91,22 @@ export const PasscodeDialog = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Key className="h-5 w-5 text-primary" />
-            Deal Access Credentials
+            Deal Access Code
           </DialogTitle>
           <DialogDescription>
-            Set a 6-digit passcode for "{dealName}". Share both the Deal ID and passcode with external users to grant access.
+            Set a 6-digit code for "{dealName}". Share this code with external users to grant access.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          {/* Deal Code Section */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">Deal Code (share this with external users)</label>
-            <div className="flex items-center gap-2">
-              <code className="flex-1 px-3 py-2 rounded-md bg-muted font-mono text-sm break-all">
-                {dealCode}
-              </code>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  navigator.clipboard.writeText(dealCode);
-                  toast.success("Deal Code copied to clipboard");
-                }}
-                className="shrink-0"
-              >
-                <Copy className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-
-          {/* Passcode Section */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">6-Digit Passcode</label>
+          {/* Deal Code Input */}
+          <div className="space-y-4">
+            <label className="text-sm font-medium text-muted-foreground">6-Digit Deal Code</label>
             <div className="flex flex-col items-center gap-4">
               <InputOTP
                 maxLength={6}
-                value={passcode}
-                onChange={(value) => setPasscode(value)}
+                value={code}
+                onChange={(value) => setCode(value)}
               >
                 <InputOTPGroup>
                   <InputOTPSlot index={0} />
@@ -142,60 +118,48 @@ export const PasscodeDialog = ({
                 </InputOTPGroup>
               </InputOTP>
 
-              {passcode.length === 6 && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={copyPasscode}
-                  className="gap-2"
-                >
-                  {copied ? (
-                    <>
-                      <Check className="h-4 w-4" />
-                      Copied!
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="h-4 w-4" />
-                      Copy Passcode
-                    </>
-                  )}
-                </Button>
-              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={generateRandomCode}
+                className="gap-2"
+              >
+                <RefreshCw className="h-4 w-4" />
+                Generate Random Code
+              </Button>
             </div>
           </div>
 
-          {/* Copy Both Button */}
-          {passcode.length === 6 && (
+          {/* Copy Button */}
+          {code.length === 6 && (
             <Button
               variant="secondary"
               className="w-full gap-2"
-              onClick={() => {
-                const accessInfo = `Deal Code: ${dealCode}\nPasscode: ${passcode}`;
-                navigator.clipboard.writeText(accessInfo);
-                toast.success("Deal Code and Passcode copied to clipboard");
-              }}
+              onClick={copyCode}
             >
-              <Copy className="h-4 w-4" />
-              Copy Both (Deal Code + Passcode)
+              {copied ? (
+                <>
+                  <Check className="h-4 w-4" />
+                  Copied!
+                </>
+              ) : (
+                <>
+                  <Copy className="h-4 w-4" />
+                  Copy Deal Code
+                </>
+              )}
             </Button>
           )}
 
           <div className="flex gap-2 justify-end">
-            {currentPasscode && (
-              <Button
-                variant="destructive"
-                onClick={handleRemove}
-                disabled={isLoading}
-              >
-                Remove Passcode
-              </Button>
-            )}
+            <Button variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
             <Button
               onClick={handleSave}
-              disabled={isLoading || passcode.length !== 6}
+              disabled={isLoading || code.length !== 6}
             >
-              {isLoading ? "Saving..." : "Save Passcode"}
+              {isLoading ? "Saving..." : "Save Code"}
             </Button>
           </div>
         </div>

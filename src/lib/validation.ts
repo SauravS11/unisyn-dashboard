@@ -55,11 +55,14 @@ export const specialistSchema = z.object({
     .uuid("Invalid category ID"),
 });
 
-// Passcode validation schema - must be exactly 6 numeric digits
-export const passcodeSchema = z
+// Deal code validation schema - must be exactly 6 numeric digits
+export const dealCodeSchema = z
   .string()
-  .length(6, "Passcode must be exactly 6 digits")
-  .regex(/^\d{6}$/, "Passcode must contain only digits (0-9)");
+  .length(6, "Deal code must be exactly 6 digits")
+  .regex(/^\d{6}$/, "Deal code must contain only digits (0-9)");
+
+// Legacy alias for backwards compatibility
+export const passcodeSchema = dealCodeSchema;
 
 // UUID validation
 export const uuidSchema = z.string().uuid("Invalid ID format");
