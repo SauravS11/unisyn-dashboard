@@ -7,18 +7,26 @@ interface Particle {
   vy: number;
   size: number;
   opacity: number;
+  pulsePhase: number;
+  pulseSpeed: number;
 }
 
-interface Connection {
-  from: number;
-  to: number;
+interface GlowOrb {
+  x: number;
+  y: number;
+  radius: number;
   opacity: number;
+  phase: number;
+  speed: number;
 }
 
 export const AnimatedBackground = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<Particle[]>([]);
+  const orbsRef = useRef<GlowOrb[]>([]);
   const animationRef = useRef<number>();
+  const timeRef = useRef(0);
+  const mouseRef = useRef({ x: -1000, y: -1000 });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -35,60 +43,155 @@ export const AnimatedBackground = () => {
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
 
+    // Track mouse for interactive effects
+    const handleMouseMove = (e: MouseEvent) => {
+      mouseRef.current = { x: e.clientX, y: e.clientY };
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+
     // Initialize particles
-    const particleCount = Math.min(50, Math.floor((window.innerWidth * window.innerHeight) / 25000));
+    const particleCount = Math.min(80, Math.floor((window.innerWidth * window.innerHeight) / 18000));
     particlesRef.current = Array.from({ length: particleCount }, () => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
-      vx: (Math.random() - 0.5) * 0.3,
-      vy: (Math.random() - 0.5) * 0.3,
-      size: Math.random() * 2 + 1,
-      opacity: Math.random() * 0.15 + 0.05,
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: (Math.random() - 0.5) * 0.4,
+      size: Math.random() * 2.5 + 1,
+      opacity: Math.random() * 0.2 + 0.08,
+      pulsePhase: Math.random() * Math.PI * 2,
+      pulseSpeed: 0.02 + Math.random() * 0.02,
     }));
 
-    const connectionDistance = 150;
+    // Initialize ambient glow orbs
+    orbsRef.current = Array.from({ length: 4 }, (_, i) => ({
+      x: (canvas.width / 5) * (i + 1),
+      y: canvas.height * (0.3 + Math.random() * 0.4),
+      radius: 150 + Math.random() * 100,
+      opacity: 0.03 + Math.random() * 0.02,
+      phase: Math.random() * Math.PI * 2,
+      speed: 0.005 + Math.random() * 0.005,
+    }));
+
+    const connectionDistance = 180;
+    const mouseInfluenceRadius = 200;
 
     const animate = () => {
+      timeRef.current += 0.016;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       const particles = particlesRef.current;
+      const orbs = orbsRef.current;
+      const mouse = mouseRef.current;
+      const time = timeRef.current;
+
+      // Draw ambient glow orbs
+      orbs.forEach((orb) => {
+        orb.phase += orb.speed;
+        const breathe = Math.sin(orb.phase) * 0.3 + 1;
+        const currentRadius = orb.radius * breathe;
+        
+        const gradient = ctx.createRadialGradient(
+          orb.x, orb.y, 0,
+          orb.x, orb.y, currentRadius
+        );
+        gradient.addColorStop(0, `hsla(0, 70%, 55%, ${orb.opacity * 1.5})`);
+        gradient.addColorStop(0.5, `hsla(0, 60%, 50%, ${orb.opacity * 0.5})`);
+        gradient.addColorStop(1, "hsla(0, 50%, 50%, 0)");
+        
+        ctx.beginPath();
+        ctx.arc(orb.x, orb.y, currentRadius, 0, Math.PI * 2);
+        ctx.fillStyle = gradient;
+        ctx.fill();
+      });
 
       // Update and draw particles
       particles.forEach((particle, i) => {
+        // Mouse interaction - particles gently attracted to cursor
+        const dx = mouse.x - particle.x;
+        const dy = mouse.y - particle.y;
+        const distToMouse = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distToMouse < mouseInfluenceRadius && distToMouse > 0) {
+          const force = (1 - distToMouse / mouseInfluenceRadius) * 0.02;
+          particle.vx += (dx / distToMouse) * force;
+          particle.vy += (dy / distToMouse) * force;
+        }
+
+        // Apply gentle damping
+        particle.vx *= 0.99;
+        particle.vy *= 0.99;
+
         // Update position
         particle.x += particle.vx;
         particle.y += particle.vy;
 
-        // Wrap around edges
-        if (particle.x < 0) particle.x = canvas.width;
-        if (particle.x > canvas.width) particle.x = 0;
-        if (particle.y < 0) particle.y = canvas.height;
-        if (particle.y > canvas.height) particle.y = 0;
+        // Wrap around edges with buffer
+        if (particle.x < -20) particle.x = canvas.width + 20;
+        if (particle.x > canvas.width + 20) particle.x = -20;
+        if (particle.y < -20) particle.y = canvas.height + 20;
+        if (particle.y > canvas.height + 20) particle.y = -20;
 
-        // Draw particle (subtle red tint)
+        // Pulse effect
+        particle.pulsePhase += particle.pulseSpeed;
+        const pulse = Math.sin(particle.pulsePhase) * 0.3 + 1;
+        const currentSize = particle.size * pulse;
+        const currentOpacity = particle.opacity * (0.8 + pulse * 0.2);
+
+        // Draw particle with glow
+        const particleGradient = ctx.createRadialGradient(
+          particle.x, particle.y, 0,
+          particle.x, particle.y, currentSize * 3
+        );
+        particleGradient.addColorStop(0, `hsla(0, 70%, 60%, ${currentOpacity})`);
+        particleGradient.addColorStop(0.5, `hsla(0, 60%, 55%, ${currentOpacity * 0.3})`);
+        particleGradient.addColorStop(1, "hsla(0, 50%, 50%, 0)");
+
         ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(0, 60%, 50%, ${particle.opacity})`;
+        ctx.arc(particle.x, particle.y, currentSize * 3, 0, Math.PI * 2);
+        ctx.fillStyle = particleGradient;
         ctx.fill();
 
-        // Draw connections
+        // Draw solid core
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, currentSize, 0, Math.PI * 2);
+        ctx.fillStyle = `hsla(0, 65%, 58%, ${currentOpacity * 1.2})`;
+        ctx.fill();
+
+        // Draw connections with gradient
         for (let j = i + 1; j < particles.length; j++) {
           const other = particles[j];
-          const dx = particle.x - other.x;
-          const dy = particle.y - other.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
+          const connDx = particle.x - other.x;
+          const connDy = particle.y - other.y;
+          const distance = Math.sqrt(connDx * connDx + connDy * connDy);
 
           if (distance < connectionDistance) {
-            const opacity = (1 - distance / connectionDistance) * 0.08;
+            const opacity = (1 - distance / connectionDistance) * 0.12;
+            const gradient = ctx.createLinearGradient(
+              particle.x, particle.y,
+              other.x, other.y
+            );
+            gradient.addColorStop(0, `hsla(0, 55%, 55%, ${opacity * currentOpacity * 5})`);
+            gradient.addColorStop(0.5, `hsla(0, 50%, 50%, ${opacity * 0.7})`);
+            gradient.addColorStop(1, `hsla(0, 55%, 55%, ${opacity * (other.opacity / 0.2) * 0.5})`);
+
             ctx.beginPath();
             ctx.moveTo(particle.x, particle.y);
             ctx.lineTo(other.x, other.y);
-            ctx.strokeStyle = `hsla(0, 50%, 50%, ${opacity})`;
-            ctx.lineWidth = 0.5;
+            ctx.strokeStyle = gradient;
+            ctx.lineWidth = 0.8;
             ctx.stroke();
           }
         }
       });
+
+      // Draw subtle scan line effect
+      const scanY = (time * 30) % (canvas.height + 200) - 100;
+      const scanGradient = ctx.createLinearGradient(0, scanY - 50, 0, scanY + 50);
+      scanGradient.addColorStop(0, "hsla(0, 60%, 55%, 0)");
+      scanGradient.addColorStop(0.5, "hsla(0, 60%, 55%, 0.02)");
+      scanGradient.addColorStop(1, "hsla(0, 60%, 55%, 0)");
+      ctx.fillStyle = scanGradient;
+      ctx.fillRect(0, scanY - 50, canvas.width, 100);
 
       animationRef.current = requestAnimationFrame(animate);
     };
@@ -97,6 +200,7 @@ export const AnimatedBackground = () => {
 
     return () => {
       window.removeEventListener("resize", resizeCanvas);
+      window.removeEventListener("mousemove", handleMouseMove);
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
