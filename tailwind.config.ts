@@ -50,7 +50,9 @@ export default {
 			glass: 'hsl(var(--glass))',
 			'glass-border': 'hsl(var(--glass-border))',
 			'glass-highlight': 'hsl(var(--glass-highlight))',
+			'glass-accent': 'hsl(var(--glass-accent))',
 			glow: 'hsl(var(--glow))',
+			'glow-strong': 'hsl(var(--glow-strong))',
   			sidebar: {
   				DEFAULT: 'hsl(var(--sidebar-background))',
   				foreground: 'hsl(var(--sidebar-foreground))',
