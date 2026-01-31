@@ -144,51 +144,71 @@ const LandingPage = () => {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-b from-background via-background to-muted/10">
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50/30">
+      {/* Layered background textures */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,hsl(210_40%_96%),transparent)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_100%_100%,hsl(220_30%_94%),transparent)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_30%_at_0%_80%,hsl(200_25%_95%),transparent)]" />
+      
+      {/* Subtle noise texture overlay */}
+      <div className="absolute inset-0 opacity-[0.015]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\'/%3E%3C/svg%3E")' }} />
+      
       {/* Animated particle background */}
       <AnimatedBackground />
 
-      {/* Dynamic gradient that follows cursor - subtle neutral */}
+      {/* Dynamic gradient that follows cursor - more visible */}
       <motion.div 
-        className="absolute w-[800px] h-[800px] pointer-events-none"
+        className="absolute w-[900px] h-[900px] pointer-events-none"
         style={{
-          background: "radial-gradient(circle, hsl(220 20% 80% / 0.08) 0%, transparent 60%)",
-          left: mousePosition.x - 400,
-          top: mousePosition.y - 400,
+          background: "radial-gradient(circle, hsl(210 30% 85% / 0.15) 0%, hsl(220 25% 90% / 0.05) 40%, transparent 65%)",
+          left: mousePosition.x - 450,
+          top: mousePosition.y - 450,
         }}
         animate={{
-          opacity: [0.4, 0.6, 0.4],
+          opacity: [0.5, 0.8, 0.5],
         }}
         transition={{
-          duration: 2,
+          duration: 2.5,
           repeat: Infinity,
           ease: "easeInOut"
         }}
       />
 
-      {/* Subtle radial gradient overlay - neutral/cool tones */}
+      {/* Central radial gradient overlay - more prominent */}
       <div className="absolute inset-0 pointer-events-none">
         <motion.div 
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1400px] h-[1400px] bg-[radial-gradient(circle,hsl(220_20%_85%/0.08)_0%,transparent_65%)]"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1600px] h-[1600px] bg-[radial-gradient(circle,hsl(210_35%_92%/0.25)_0%,hsl(220_30%_95%/0.1)_40%,transparent_70%)]"
           animate={{
-            scale: [1, 1.05, 1],
-            opacity: [0.6, 0.8, 0.6],
+            scale: [1, 1.08, 1],
+            opacity: [0.7, 1, 0.7],
           }}
           transition={{
-            duration: 8,
+            duration: 10,
             repeat: Infinity,
             ease: "easeInOut"
           }}
         />
       </div>
 
-      {/* Ambient depth layers with animation - subtle cool tones */}
+      {/* Ambient depth layers with animation - more prominent */}
       <div className="absolute inset-0 pointer-events-none">
         <motion.div 
-          className="absolute top-1/4 left-1/3 w-[700px] h-[700px] bg-[hsl(220_25%_80%/0.06)] rounded-full blur-[180px]"
+          className="absolute top-[10%] left-[20%] w-[800px] h-[800px] bg-[hsl(210_40%_85%/0.15)] rounded-full blur-[120px]"
           animate={{
-            x: [-20, 20, -20],
-            y: [-10, 10, -10],
+            x: [-30, 30, -30],
+            y: [-20, 20, -20],
+          }}
+          transition={{
+            duration: 15,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+        <motion.div 
+          className="absolute top-[60%] right-[10%] w-[700px] h-[700px] bg-[hsl(220_35%_88%/0.12)] rounded-full blur-[100px]"
+          animate={{
+            x: [25, -25, 25],
+            y: [15, -15, 15],
           }}
           transition={{
             duration: 12,
@@ -197,10 +217,21 @@ const LandingPage = () => {
           }}
         />
         <motion.div 
-          className="absolute bottom-1/3 right-1/4 w-[600px] h-[600px] bg-[hsl(210_20%_85%/0.05)] rounded-full blur-[150px]"
+          className="absolute top-[40%] left-[60%] w-[500px] h-[500px] bg-[hsl(200_30%_90%/0.1)] rounded-full blur-[80px]"
           animate={{
-            x: [20, -20, 20],
-            y: [10, -10, 10],
+            x: [-15, 15, -15],
+            y: [20, -20, 20],
+          }}
+          transition={{
+            duration: 18,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+        <motion.div 
+          className="absolute bottom-[20%] left-[5%] w-[400px] h-[400px] bg-[hsl(230_25%_85%/0.08)] rounded-full blur-[90px]"
+          animate={{
+            y: [-10, 10, -10],
           }}
           transition={{
             duration: 10,
