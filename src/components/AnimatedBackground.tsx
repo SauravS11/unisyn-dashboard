@@ -84,7 +84,7 @@ export const AnimatedBackground = () => {
       const mouse = mouseRef.current;
       const time = timeRef.current;
 
-      // Draw ambient glow orbs
+      // Draw ambient glow orbs - sophisticated blue/cyan tones
       orbs.forEach((orb) => {
         orb.phase += orb.speed;
         const breathe = Math.sin(orb.phase) * 0.3 + 1;
@@ -94,9 +94,9 @@ export const AnimatedBackground = () => {
           orb.x, orb.y, 0,
           orb.x, orb.y, currentRadius
         );
-        gradient.addColorStop(0, `hsla(0, 70%, 55%, ${orb.opacity * 1.5})`);
-        gradient.addColorStop(0.5, `hsla(0, 60%, 50%, ${orb.opacity * 0.5})`);
-        gradient.addColorStop(1, "hsla(0, 50%, 50%, 0)");
+        gradient.addColorStop(0, `hsla(210, 40%, 70%, ${orb.opacity * 0.8})`);
+        gradient.addColorStop(0.5, `hsla(220, 30%, 60%, ${orb.opacity * 0.3})`);
+        gradient.addColorStop(1, "hsla(220, 20%, 50%, 0)");
         
         ctx.beginPath();
         ctx.arc(orb.x, orb.y, currentRadius, 0, Math.PI * 2);
@@ -137,24 +137,24 @@ export const AnimatedBackground = () => {
         const currentSize = particle.size * pulse;
         const currentOpacity = particle.opacity * (0.8 + pulse * 0.2);
 
-        // Draw particle with glow
+        // Draw particle with glow - cool white/blue tones
         const particleGradient = ctx.createRadialGradient(
           particle.x, particle.y, 0,
           particle.x, particle.y, currentSize * 3
         );
-        particleGradient.addColorStop(0, `hsla(0, 70%, 60%, ${currentOpacity})`);
-        particleGradient.addColorStop(0.5, `hsla(0, 60%, 55%, ${currentOpacity * 0.3})`);
-        particleGradient.addColorStop(1, "hsla(0, 50%, 50%, 0)");
+        particleGradient.addColorStop(0, `hsla(210, 20%, 85%, ${currentOpacity})`);
+        particleGradient.addColorStop(0.5, `hsla(220, 15%, 70%, ${currentOpacity * 0.3})`);
+        particleGradient.addColorStop(1, "hsla(220, 10%, 60%, 0)");
 
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, currentSize * 3, 0, Math.PI * 2);
         ctx.fillStyle = particleGradient;
         ctx.fill();
 
-        // Draw solid core
+        // Draw solid core - subtle silver/white
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, currentSize, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(0, 65%, 58%, ${currentOpacity * 1.2})`;
+        ctx.fillStyle = `hsla(210, 15%, 80%, ${currentOpacity * 1.2})`;
         ctx.fill();
 
         // Draw connections with gradient
@@ -165,14 +165,14 @@ export const AnimatedBackground = () => {
           const distance = Math.sqrt(connDx * connDx + connDy * connDy);
 
           if (distance < connectionDistance) {
-            const opacity = (1 - distance / connectionDistance) * 0.12;
+            const opacity = (1 - distance / connectionDistance) * 0.1;
             const gradient = ctx.createLinearGradient(
               particle.x, particle.y,
               other.x, other.y
             );
-            gradient.addColorStop(0, `hsla(0, 55%, 55%, ${opacity * currentOpacity * 5})`);
-            gradient.addColorStop(0.5, `hsla(0, 50%, 50%, ${opacity * 0.7})`);
-            gradient.addColorStop(1, `hsla(0, 55%, 55%, ${opacity * (other.opacity / 0.2) * 0.5})`);
+            gradient.addColorStop(0, `hsla(210, 20%, 70%, ${opacity * currentOpacity * 4})`);
+            gradient.addColorStop(0.5, `hsla(220, 15%, 65%, ${opacity * 0.5})`);
+            gradient.addColorStop(1, `hsla(210, 20%, 70%, ${opacity * (other.opacity / 0.2) * 0.4})`);
 
             ctx.beginPath();
             ctx.moveTo(particle.x, particle.y);
@@ -184,12 +184,12 @@ export const AnimatedBackground = () => {
         }
       });
 
-      // Draw subtle scan line effect
-      const scanY = (time * 30) % (canvas.height + 200) - 100;
+      // Draw subtle scan line effect - neutral tone
+      const scanY = (time * 25) % (canvas.height + 200) - 100;
       const scanGradient = ctx.createLinearGradient(0, scanY - 50, 0, scanY + 50);
-      scanGradient.addColorStop(0, "hsla(0, 60%, 55%, 0)");
-      scanGradient.addColorStop(0.5, "hsla(0, 60%, 55%, 0.02)");
-      scanGradient.addColorStop(1, "hsla(0, 60%, 55%, 0)");
+      scanGradient.addColorStop(0, "hsla(220, 20%, 70%, 0)");
+      scanGradient.addColorStop(0.5, "hsla(220, 15%, 75%, 0.015)");
+      scanGradient.addColorStop(1, "hsla(220, 20%, 70%, 0)");
       ctx.fillStyle = scanGradient;
       ctx.fillRect(0, scanY - 50, canvas.width, 100);
 
