@@ -49,27 +49,27 @@ export const AnimatedBackground = () => {
     };
     window.addEventListener("mousemove", handleMouseMove);
 
-    // Initialize particles
-    const particleCount = Math.min(80, Math.floor((window.innerWidth * window.innerHeight) / 18000));
+    // Initialize particles - more of them for richer background
+    const particleCount = Math.min(120, Math.floor((window.innerWidth * window.innerHeight) / 12000));
     particlesRef.current = Array.from({ length: particleCount }, () => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
-      vx: (Math.random() - 0.5) * 0.4,
-      vy: (Math.random() - 0.5) * 0.4,
-      size: Math.random() * 2.5 + 1,
-      opacity: Math.random() * 0.2 + 0.08,
+      vx: (Math.random() - 0.5) * 0.35,
+      vy: (Math.random() - 0.5) * 0.35,
+      size: Math.random() * 2.8 + 1.2,
+      opacity: Math.random() * 0.25 + 0.1,
       pulsePhase: Math.random() * Math.PI * 2,
       pulseSpeed: 0.02 + Math.random() * 0.02,
     }));
 
-    // Initialize ambient glow orbs
-    orbsRef.current = Array.from({ length: 4 }, (_, i) => ({
-      x: (canvas.width / 5) * (i + 1),
-      y: canvas.height * (0.3 + Math.random() * 0.4),
-      radius: 150 + Math.random() * 100,
-      opacity: 0.03 + Math.random() * 0.02,
+    // Initialize ambient glow orbs - larger and more visible
+    orbsRef.current = Array.from({ length: 6 }, (_, i) => ({
+      x: (canvas.width / 7) * (i + 1),
+      y: canvas.height * (0.2 + Math.random() * 0.6),
+      radius: 200 + Math.random() * 150,
+      opacity: 0.045 + Math.random() * 0.03,
       phase: Math.random() * Math.PI * 2,
-      speed: 0.005 + Math.random() * 0.005,
+      speed: 0.004 + Math.random() * 0.004,
     }));
 
     const connectionDistance = 180;
@@ -84,19 +84,22 @@ export const AnimatedBackground = () => {
       const mouse = mouseRef.current;
       const time = timeRef.current;
 
-      // Draw ambient glow orbs - sophisticated blue/cyan tones
-      orbs.forEach((orb) => {
+      // Draw ambient glow orbs - richer blue/cyan/purple tones
+      orbs.forEach((orb, i) => {
         orb.phase += orb.speed;
-        const breathe = Math.sin(orb.phase) * 0.3 + 1;
+        const breathe = Math.sin(orb.phase) * 0.35 + 1;
         const currentRadius = orb.radius * breathe;
+        
+        // Vary hue for visual interest
+        const hue = 200 + (i * 15) % 40;
         
         const gradient = ctx.createRadialGradient(
           orb.x, orb.y, 0,
           orb.x, orb.y, currentRadius
         );
-        gradient.addColorStop(0, `hsla(210, 40%, 70%, ${orb.opacity * 0.8})`);
-        gradient.addColorStop(0.5, `hsla(220, 30%, 60%, ${orb.opacity * 0.3})`);
-        gradient.addColorStop(1, "hsla(220, 20%, 50%, 0)");
+        gradient.addColorStop(0, `hsla(${hue}, 45%, 75%, ${orb.opacity})`);
+        gradient.addColorStop(0.4, `hsla(${hue + 10}, 35%, 65%, ${orb.opacity * 0.5})`);
+        gradient.addColorStop(1, `hsla(${hue + 20}, 25%, 55%, 0)`);
         
         ctx.beginPath();
         ctx.arc(orb.x, orb.y, currentRadius, 0, Math.PI * 2);
@@ -137,24 +140,24 @@ export const AnimatedBackground = () => {
         const currentSize = particle.size * pulse;
         const currentOpacity = particle.opacity * (0.8 + pulse * 0.2);
 
-        // Draw particle with glow - cool white/blue tones
+        // Draw particle with glow - more visible cool tones
         const particleGradient = ctx.createRadialGradient(
           particle.x, particle.y, 0,
-          particle.x, particle.y, currentSize * 3
+          particle.x, particle.y, currentSize * 4
         );
-        particleGradient.addColorStop(0, `hsla(210, 20%, 85%, ${currentOpacity})`);
-        particleGradient.addColorStop(0.5, `hsla(220, 15%, 70%, ${currentOpacity * 0.3})`);
-        particleGradient.addColorStop(1, "hsla(220, 10%, 60%, 0)");
+        particleGradient.addColorStop(0, `hsla(210, 30%, 80%, ${currentOpacity * 1.3})`);
+        particleGradient.addColorStop(0.4, `hsla(220, 25%, 70%, ${currentOpacity * 0.5})`);
+        particleGradient.addColorStop(1, "hsla(220, 15%, 60%, 0)");
 
         ctx.beginPath();
-        ctx.arc(particle.x, particle.y, currentSize * 3, 0, Math.PI * 2);
+        ctx.arc(particle.x, particle.y, currentSize * 4, 0, Math.PI * 2);
         ctx.fillStyle = particleGradient;
         ctx.fill();
 
-        // Draw solid core - subtle silver/white
+        // Draw solid core - brighter
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, currentSize, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(210, 15%, 80%, ${currentOpacity * 1.2})`;
+        ctx.fillStyle = `hsla(210, 25%, 75%, ${currentOpacity * 1.5})`;
         ctx.fill();
 
         // Draw connections with gradient
@@ -165,14 +168,14 @@ export const AnimatedBackground = () => {
           const distance = Math.sqrt(connDx * connDx + connDy * connDy);
 
           if (distance < connectionDistance) {
-            const opacity = (1 - distance / connectionDistance) * 0.1;
+            const opacity = (1 - distance / connectionDistance) * 0.15;
             const gradient = ctx.createLinearGradient(
               particle.x, particle.y,
               other.x, other.y
             );
-            gradient.addColorStop(0, `hsla(210, 20%, 70%, ${opacity * currentOpacity * 4})`);
-            gradient.addColorStop(0.5, `hsla(220, 15%, 65%, ${opacity * 0.5})`);
-            gradient.addColorStop(1, `hsla(210, 20%, 70%, ${opacity * (other.opacity / 0.2) * 0.4})`);
+            gradient.addColorStop(0, `hsla(210, 30%, 70%, ${opacity * currentOpacity * 5})`);
+            gradient.addColorStop(0.5, `hsla(220, 25%, 65%, ${opacity * 0.7})`);
+            gradient.addColorStop(1, `hsla(210, 30%, 70%, ${opacity * (other.opacity / 0.2) * 0.5})`);
 
             ctx.beginPath();
             ctx.moveTo(particle.x, particle.y);
