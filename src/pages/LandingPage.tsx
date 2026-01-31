@@ -148,16 +148,16 @@ const LandingPage = () => {
       {/* Animated particle background */}
       <AnimatedBackground />
 
-      {/* Dynamic gradient that follows cursor */}
+      {/* Dynamic gradient that follows cursor - subtle neutral */}
       <motion.div 
         className="absolute w-[800px] h-[800px] pointer-events-none"
         style={{
-          background: "radial-gradient(circle, hsl(var(--primary) / 0.06) 0%, transparent 60%)",
+          background: "radial-gradient(circle, hsl(220 20% 80% / 0.08) 0%, transparent 60%)",
           left: mousePosition.x - 400,
           top: mousePosition.y - 400,
         }}
         animate={{
-          opacity: [0.5, 0.8, 0.5],
+          opacity: [0.4, 0.6, 0.4],
         }}
         transition={{
           duration: 2,
@@ -166,13 +166,13 @@ const LandingPage = () => {
         }}
       />
 
-      {/* Subtle radial gradient overlay */}
+      {/* Subtle radial gradient overlay - neutral/cool tones */}
       <div className="absolute inset-0 pointer-events-none">
         <motion.div 
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1400px] h-[1400px] bg-[radial-gradient(circle,hsl(var(--primary)/0.05)_0%,transparent_65%)]"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1400px] h-[1400px] bg-[radial-gradient(circle,hsl(220_20%_85%/0.08)_0%,transparent_65%)]"
           animate={{
             scale: [1, 1.05, 1],
-            opacity: [0.8, 1, 0.8],
+            opacity: [0.6, 0.8, 0.6],
           }}
           transition={{
             duration: 8,
@@ -182,10 +182,10 @@ const LandingPage = () => {
         />
       </div>
 
-      {/* Ambient depth layers with animation */}
+      {/* Ambient depth layers with animation - subtle cool tones */}
       <div className="absolute inset-0 pointer-events-none">
         <motion.div 
-          className="absolute top-1/4 left-1/3 w-[700px] h-[700px] bg-primary/[0.04] rounded-full blur-[180px]"
+          className="absolute top-1/4 left-1/3 w-[700px] h-[700px] bg-[hsl(220_25%_80%/0.06)] rounded-full blur-[180px]"
           animate={{
             x: [-20, 20, -20],
             y: [-10, 10, -10],
@@ -197,7 +197,7 @@ const LandingPage = () => {
           }}
         />
         <motion.div 
-          className="absolute bottom-1/3 right-1/4 w-[600px] h-[600px] bg-primary/[0.03] rounded-full blur-[150px]"
+          className="absolute bottom-1/3 right-1/4 w-[600px] h-[600px] bg-[hsl(210_20%_85%/0.05)] rounded-full blur-[150px]"
           animate={{
             x: [20, -20, 20],
             y: [10, -10, 10],
@@ -230,11 +230,11 @@ const LandingPage = () => {
               }}
               variants={itemVariants}
             >
-              {/* Animated border gradient */}
+              {/* Animated border gradient - subtle silver/white */}
               <motion.div 
-                className="absolute inset-0 rounded-[32px] p-[1px] bg-gradient-to-b from-primary/30 via-transparent to-primary/10 pointer-events-none"
+                className="absolute inset-0 rounded-[32px] p-[1px] bg-gradient-to-b from-[hsl(210_20%_85%/0.4)] via-transparent to-[hsl(220_15%_80%/0.15)] pointer-events-none"
                 animate={{
-                  opacity: [0.5, 1, 0.5],
+                  opacity: [0.5, 0.8, 0.5],
                 }}
                 transition={{
                   duration: 3,
@@ -256,11 +256,11 @@ const LandingPage = () => {
                 }}
               />
 
-              {/* Corner accents */}
-              <div className="absolute top-4 left-4 w-8 h-8 border-l-2 border-t-2 border-primary/20 rounded-tl-lg" />
-              <div className="absolute top-4 right-4 w-8 h-8 border-r-2 border-t-2 border-primary/20 rounded-tr-lg" />
-              <div className="absolute bottom-4 left-4 w-8 h-8 border-l-2 border-b-2 border-primary/20 rounded-bl-lg" />
-              <div className="absolute bottom-4 right-4 w-8 h-8 border-r-2 border-b-2 border-primary/20 rounded-br-lg" />
+              {/* Corner accents - subtle neutral */}
+              <div className="absolute top-4 left-4 w-8 h-8 border-l-2 border-t-2 border-[hsl(210_15%_75%/0.25)] rounded-tl-lg" />
+              <div className="absolute top-4 right-4 w-8 h-8 border-r-2 border-t-2 border-[hsl(210_15%_75%/0.25)] rounded-tr-lg" />
+              <div className="absolute bottom-4 left-4 w-8 h-8 border-l-2 border-b-2 border-[hsl(210_15%_75%/0.25)] rounded-bl-lg" />
+              <div className="absolute bottom-4 right-4 w-8 h-8 border-r-2 border-b-2 border-[hsl(210_15%_75%/0.25)] rounded-br-lg" />
 
               <div className="relative flex flex-col items-center" style={{ transform: "translateZ(50px)" }}>
                 {/* Logo with Enhanced Breathing Animation */}
@@ -269,16 +269,16 @@ const LandingPage = () => {
                   variants={floatingVariants}
                   animate="animate"
                 >
-                  {/* Multi-layer glow effect */}
+                  {/* Multi-layer glow effect - subtle neutral/silver */}
                   <motion.div 
-                    className="absolute inset-0 bg-primary/15 blur-[100px] rounded-full scale-[3]"
+                    className="absolute inset-0 bg-[hsl(220_20%_75%/0.12)] blur-[100px] rounded-full scale-[3]"
                     variants={glowVariants}
                     animate="animate"
                   />
                   <motion.div 
-                    className="absolute inset-0 bg-primary/20 blur-[60px] rounded-full scale-[2]"
+                    className="absolute inset-0 bg-[hsl(210_15%_80%/0.15)] blur-[60px] rounded-full scale-[2]"
                     animate={{
-                      opacity: [0.5, 1, 0.5],
+                      opacity: [0.4, 0.7, 0.4],
                       scale: [1.8, 2.2, 1.8],
                     }}
                     transition={{
@@ -289,9 +289,9 @@ const LandingPage = () => {
                     }}
                   />
                   <motion.div 
-                    className="absolute inset-0 bg-primary/25 blur-[40px] rounded-full scale-150"
+                    className="absolute inset-0 bg-[hsl(210_20%_85%/0.18)] blur-[40px] rounded-full scale-150"
                     animate={{
-                      opacity: [0.6, 1, 0.6],
+                      opacity: [0.5, 0.8, 0.5],
                       scale: [1.4, 1.6, 1.4],
                     }}
                     transition={{
@@ -308,7 +308,7 @@ const LandingPage = () => {
                     variants={logoVariants}
                     animate={{
                       scale: [1, 1.03, 1],
-                      filter: ["brightness(1)", "brightness(1.1)", "brightness(1)"],
+                      filter: ["brightness(1)", "brightness(1.05)", "brightness(1)"],
                     }}
                     transition={{
                       duration: 5,
@@ -358,42 +358,28 @@ const LandingPage = () => {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    {/* Ripple effect */}
+                    {/* Subtle ripple effect */}
                     <motion.div
-                      className="absolute inset-0 rounded-2xl bg-primary/40"
+                      className="absolute inset-0 rounded-2xl bg-primary/25"
                       animate={{
-                        scale: [1, 1.5, 1.8],
-                        opacity: [0.5, 0.2, 0],
+                        scale: [1, 1.4, 1.6],
+                        opacity: [0.3, 0.1, 0],
                       }}
                       transition={{
-                        duration: 2,
+                        duration: 2.5,
                         repeat: Infinity,
-                        repeatDelay: 6
-                      }}
-                    />
-                    <motion.div
-                      className="absolute inset-0 rounded-2xl bg-primary/30"
-                      animate={{
-                        scale: [1, 1.3, 1.5],
-                        opacity: [0.4, 0.15, 0],
-                      }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        repeatDelay: 6,
-                        delay: 0.2
+                        repeatDelay: 8
                       }}
                     />
                     
-                    {/* Button glow effect */}
+                    {/* Button glow effect - subtle */}
                     <motion.div 
-                      className="absolute -inset-3 bg-primary/30 rounded-2xl blur-xl"
+                      className="absolute -inset-2 bg-primary/20 rounded-2xl blur-lg"
                       animate={{
-                        opacity: [0.3, 0.6, 0.3],
-                        scale: [0.95, 1.05, 0.95],
+                        opacity: [0.2, 0.4, 0.2],
                       }}
                       transition={{
-                        duration: 2,
+                        duration: 3,
                         repeat: Infinity,
                         ease: "easeInOut"
                       }}
@@ -463,16 +449,16 @@ const LandingPage = () => {
                   whileHover="hover"
                   className="group relative cursor-pointer"
                 >
-                  {/* Card glow on hover */}
+                  {/* Card glow on hover - subtle neutral */}
                   <motion.div 
-                    className="absolute -inset-2 bg-gradient-to-b from-primary/15 to-primary/5 rounded-[28px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl"
+                    className="absolute -inset-2 bg-gradient-to-b from-[hsl(210_20%_80%/0.12)] to-[hsl(220_15%_85%/0.06)] rounded-[28px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl"
                   />
                   
                   {/* Glass card */}
-                  <div className="relative backdrop-blur-xl bg-glass border border-glass-border rounded-3xl p-8 shadow-[0_4px_24px_-8px_hsl(var(--foreground)/0.08),inset_0_1px_0_hsl(var(--glass-highlight))] transition-all duration-500 group-hover:shadow-[0_20px_60px_-15px_hsl(var(--primary)/0.25),inset_0_1px_0_hsl(var(--glass-highlight))] group-hover:border-primary/25 overflow-hidden">
+                  <div className="relative backdrop-blur-xl bg-glass border border-glass-border rounded-3xl p-8 shadow-[0_4px_24px_-8px_hsl(220_20%_50%/0.1),inset_0_1px_0_hsl(var(--glass-highlight))] transition-all duration-500 group-hover:shadow-[0_20px_60px_-15px_hsl(220_20%_60%/0.2),inset_0_1px_0_hsl(var(--glass-highlight))] group-hover:border-[hsl(210_15%_75%/0.35)] overflow-hidden">
                     {/* Animated inner highlight */}
                     <motion.div 
-                      className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"
+                      className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[hsl(210_20%_80%/0.6)] to-transparent"
                       initial={{ opacity: 0, scaleX: 0 }}
                       whileInView={{ opacity: 1, scaleX: 1 }}
                       transition={{ delay: 1.2 + index * 0.1, duration: 0.8 }}
@@ -480,7 +466,7 @@ const LandingPage = () => {
 
                     {/* Background shimmer on hover */}
                     <motion.div
-                      className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                      className="absolute inset-0 bg-gradient-to-br from-[hsl(210_15%_90%/0.06)] via-transparent to-[hsl(220_10%_85%/0.06)] opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                     />
                     
                     <div className="relative flex flex-col items-center text-center">
@@ -493,9 +479,9 @@ const LandingPage = () => {
                         }}
                       >
                         <motion.div 
-                          className="absolute inset-0 bg-primary/25 blur-xl rounded-full scale-150"
+                          className="absolute inset-0 bg-[hsl(210_20%_75%/0.2)] blur-xl rounded-full scale-150"
                           animate={{
-                            opacity: [0.3, 0.6, 0.3],
+                            opacity: [0.2, 0.4, 0.2],
                             scale: [1.3, 1.6, 1.3],
                           }}
                           transition={{
@@ -506,7 +492,7 @@ const LandingPage = () => {
                           }}
                         />
                         <motion.div 
-                          className="relative w-14 h-14 rounded-2xl bg-gradient-to-b from-glass-highlight to-glass border border-glass-border backdrop-blur-xl flex items-center justify-center shadow-lg group-hover:shadow-primary/30 transition-all duration-500"
+                          className="relative w-14 h-14 rounded-2xl bg-gradient-to-b from-glass-highlight to-glass border border-glass-border backdrop-blur-xl flex items-center justify-center shadow-lg group-hover:shadow-[hsl(210_15%_70%/0.25)] transition-all duration-500"
                           whileHover={{ scale: 1.1 }}
                         >
                           <feature.icon className="w-6 h-6 text-primary" />
