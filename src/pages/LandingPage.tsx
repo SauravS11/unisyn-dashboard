@@ -469,7 +469,7 @@ const LandingPage = () => {
         {/* Feature Strip */}
         <section className="px-6 py-12 sm:py-16">
           <div className="max-w-5xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-10">
               {features.map((feature, index) => (
                 <motion.div 
                   key={index}
@@ -482,11 +482,11 @@ const LandingPage = () => {
                 >
                   {/* Card glow on hover - subtle neutral */}
                   <motion.div 
-                    className="absolute -inset-2 bg-gradient-to-b from-[hsl(210_20%_80%/0.12)] to-[hsl(220_15%_85%/0.06)] rounded-[28px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl"
+                    className="absolute -inset-3 bg-gradient-to-b from-[hsl(210_20%_80%/0.12)] to-[hsl(220_15%_85%/0.06)] rounded-[32px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl"
                   />
                   
-                  {/* Glass card */}
-                  <div className="relative backdrop-blur-xl bg-glass border border-glass-border rounded-3xl p-8 shadow-[0_4px_24px_-8px_hsl(220_20%_50%/0.1),inset_0_1px_0_hsl(var(--glass-highlight))] transition-all duration-500 group-hover:shadow-[0_20px_60px_-15px_hsl(220_20%_60%/0.2),inset_0_1px_0_hsl(var(--glass-highlight))] group-hover:border-[hsl(210_15%_75%/0.35)] overflow-hidden">
+                  {/* Glass card - larger */}
+                  <div className="relative backdrop-blur-xl bg-glass border border-glass-border rounded-3xl p-10 sm:p-12 shadow-[0_4px_24px_-8px_hsl(220_20%_50%/0.1),inset_0_1px_0_hsl(var(--glass-highlight))] transition-all duration-500 group-hover:shadow-[0_20px_60px_-15px_hsl(220_20%_60%/0.2),inset_0_1px_0_hsl(var(--glass-highlight))] group-hover:border-[hsl(210_15%_75%/0.35)] overflow-hidden">
                     {/* Animated inner highlight */}
                     <motion.div 
                       className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[hsl(210_20%_80%/0.6)] to-transparent"
@@ -501,9 +501,9 @@ const LandingPage = () => {
                     />
                     
                     <div className="relative flex flex-col items-center text-center">
-                      {/* Icon container with enhanced animation */}
+                      {/* Icon container with enhanced animation - larger */}
                       <motion.div 
-                        className="relative mb-5"
+                        className="relative mb-6"
                         whileHover={{ 
                           rotate: [0, -5, 5, 0],
                           transition: { duration: 0.5 }
@@ -523,16 +523,16 @@ const LandingPage = () => {
                           }}
                         />
                         <motion.div 
-                          className="relative w-14 h-14 rounded-2xl bg-gradient-to-b from-glass-highlight to-glass border border-glass-border backdrop-blur-xl flex items-center justify-center shadow-lg group-hover:shadow-[hsl(210_15%_70%/0.25)] transition-all duration-500"
+                          className="relative w-16 h-16 rounded-2xl bg-gradient-to-b from-glass-highlight to-glass border border-glass-border backdrop-blur-xl flex items-center justify-center shadow-lg group-hover:shadow-[hsl(210_15%_70%/0.25)] transition-all duration-500"
                           whileHover={{ scale: 1.1 }}
                         >
-                          <feature.icon className="w-6 h-6 text-primary" />
+                          <feature.icon className="w-7 h-7 text-primary" />
                         </motion.div>
                       </motion.div>
-                      <h3 className="font-semibold text-foreground mb-2 text-lg group-hover:text-primary transition-colors duration-300">
+                      <h3 className="font-semibold text-foreground mb-3 text-xl group-hover:text-primary transition-colors duration-300">
                         {feature.title}
                       </h3>
-                      <p className="text-sm text-muted-foreground/80 leading-relaxed">
+                      <p className="text-base text-muted-foreground/80 leading-relaxed">
                         {feature.description}
                       </p>
                     </div>
