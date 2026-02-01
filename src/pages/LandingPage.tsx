@@ -251,18 +251,13 @@ const LandingPage = () => {
             animate="visible"
             className="flex flex-col items-center perspective-1000"
           >
-            {/* Glassmorphism Hero Panel with 3D tilt */}
+            {/* Glassmorphism Hero Panel */}
             <motion.div 
               className="relative backdrop-blur-2xl bg-glass border border-glass-border rounded-[32px] p-10 sm:p-14 md:p-16 shadow-[0_8px_60px_-12px_hsl(var(--primary)/0.2),inset_0_1px_0_hsl(var(--glass-highlight))]"
-              style={{
-                rotateX,
-                rotateY,
-                transformStyle: "preserve-3d",
-              }}
               variants={itemVariants}
             >
               {/* Animated border gradient - subtle silver/white */}
-              <motion.div 
+              <motion.div
                 className="absolute inset-0 rounded-[32px] p-[1px] bg-gradient-to-b from-[hsl(210_20%_85%/0.4)] via-transparent to-[hsl(220_15%_80%/0.15)] pointer-events-none"
                 animate={{
                   opacity: [0.5, 0.8, 0.5],
@@ -293,11 +288,11 @@ const LandingPage = () => {
               <div className="absolute bottom-4 left-4 w-8 h-8 border-l-2 border-b-2 border-[hsl(210_15%_75%/0.25)] rounded-bl-lg" />
               <div className="absolute bottom-4 right-4 w-8 h-8 border-r-2 border-b-2 border-[hsl(210_15%_75%/0.25)] rounded-br-lg" />
 
-              <div className="relative flex flex-col items-center" style={{ transform: "translateZ(50px)" }}>
-                {/* Logo with Enhanced Breathing Animation */}
+              <div className="relative flex flex-col items-center">
+                {/* Logo */}
                 <motion.div 
                   className="relative mb-10 sm:mb-12"
-                  variants={floatingVariants}
+                  variants={logoVariants}
                   animate="animate"
                 >
                   {/* Multi-layer glow effect - subtle neutral/silver */}
@@ -469,7 +464,7 @@ const LandingPage = () => {
         {/* Feature Strip */}
         <section className="px-6 py-12 sm:py-16">
           <div className="max-w-5xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-10">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-10 auto-rows-fr">
               {features.map((feature, index) => (
                 <motion.div 
                   key={index}
@@ -486,7 +481,7 @@ const LandingPage = () => {
                   />
                   
                   {/* Glass card - larger */}
-                  <div className="relative backdrop-blur-xl bg-glass border border-glass-border rounded-3xl p-10 sm:p-12 shadow-[0_4px_24px_-8px_hsl(220_20%_50%/0.1),inset_0_1px_0_hsl(var(--glass-highlight))] transition-all duration-500 group-hover:shadow-[0_20px_60px_-15px_hsl(220_20%_60%/0.2),inset_0_1px_0_hsl(var(--glass-highlight))] group-hover:border-[hsl(210_15%_75%/0.35)] overflow-hidden">
+                  <div className="relative h-full backdrop-blur-xl bg-glass border border-glass-border rounded-3xl p-10 sm:p-12 shadow-[0_4px_24px_-8px_hsl(220_20%_50%/0.1),inset_0_1px_0_hsl(var(--glass-highlight))] transition-all duration-500 group-hover:shadow-[0_20px_60px_-15px_hsl(220_20%_60%/0.2),inset_0_1px_0_hsl(var(--glass-highlight))] group-hover:border-[hsl(210_15%_75%/0.35)] overflow-hidden flex flex-col">
                     {/* Animated inner highlight */}
                     <motion.div 
                       className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[hsl(210_20%_80%/0.6)] to-transparent"
