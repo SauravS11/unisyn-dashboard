@@ -5,10 +5,29 @@ import { Target, Shield, Sparkles, ArrowRight } from "lucide-react";
 import { motion, type Variants, type Easing, useMotionValue, useTransform, useSpring } from "framer-motion";
 import { AnimatedBackground } from "@/components/AnimatedBackground";
 import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const LandingPage = () => {
   const navigate = useNavigate();
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  // Listen for auth state changes (e.g. after Google OAuth redirect)
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        navigate("/welcome", { replace: true });
+      }
+    });
+
+    // Also check if already authenticated
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        navigate("/welcome", { replace: true });
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
   
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
