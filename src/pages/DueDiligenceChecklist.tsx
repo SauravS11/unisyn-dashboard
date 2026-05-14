@@ -311,6 +311,20 @@ const DueDiligenceChecklist = () => {
         return;
       }
 
+      // Restore last viewed section
+      try {
+        const stored = localStorage.getItem(`checklist-section-${dealId}`);
+        if (stored) {
+          const idx = parseInt(stored, 10);
+          if (!isNaN(idx) && idx >= 0 && idx < checklistData.length) {
+            _setCurrentSectionIndex(idx);
+          }
+        }
+      } catch {}
+
+      // Mark deal as in_progress so user can resume from deals list
+      await supabase.from('deals').update({ status: 'in_progress' }).eq('id', dealId);
+
       try {
         // Load existing categories
         const { data: categories } = await supabase
