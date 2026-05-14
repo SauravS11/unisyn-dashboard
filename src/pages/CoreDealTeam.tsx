@@ -434,11 +434,11 @@ const CoreDealTeam = () => {
         <div className="flex flex-col sm:flex-row justify-center gap-3">
           <Button
             variant="outline"
-            onClick={() => navigate("/deals")}
+            onClick={() => navigate(`/deals/${id}/edit`)}
             className="border-border/50 px-6 sm:px-8 font-semibold transition-all w-full sm:w-auto touch-manipulation"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Deals
+            Back to New Deal
           </Button>
           <Button onClick={handleContinue} size="lg" className="w-full sm:w-auto touch-manipulation">
             Continue to Pre-Due Diligence Checklist
