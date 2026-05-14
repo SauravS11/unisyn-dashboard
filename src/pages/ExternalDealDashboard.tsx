@@ -17,6 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import unisynLogo from "@/assets/unisyn-logo.svg";
 import { DocumentsModal } from "@/components/DocumentsModal";
+import { getProgressColors } from "@/lib/progressColors";
 
 interface Task {
   id: string;
