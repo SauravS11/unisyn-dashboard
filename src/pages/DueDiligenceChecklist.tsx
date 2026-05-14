@@ -1146,19 +1146,31 @@ const DueDiligenceChecklist = () => {
 
             {/* Navigation Buttons */}
             <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 mt-8 pt-6 border-t border-border/50">
+              <div className="flex flex-col sm:flex-row gap-3 flex-1">
+                <Button
+                  variant="outline"
+                  className="border-border/50 flex-1 sm:flex-none touch-manipulation"
+                  onClick={() => navigate(`/deals/${dealId}/team`)}
+                >
+                  <ChevronLeft className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">Back to Team</span>
+                  <span className="sm:hidden">Back</span>
+                </Button>
+
+                <Button
+                  variant="outline"
+                  className="border-border/50 flex-1 sm:flex-none touch-manipulation"
+                  onClick={goToPreviousSection}
+                  disabled={isFirstSection}
+                >
+                  <ChevronLeft className="h-4 w-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">Previous Section</span>
+                  <span className="sm:hidden">Previous</span>
+                </Button>
+              </div>
+
               <Button
                 variant="outline"
-                className="border-border/50 flex-1 sm:flex-none touch-manipulation"
-                onClick={goToPreviousSection}
-                disabled={isFirstSection}
-              >
-                <ChevronLeft className="h-4 w-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">Previous Section</span>
-                <span className="sm:hidden">Previous</span>
-              </Button>
-
-              <Button 
-                variant="outline" 
                 className="border-border/50 flex-1 sm:flex-none touch-manipulation"
                 onClick={handleSaveDraft}
                 disabled={savingDraft || loadingDraft}
@@ -1168,7 +1180,7 @@ const DueDiligenceChecklist = () => {
               </Button>
 
               {isLastSection ? (
-                <Button 
+                <Button
                   className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 sm:px-8 font-semibold shadow-lg hover:shadow-xl transition-all flex-1 sm:flex-none touch-manipulation"
                   onClick={handleSubmit}
                 >
