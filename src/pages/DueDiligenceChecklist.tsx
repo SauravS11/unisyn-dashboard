@@ -251,10 +251,21 @@ const DueDiligenceChecklist = () => {
   const { id: dealId } = useParams<{ id: string }>();
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const contentRef = useRef<HTMLDivElement>(null);
-  const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
+  
   const [uploadingFiles, setUploadingFiles] = useState<Record<string, boolean>>({});
   const [savingDraft, setSavingDraft] = useState(false);
   const [loadingDraft, setLoadingDraft] = useState(true);
+  const [autoSaving, setAutoSaving] = useState(false);
+  const [currentSectionIndex, _setCurrentSectionIndex] = useState(0);
+  const setCurrentSectionIndex = (updater: number | ((prev: number) => number)) => {
+    _setCurrentSectionIndex((prev) => {
+      const next = typeof updater === "function" ? (updater as (p: number) => number)(prev) : updater;
+      if (dealId) {
+        try { localStorage.setItem(`checklist-section-${dealId}`, String(next)); } catch {}
+      }
+      return next;
+    });
+  };
   const [checklist, setChecklist] = useState<Record<string, ChecklistItem>>(() => {
     const initial: Record<string, ChecklistItem> = {};
     checklistData.forEach((section) => {
@@ -299,6 +310,20 @@ const DueDiligenceChecklist = () => {
         setLoadingDraft(false);
         return;
       }
+
+      // Restore last viewed section
+      try {
+        const stored = localStorage.getItem(`checklist-section-${dealId}`);
+        if (stored) {
+          const idx = parseInt(stored, 10);
+          if (!isNaN(idx) && idx >= 0 && idx < checklistData.length) {
+            _setCurrentSectionIndex(idx);
+          }
+        }
+      } catch {}
+
+      // Mark deal as in_progress so user can resume from deals list
+      await supabase.from('deals').update({ status: 'in_progress' }).eq('id', dealId);
 
       try {
         // Load existing categories
@@ -452,27 +477,24 @@ const DueDiligenceChecklist = () => {
     });
   };
 
-  const handleSaveDraft = async () => {
+  const persistDraft = async (silent: boolean) => {
     if (!dealId) {
-      toast({
-        title: "Error",
-        description: "Deal ID is missing.",
-        variant: "destructive",
-      });
-      return;
+      if (!silent) {
+        toast({ title: "Error", description: "Deal ID is missing.", variant: "destructive" });
+      }
+      return false;
     }
 
-    setSavingDraft(true);
+    if (silent) setAutoSaving(true);
+    else setSavingDraft(true);
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        toast({
-          title: "Error",
-          description: "You must be logged in to save the draft.",
-          variant: "destructive",
-        });
-        return;
+        if (!silent) {
+          toast({ title: "Error", description: "You must be logged in to save the draft.", variant: "destructive" });
+        }
+        return false;
       }
 
       // Batch insert all categories
@@ -572,23 +594,41 @@ const DueDiligenceChecklist = () => {
 
       if (dealError) throw dealError;
 
-      toast({
-        title: "Draft saved",
-        description: "Your checklist progress has been saved.",
-      });
-      
-      navigate('/deals');
+      if (!silent) {
+        toast({
+          title: "Draft saved",
+          description: "Your checklist progress has been saved.",
+        });
+        navigate('/deals');
+      }
+      return true;
     } catch (error) {
       console.error('Error saving draft:', error);
-      toast({
-        title: "Error",
-        description: "Failed to save draft. Please try again.",
-        variant: "destructive",
-      });
+      if (!silent) {
+        toast({
+          title: "Error",
+          description: "Failed to save draft. Please try again.",
+          variant: "destructive",
+        });
+      }
+      return false;
     } finally {
-      setSavingDraft(false);
+      if (silent) setAutoSaving(false);
+      else setSavingDraft(false);
     }
   };
+
+  const handleSaveDraft = () => persistDraft(false);
+
+  // Auto-save draft when checklist or specialists change (debounced)
+  useEffect(() => {
+    if (loadingDraft || !dealId) return;
+    const t = setTimeout(() => {
+      persistDraft(true);
+    }, 1500);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [checklist, sectionSpecialists, loadingDraft, dealId]);
 
   const handleSubmit = async () => {
     if (!dealId) {
