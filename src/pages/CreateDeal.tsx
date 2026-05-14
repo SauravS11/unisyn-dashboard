@@ -18,9 +18,11 @@ import { PageNavigation } from "@/components/PageNavigation";
 
 const CreateDeal = () => {
   const navigate = useNavigate();
+  const { id: routeDealId } = useParams<{ id: string }>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(false);
-  const [dealId, setDealId] = useState<string | null>(null);
+  const [dealId, setDealId] = useState<string | null>(routeDealId ?? null);
+  const [loadingExisting, setLoadingExisting] = useState(!!routeDealId);
   const creatingRef = useRef(false);
   const [formData, setFormData] = useState({
     dealName: "",
