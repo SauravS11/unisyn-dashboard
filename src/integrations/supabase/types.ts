@@ -293,9 +293,14 @@ export type Database = {
           buyer_legal_email: string | null
           buyer_legal_name: string | null
           buyer_name: string | null
+          confidentiality_level: string | null
           created_at: string
           deal_code: string
+          deal_stage: string | null
+          deal_value: string | null
           id: string
+          industry: string | null
+          lead_advisor: string | null
           name: string
           passcode: string | null
           seller_email: string | null
@@ -312,9 +317,14 @@ export type Database = {
           buyer_legal_email?: string | null
           buyer_legal_name?: string | null
           buyer_name?: string | null
+          confidentiality_level?: string | null
           created_at?: string
           deal_code: string
+          deal_stage?: string | null
+          deal_value?: string | null
           id?: string
+          industry?: string | null
+          lead_advisor?: string | null
           name: string
           passcode?: string | null
           seller_email?: string | null
@@ -331,9 +341,14 @@ export type Database = {
           buyer_legal_email?: string | null
           buyer_legal_name?: string | null
           buyer_name?: string | null
+          confidentiality_level?: string | null
           created_at?: string
           deal_code?: string
+          deal_stage?: string | null
+          deal_value?: string | null
           id?: string
+          industry?: string | null
+          lead_advisor?: string | null
           name?: string
           passcode?: string | null
           seller_email?: string | null

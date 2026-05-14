@@ -79,6 +79,11 @@ const CreateDeal = () => {
         sellerLegalName: data.seller_legal_name ?? "",
         sellerLegalEmail: data.seller_legal_email ?? "",
         timeline: data.target_close_date ? new Date(data.target_close_date) : undefined,
+        dealValue: (data as any).deal_value ?? "",
+        industry: (data as any).industry ?? "",
+        dealStage: (data as any).deal_stage ?? "",
+        leadAdvisor: (data as any).lead_advisor ?? "",
+        confidentialityLevel: (data as any).confidentiality_level ?? "",
       }));
       setLoadingExisting(false);
     })();
@@ -95,6 +100,11 @@ const CreateDeal = () => {
     buyer_legal_email: formData.buyerLegalEmail || null,
     seller_legal_name: formData.sellerLegalName || null,
     seller_legal_email: formData.sellerLegalEmail || null,
+    deal_value: formData.dealValue || null,
+    industry: formData.industry || null,
+    deal_stage: formData.dealStage || null,
+    lead_advisor: formData.leadAdvisor || null,
+    confidentiality_level: formData.confidentialityLevel || null,
   });
 
   // Auto-create the deal as soon as the user types a name, then auto-update on changes
