@@ -303,6 +303,7 @@ export type Database = {
           lead_advisor: string | null
           name: string
           passcode: string | null
+          selected_categories: string[] | null
           seller_email: string | null
           seller_legal_email: string | null
           seller_legal_name: string | null
@@ -327,6 +328,7 @@ export type Database = {
           lead_advisor?: string | null
           name: string
           passcode?: string | null
+          selected_categories?: string[] | null
           seller_email?: string | null
           seller_legal_email?: string | null
           seller_legal_name?: string | null
@@ -351,6 +353,7 @@ export type Database = {
           lead_advisor?: string | null
           name?: string
           passcode?: string | null
+          selected_categories?: string[] | null
           seller_email?: string | null
           seller_legal_email?: string | null
           seller_legal_name?: string | null
