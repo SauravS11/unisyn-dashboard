@@ -428,9 +428,18 @@ const CreateDeal = () => {
               </div>
 
               {/* Submit Button */}
-              <div className="flex justify-center pt-4 sm:pt-6 border-t border-border/50">
-                <Button 
-                  type="submit" 
+              <div className="flex flex-col sm:flex-row justify-center gap-3 pt-4 sm:pt-6 border-t border-border/50">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate("/deals")}
+                  className="border-border/50 px-6 sm:px-8 font-semibold transition-all rounded-2xl w-full sm:w-auto touch-manipulation"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Deals
+                </Button>
+                <Button
+                  type="submit"
                   className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 sm:px-8 font-semibold shadow-lg hover:shadow-xl transition-all rounded-2xl w-full sm:w-auto touch-manipulation"
                   disabled={isSubmitting}
                 >
