@@ -110,9 +110,19 @@ const DealsListPage = () => {
     setPasscodeDialogOpen(true);
   };
 
-  const handleDealClick = (deal: Deal) => {
+  const handleDealClick = async (deal: Deal) => {
     if (deal.status === 'in_progress') {
-      navigate(`/deals/${deal.id}/checklist`);
+      // Resume where the user left off: checklist if any tasks saved, otherwise team
+      const { data: categories } = await supabase
+        .from('deal_categories')
+        .select('id')
+        .eq('deal_id', deal.id)
+        .limit(1);
+      if (categories && categories.length > 0) {
+        navigate(`/deals/${deal.id}/checklist`);
+      } else {
+        navigate(`/deals/${deal.id}/team`);
+      }
     } else {
       navigate(`/deals/${deal.id}/dashboard`);
     }
