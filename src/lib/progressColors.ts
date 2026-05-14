@@ -1,5 +1,5 @@
 // Color tokens for progress / status awareness across the app.
-// Green = complete, Emerald = mostly done, Amber = mid, Orange = started, Red = not started.
+// Green = 100% complete only. Below 100% uses amber/orange/red scale.
 
 export const getProgressColors = (pct: number) => {
   if (pct >= 100) return {
@@ -11,11 +11,11 @@ export const getProgressColors = (pct: number) => {
     label: "Complete",
   };
   if (pct >= 75) return {
-    text: "text-emerald-600 dark:text-emerald-500",
-    bg: "bg-emerald-500/15",
-    ring: "border-emerald-500/40",
-    bar: "bg-emerald-500",
-    stroke: "text-emerald-500",
+    text: "text-amber-600 dark:text-amber-500",
+    bg: "bg-amber-500/15",
+    ring: "border-amber-500/40",
+    bar: "bg-amber-500",
+    stroke: "text-amber-500",
     label: "On Track",
   };
   if (pct >= 40) return {
