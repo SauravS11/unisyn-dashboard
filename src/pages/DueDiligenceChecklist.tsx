@@ -594,23 +594,41 @@ const DueDiligenceChecklist = () => {
 
       if (dealError) throw dealError;
 
-      toast({
-        title: "Draft saved",
-        description: "Your checklist progress has been saved.",
-      });
-      
-      navigate('/deals');
+      if (!silent) {
+        toast({
+          title: "Draft saved",
+          description: "Your checklist progress has been saved.",
+        });
+        navigate('/deals');
+      }
+      return true;
     } catch (error) {
       console.error('Error saving draft:', error);
-      toast({
-        title: "Error",
-        description: "Failed to save draft. Please try again.",
-        variant: "destructive",
-      });
+      if (!silent) {
+        toast({
+          title: "Error",
+          description: "Failed to save draft. Please try again.",
+          variant: "destructive",
+        });
+      }
+      return false;
     } finally {
-      setSavingDraft(false);
+      if (silent) setAutoSaving(false);
+      else setSavingDraft(false);
     }
   };
+
+  const handleSaveDraft = () => persistDraft(false);
+
+  // Auto-save draft when checklist or specialists change (debounced)
+  useEffect(() => {
+    if (loadingDraft || !dealId) return;
+    const t = setTimeout(() => {
+      persistDraft(true);
+    }, 1500);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [checklist, sectionSpecialists, loadingDraft, dealId]);
 
   const handleSubmit = async () => {
     if (!dealId) {
