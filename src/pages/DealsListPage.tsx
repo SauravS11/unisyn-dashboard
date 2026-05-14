@@ -262,10 +262,16 @@ const DealsListPage = () => {
           </Card>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {filteredDeals.map((deal) => (
+            {filteredDeals.map((deal) => {
+              const statusStyles = deal.status === 'completed'
+                ? { ring: 'border-green-500/40', badge: 'bg-green-500/15 text-green-600 dark:text-green-500 border-green-500/30', label: 'Completed' }
+                : deal.status === 'in_progress'
+                  ? { ring: 'border-orange-500/40', badge: 'bg-orange-500/15 text-orange-600 dark:text-orange-500 border-orange-500/30', label: 'In Progress' }
+                  : { ring: 'border-blue-500/40', badge: 'bg-blue-500/15 text-blue-600 dark:text-blue-500 border-blue-500/30', label: 'Active' };
+              return (
               <Card 
                 key={deal.id}
-                className="backdrop-blur-xl bg-card/60 border-border/50 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group touch-manipulation"
+                className={`backdrop-blur-xl bg-card/60 border-2 ${statusStyles.ring} shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group touch-manipulation`}
                 onClick={() => handleDealClick(deal)}
               >
                 <CardHeader className="pb-3">
@@ -301,11 +307,9 @@ const DealsListPage = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2 sm:space-y-3">
-                  {deal.status === 'in_progress' && (
-                    <Badge className="bg-emerald-500/20 text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/30">
-                      In Progress
-                    </Badge>
-                  )}
+                  <Badge className={`${statusStyles.badge} hover:${statusStyles.badge}`}>
+                    {statusStyles.label}
+                  </Badge>
                   <div className="flex items-center text-xs sm:text-sm text-muted-foreground">
                     <Calendar className="h-4 w-4 mr-2 shrink-0" />
                     <span className="truncate">Created {format(new Date(deal.created_at), 'MMM dd, yyyy')}</span>
@@ -316,7 +320,8 @@ const DealsListPage = () => {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
