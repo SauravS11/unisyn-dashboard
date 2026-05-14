@@ -257,6 +257,7 @@ const DueDiligenceChecklist = () => {
   const [savingDraft, setSavingDraft] = useState(false);
   const [loadingDraft, setLoadingDraft] = useState(true);
   const [autoSaving, setAutoSaving] = useState(false);
+  const [activeChecklistData, setActiveChecklistData] = useState<ChecklistSection[]>(checklistData);
   const [currentSectionIndex, _setCurrentSectionIndex] = useState(0);
   const setCurrentSectionIndex = (updater: number | ((prev: number) => number)) => {
     _setCurrentSectionIndex((prev) => {
@@ -292,10 +293,12 @@ const DueDiligenceChecklist = () => {
     return initial;
   });
 
-  const currentSection = checklistData[currentSectionIndex];
+  const currentSection = activeChecklistData[currentSectionIndex] ?? activeChecklistData[0];
   const isFirstSection = currentSectionIndex === 0;
-  const isLastSection = currentSectionIndex === checklistData.length - 1;
-  const progressPercentage = ((currentSectionIndex + 1) / checklistData.length) * 100;
+  const isLastSection = currentSectionIndex === activeChecklistData.length - 1;
+  const progressPercentage = activeChecklistData.length > 0
+    ? ((currentSectionIndex + 1) / activeChecklistData.length) * 100
+    : 0;
 
   // Check authentication and load existing draft data
   useEffect(() => {
