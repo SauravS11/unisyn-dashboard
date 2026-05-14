@@ -329,6 +329,25 @@ const DueDiligenceChecklist = () => {
       // Mark deal as in_progress so user can resume from deals list
       await supabase.from('deals').update({ status: 'in_progress' }).eq('id', dealId);
 
+      // Load selected categories for this deal and filter checklist
+      try {
+        const { data: dealRow } = await supabase
+          .from('deals')
+          .select('selected_categories')
+          .eq('id', dealId)
+          .single();
+        const selected = dealRow?.selected_categories;
+        if (selected && Array.isArray(selected) && selected.length > 0) {
+          const filtered = checklistData.filter((s) => selected.includes(s.id));
+          if (filtered.length > 0) {
+            setActiveChecklistData(filtered);
+            _setCurrentSectionIndex((prev) => Math.min(prev, filtered.length - 1));
+          }
+        }
+      } catch (e) {
+        console.error('Could not load selected categories', e);
+      }
+
       try {
         // Load existing categories
         const { data: categories } = await supabase
