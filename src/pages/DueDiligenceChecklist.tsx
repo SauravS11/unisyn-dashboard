@@ -255,6 +255,17 @@ const DueDiligenceChecklist = () => {
   const [uploadingFiles, setUploadingFiles] = useState<Record<string, boolean>>({});
   const [savingDraft, setSavingDraft] = useState(false);
   const [loadingDraft, setLoadingDraft] = useState(true);
+  const [autoSaving, setAutoSaving] = useState(false);
+  const [currentSectionIndex, _setCurrentSectionIndex] = useState(0);
+  const setCurrentSectionIndex = (updater: number | ((prev: number) => number)) => {
+    _setCurrentSectionIndex((prev) => {
+      const next = typeof updater === "function" ? (updater as (p: number) => number)(prev) : updater;
+      if (dealId) {
+        try { localStorage.setItem(`checklist-section-${dealId}`, String(next)); } catch {}
+      }
+      return next;
+    });
+  };
   const [checklist, setChecklist] = useState<Record<string, ChecklistItem>>(() => {
     const initial: Record<string, ChecklistItem> = {};
     checklistData.forEach((section) => {
