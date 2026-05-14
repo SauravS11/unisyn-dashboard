@@ -491,12 +491,10 @@ const DueDiligenceChecklist = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        toast({
-          title: "Error",
-          description: "You must be logged in to save the draft.",
-          variant: "destructive",
-        });
-        return;
+        if (!silent) {
+          toast({ title: "Error", description: "You must be logged in to save the draft.", variant: "destructive" });
+        }
+        return false;
       }
 
       // Batch insert all categories
