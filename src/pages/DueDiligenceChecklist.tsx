@@ -251,7 +251,7 @@ const DueDiligenceChecklist = () => {
   const { id: dealId } = useParams<{ id: string }>();
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const contentRef = useRef<HTMLDivElement>(null);
-  const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
+  
   const [uploadingFiles, setUploadingFiles] = useState<Record<string, boolean>>({});
   const [savingDraft, setSavingDraft] = useState(false);
   const [loadingDraft, setLoadingDraft] = useState(true);
