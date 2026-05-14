@@ -305,7 +305,7 @@ const ExternalDealDashboard = () => {
           {/* First Row - Readiness Score + Stats */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 sm:gap-6">
             {/* Readiness Score Card */}
-            <Card className="sm:col-span-2 backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl">
+            <Card className={`sm:col-span-2 backdrop-blur-xl bg-card/60 border-2 ${getProgressColors(readinessScore).ring} shadow-2xl`}>
               <CardContent className="py-4 sm:py-6">
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
                   <div className="relative w-24 h-24 flex-shrink-0">
@@ -314,17 +314,19 @@ const ExternalDealDashboard = () => {
                       <circle cx="48" cy="48" r="40" stroke="currentColor" strokeWidth="8" fill="none"
                         strokeDasharray={`${2 * Math.PI * 40}`}
                         strokeDashoffset={`${2 * Math.PI * 40 * (1 - readinessScore / 100)}`}
-                        className="text-primary transition-all duration-500"
+                        className={`${getProgressColors(readinessScore).stroke} transition-all duration-500`}
                         strokeLinecap="round"
                       />
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-xl sm:text-2xl font-bold">{readinessScore}%</span>
+                      <span className={`text-xl sm:text-2xl font-bold ${getProgressColors(readinessScore).text}`}>{readinessScore}%</span>
                     </div>
                   </div>
                   <div className="text-center sm:text-left">
                     <p className="text-base sm:text-lg font-semibold text-foreground mb-2">{dealName}</p>
-                    <p className="text-sm text-muted-foreground mb-1">Readiness Score</p>
+                    <p className="text-sm text-muted-foreground mb-1">
+                      Readiness Score · <span className={`font-semibold ${getProgressColors(readinessScore).text}`}>{getProgressColors(readinessScore).label}</span>
+                    </p>
                     <p className="text-xs text-muted-foreground">
                       {completedTasks} of {totalTasks} tasks completed
                     </p>
