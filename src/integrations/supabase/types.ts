@@ -436,6 +436,8 @@ export type Database = {
     }
     Functions: {
       cleanup_expired_tokens: { Args: never; Returns: undefined }
+      deal_exists: { Args: { deal_id_text: string }; Returns: boolean }
+      deal_exists_uuid: { Args: { p_deal_id: string }; Returns: boolean }
       deal_has_passcode: { Args: { deal_id_text: string }; Returns: boolean }
       generate_deal_code: { Args: { deal_name: string }; Returns: string }
       validate_deal_access_token: {
