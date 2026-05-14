@@ -22,6 +22,7 @@ import { PageNavigation } from "@/components/PageNavigation";
 import { SignOutButton } from "@/components/SignOutButton";
 import { specialistSchema, validateInput } from "@/lib/validation";
 import { handleError, logDebug } from "@/lib/errorHandler";
+import { getProgressColors } from "@/lib/progressColors";
 
 interface Task {
   id: string;
