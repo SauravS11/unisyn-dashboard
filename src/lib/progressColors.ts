@@ -35,11 +35,11 @@ export const getProgressColors = (pct: number) => {
     label: "Outstanding",
   };
   return {
-    text: "text-red-600 dark:text-red-500",
-    bg: "bg-red-500/10",
-    ring: "border-red-500/30",
-    bar: "bg-red-500",
-    stroke: "text-red-500",
+    text: "text-red-800 dark:text-red-600",
+    bg: "bg-red-700/15",
+    ring: "border-red-700/40",
+    bar: "bg-red-700",
+    stroke: "text-red-700",
     label: "Not Started",
   };
 };
