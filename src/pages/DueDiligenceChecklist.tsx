@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import unisynLogo from "@/assets/unisyn-logo.svg";
 import { toast as sonnerToast } from "sonner";
 import { SignOutButton } from "@/components/SignOutButton";
+import { DealProgressStepper } from "@/components/DealProgressStepper";
 
 interface ChecklistItem {
   id: string;
