@@ -428,10 +428,20 @@ const CoreDealTeam = () => {
           </Card>
         )}
 
-        {/* Continue Button */}
-        <Button onClick={handleContinue} size="lg" className="w-full touch-manipulation">
-          Continue to Pre-Due Diligence Checklist
-        </Button>
+        {/* Navigation Buttons */}
+        <div className="flex flex-col sm:flex-row justify-center gap-3">
+          <Button
+            variant="outline"
+            onClick={() => navigate("/deals")}
+            className="border-border/50 px-6 sm:px-8 font-semibold transition-all w-full sm:w-auto touch-manipulation"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Deals
+          </Button>
+          <Button onClick={handleContinue} size="lg" className="w-full sm:w-auto touch-manipulation">
+            Continue to Pre-Due Diligence Checklist
+          </Button>
+        </div>
       </div>
     </div>
   );
