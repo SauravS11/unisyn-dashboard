@@ -46,6 +46,8 @@ const CoreDealTeam = () => {
     if (id) {
       fetchDeal();
       fetchTeamMembers();
+      // Mark deal as in_progress so user can resume from the deals list
+      supabase.from("deals").update({ status: "in_progress" }).eq("id", id).then(() => {});
     }
   }, [id]);
 
