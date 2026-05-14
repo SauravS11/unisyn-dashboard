@@ -521,7 +521,7 @@ const DueDiligenceChecklist = () => {
       }
 
       // Batch insert all categories
-      const categories = checklistData.map((section, index) => ({
+      const categories = activeChecklistData.map((section, index) => ({
         deal_id: dealId,
         title: section.title,
         category_code: section.id,
@@ -542,7 +542,7 @@ const DueDiligenceChecklist = () => {
       );
 
       // Batch insert all specialists
-      const specialists = checklistData
+      const specialists = activeChecklistData
         .flatMap(section => {
           const sectionSpecs = sectionSpecialists[section.id];
           const categoryId = categoryMap.get(section.id);
@@ -581,7 +581,7 @@ const DueDiligenceChecklist = () => {
       }
 
       // Batch insert all tasks
-      const tasks = checklistData.flatMap((section) => 
+      const tasks = activeChecklistData.flatMap((section) => 
         section.items.map((item, itemIndex) => {
           const itemId = `${section.id}-${itemIndex}`;
           const checklistItem = checklist[itemId];
@@ -676,7 +676,7 @@ const DueDiligenceChecklist = () => {
       }
 
       // Batch insert all categories
-      const categories = checklistData.map((section, index) => ({
+      const categories = activeChecklistData.map((section, index) => ({
         deal_id: dealId,
         title: section.title,
         category_code: section.id,
@@ -698,7 +698,7 @@ const DueDiligenceChecklist = () => {
       );
 
       // Batch insert all specialists
-      const specialists = checklistData
+      const specialists = activeChecklistData
         .flatMap(section => {
           const sectionSpecs = sectionSpecialists[section.id];
           const categoryId = categoryMap.get(section.id);
@@ -737,7 +737,7 @@ const DueDiligenceChecklist = () => {
       }
 
       // Batch insert all tasks
-      const tasks = checklistData.flatMap((section, sectionIndex) => 
+      const tasks = activeChecklistData.flatMap((section, sectionIndex) => 
         section.items.map((item, itemIndex) => {
           const itemId = `${section.id}-${itemIndex}`;
           const checklistItem = checklist[itemId];
@@ -932,7 +932,7 @@ const DueDiligenceChecklist = () => {
               </div>
               <div className="text-right">
                 <div className="text-sm text-muted-foreground mb-1">
-                  Section {currentSectionIndex + 1} of {checklistData.length}
+                  Section {currentSectionIndex + 1} of {activeChecklistData.length}
                 </div>
                 <Progress value={progressPercentage} className="w-32 h-2" />
               </div>
