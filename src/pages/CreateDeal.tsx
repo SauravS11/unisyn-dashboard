@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { SignOutButton } from "@/components/SignOutButton";
 import { PageNavigation } from "@/components/PageNavigation";
+import { DealProgressStepper } from "@/components/DealProgressStepper";
 
 const CreateDeal = () => {
   const navigate = useNavigate();
