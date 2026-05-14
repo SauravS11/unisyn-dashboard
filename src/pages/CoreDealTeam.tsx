@@ -11,6 +11,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { MoreVertical, Trash2, Edit, UserPlus, X, ArrowLeft } from "lucide-react";
 import { PageNavigation } from "@/components/PageNavigation";
 import { SignOutButton } from "@/components/SignOutButton";
+import { DealProgressStepper } from "@/components/DealProgressStepper";
 import { teamMemberSchema, validateInput } from "@/lib/validation";
 import { handleError } from "@/lib/errorHandler";
 
