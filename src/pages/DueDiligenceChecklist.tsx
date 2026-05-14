@@ -889,6 +889,9 @@ const DueDiligenceChecklist = () => {
             <SignOutButton />
           </div>
         </div>
+        <div className="max-w-7xl mx-auto px-6 pb-4">
+          <DealProgressStepper current="checklist" />
+        </div>
       </div>
 
       {/* Content */}
