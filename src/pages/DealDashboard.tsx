@@ -22,6 +22,7 @@ import { PageNavigation } from "@/components/PageNavigation";
 import { SignOutButton } from "@/components/SignOutButton";
 import { specialistSchema, validateInput } from "@/lib/validation";
 import { handleError, logDebug } from "@/lib/errorHandler";
+import { getProgressColors } from "@/lib/progressColors";
 
 interface Task {
   id: string;
@@ -603,21 +604,21 @@ const DealDashboard = () => {
           {/* First Row - Readiness Score + Stats */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 sm:gap-6">
             {/* Readiness Score Card */}
-            <Card className="sm:col-span-2 backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl">
+            <Card className={`sm:col-span-2 backdrop-blur-xl bg-card/60 border-2 ${getProgressColors(readinessScore).ring} shadow-2xl`}>
               <CardContent className="py-4 sm:py-6">
                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
                   <div className="relative w-24 h-24 flex-shrink-0">
                     <svg className="w-full h-full transform -rotate-90">
                       <circle cx="48" cy="48" r="40" stroke="currentColor" strokeWidth="8" fill="none" className="text-muted" />
-                      <circle cx="48" cy="48" r="40" stroke="currentColor" strokeWidth="8" fill="none" strokeDasharray={`${2 * Math.PI * 40}`} strokeDashoffset={`${2 * Math.PI * 40 * (1 - readinessScore / 100)}`} className="text-primary transition-all duration-500" strokeLinecap="round" />
+                      <circle cx="48" cy="48" r="40" stroke="currentColor" strokeWidth="8" fill="none" strokeDasharray={`${2 * Math.PI * 40}`} strokeDashoffset={`${2 * Math.PI * 40 * (1 - readinessScore / 100)}`} className={`${getProgressColors(readinessScore).stroke} transition-all duration-500`} strokeLinecap="round" />
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-xl sm:text-2xl font-bold">{readinessScore}%</span>
+                      <span className={`text-xl sm:text-2xl font-bold ${getProgressColors(readinessScore).text}`}>{readinessScore}%</span>
                     </div>
                   </div>
                   <div className="text-center sm:text-left">
                     <p className="text-base sm:text-lg font-semibold text-foreground mb-2">{dealName}</p>
-                    <p className="text-sm text-muted-foreground mb-1">Readiness Score</p>
+                    <p className="text-sm text-muted-foreground mb-1">Readiness Score · <span className={`font-semibold ${getProgressColors(readinessScore).text}`}>{getProgressColors(readinessScore).label}</span></p>
                     <p className="text-xs text-muted-foreground">
                       {completedTasks} of {totalTasks} tasks completed
                     </p>
@@ -627,28 +628,28 @@ const DealDashboard = () => {
             </Card>
 
             {/* Summary Cards */}
-            <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-xl">
+            <Card className={`backdrop-blur-xl bg-card/60 border-2 ${openTasks > 0 ? 'border-orange-500/40' : 'border-green-500/40'} shadow-xl`}>
               <CardContent className="flex items-center justify-center py-8">
                 <div className="text-center">
-                  <div className="text-4xl font-bold text-primary mb-2">{openTasks}</div>
+                  <div className={`text-4xl font-bold mb-2 ${openTasks > 0 ? 'text-orange-500' : 'text-green-500'}`}>{openTasks}</div>
                   <div className="text-sm text-muted-foreground">Open Tasks</div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-xl">
+            <Card className={`backdrop-blur-xl bg-card/60 border-2 ${highPriorityTasks > 0 ? 'border-red-500/40' : 'border-green-500/40'} shadow-xl`}>
               <CardContent className="flex items-center justify-center py-8">
                 <div className="text-center">
-                  <div className="text-4xl font-bold text-primary mb-2">{highPriorityTasks}</div>
+                  <div className={`text-4xl font-bold mb-2 ${highPriorityTasks > 0 ? 'text-red-500' : 'text-green-500'}`}>{highPriorityTasks}</div>
                   <div className="text-sm text-muted-foreground">High Priority</div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-xl cursor-pointer hover:shadow-2xl transition-shadow" onClick={() => setSpecialistsModalOpen(true)}>
+            <Card className={`backdrop-blur-xl bg-card/60 border-2 ${specialistsAssigned > 0 ? 'border-blue-500/40' : 'border-orange-500/40'} shadow-xl cursor-pointer hover:shadow-2xl transition-shadow`} onClick={() => setSpecialistsModalOpen(true)}>
               <CardContent className="flex items-center justify-center py-8">
                 <div className="text-center">
-                  <div className="text-4xl font-bold text-primary mb-2">{specialistsAssigned}</div>
+                  <div className={`text-4xl font-bold mb-2 ${specialistsAssigned > 0 ? 'text-blue-500' : 'text-orange-500'}`}>{specialistsAssigned}</div>
                   <div className="text-sm text-muted-foreground">Specialists Assigned</div>
                   <Button variant="link" className="mt-2 text-xs">
                     View Details
@@ -1219,24 +1220,25 @@ const DealDashboard = () => {
                 const completion = getCategoryCompletion(category);
                 const openTasksCount = getOpenTasksCount(category);
                 const completedTasksCount = category.tasks.filter(t => t.checked).length;
-                return <Card key={category.id} className="backdrop-blur-xl bg-background/40 border-2 border-border/50 cursor-pointer hover:bg-background/60 transition-all hover:shadow-lg overflow-hidden" onClick={() => {
+                const colors = getProgressColors(completion);
+                return <Card key={category.id} className={`backdrop-blur-xl bg-background/40 border-2 ${colors.ring} cursor-pointer hover:bg-background/60 transition-all hover:shadow-lg overflow-hidden`} onClick={() => {
                   setSelectedCategory(category);
                   setCategoryModalOpen(true);
                 }}>
                       <CardContent className="p-2.5 sm:p-4">
                         <div className="flex items-center gap-2 sm:gap-3">
-                          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                            <span className="text-primary font-bold text-xs sm:text-base">{category.id}</span>
+                          <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full ${colors.bg} flex items-center justify-center flex-shrink-0`}>
+                            <span className={`font-bold text-xs sm:text-base ${colors.text}`}>{category.id}</span>
                           </div>
                           <div className="flex-1 min-w-0 overflow-hidden">
                             <div className="font-semibold text-xs sm:text-sm truncate">{category.title}</div>
                             <div className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
-                              {completedTasksCount}/{category.tasks.length} done
+                              {completedTasksCount}/{category.tasks.length} done · <span className={colors.text}>{colors.label}</span>
                             </div>
                           </div>
                           <div className="flex-shrink-0 text-right pl-1">
-                            <div className="text-xs sm:text-sm font-semibold whitespace-nowrap">{completion}%</div>
-                            <Progress value={completion} className="w-10 sm:w-20 h-1.5 sm:h-2 mt-0.5" />
+                            <div className={`text-xs sm:text-sm font-semibold whitespace-nowrap ${colors.text}`}>{completion}%</div>
+                            <Progress value={completion} indicatorClassName={colors.bar} className="w-10 sm:w-20 h-1.5 sm:h-2 mt-0.5" />
                           </div>
                         </div>
                       </CardContent>
@@ -1259,24 +1261,25 @@ const DealDashboard = () => {
                 const completion = getCategoryCompletion(category);
                 const openTasksCount = getOpenTasksCount(category);
                 const completedTasksCount = category.tasks.filter(t => t.checked).length;
-                return <Card key={category.id} className="backdrop-blur-xl bg-background/40 border-2 border-border/50 cursor-pointer hover:bg-background/60 transition-all hover:shadow-lg overflow-hidden" onClick={() => {
+                const colors = getProgressColors(completion);
+                return <Card key={category.id} className={`backdrop-blur-xl bg-background/40 border-2 ${colors.ring} cursor-pointer hover:bg-background/60 transition-all hover:shadow-lg overflow-hidden`} onClick={() => {
                   setSelectedCategory(category);
                   setCategoryModalOpen(true);
                 }}>
                       <CardContent className="p-2.5 sm:p-4">
                         <div className="flex items-center gap-2 sm:gap-3">
-                          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                            <span className="text-primary font-bold text-xs sm:text-base">{category.id}</span>
+                          <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full ${colors.bg} flex items-center justify-center flex-shrink-0`}>
+                            <span className={`font-bold text-xs sm:text-base ${colors.text}`}>{category.id}</span>
                           </div>
                           <div className="flex-1 min-w-0 overflow-hidden">
                             <div className="font-semibold text-xs sm:text-sm truncate">{category.title}</div>
                             <div className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
-                              {completedTasksCount}/{category.tasks.length} done
+                              {completedTasksCount}/{category.tasks.length} done · <span className={colors.text}>{colors.label}</span>
                             </div>
                           </div>
                           <div className="flex-shrink-0 text-right pl-1">
-                            <div className="text-xs sm:text-sm font-semibold whitespace-nowrap">{completion}%</div>
-                            <Progress value={completion} className="w-10 sm:w-20 h-1.5 sm:h-2 mt-0.5" />
+                            <div className={`text-xs sm:text-sm font-semibold whitespace-nowrap ${colors.text}`}>{completion}%</div>
+                            <Progress value={completion} indicatorClassName={colors.bar} className="w-10 sm:w-20 h-1.5 sm:h-2 mt-0.5" />
                           </div>
                         </div>
                       </CardContent>
