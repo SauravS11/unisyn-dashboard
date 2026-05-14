@@ -233,6 +233,9 @@ const CoreDealTeam = () => {
             { to: `/deals/${id}/checklist`, label: "Checklist" },
           ]} />
         </div>
+        <div className="container mx-auto px-4 pb-4">
+          <DealProgressStepper current="team" />
+        </div>
       </div>
       
       <div className="container mx-auto px-4 py-6 sm:py-8 max-w-5xl">
