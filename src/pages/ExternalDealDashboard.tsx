@@ -639,27 +639,28 @@ const ExternalDealDashboard = () => {
                   const completion = getCategoryCompletion(category);
                   const openTasksCount = getOpenTasksCount(category);
                   const completedTasksCount = category.tasks.filter((t) => t.checked).length;
+                  const colors = getProgressColors(completion);
 
                   return (
                     <Card
                       key={category.id}
-                      className="backdrop-blur-xl bg-background/40 border-2 border-border/50 cursor-pointer hover:bg-background/60 transition-all hover:shadow-lg overflow-hidden"
+                      className={`backdrop-blur-xl bg-background/40 border-2 ${colors.ring} cursor-pointer hover:bg-background/60 transition-all hover:shadow-lg overflow-hidden`}
                       onClick={() => { setSelectedCategory(category); setCategoryModalOpen(true); }}
                     >
                       <CardContent className="p-2.5 sm:p-4">
                         <div className="flex items-center gap-2 sm:gap-3">
-                          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                            <span className="text-primary font-bold text-xs sm:text-base">{category.id}</span>
+                          <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full ${colors.bg} flex items-center justify-center flex-shrink-0`}>
+                            <span className={`font-bold text-xs sm:text-base ${colors.text}`}>{category.id}</span>
                           </div>
                           <div className="flex-1 min-w-0 overflow-hidden">
                             <div className="font-semibold text-xs sm:text-sm truncate">{category.title}</div>
                             <div className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
-                              {completedTasksCount}/{category.tasks.length} done
+                              {completedTasksCount}/{category.tasks.length} done · <span className={colors.text}>{colors.label}</span>
                             </div>
                           </div>
                           <div className="flex-shrink-0 text-right pl-1">
-                            <div className="text-xs sm:text-sm font-semibold whitespace-nowrap">{completion}%</div>
-                            <Progress value={completion} className="w-10 sm:w-20 h-1.5 sm:h-2 mt-0.5" />
+                            <div className={`text-xs sm:text-sm font-semibold whitespace-nowrap ${colors.text}`}>{completion}%</div>
+                            <Progress value={completion} indicatorClassName={colors.bar} className="w-10 sm:w-20 h-1.5 sm:h-2 mt-0.5" />
                           </div>
                         </div>
                       </CardContent>
