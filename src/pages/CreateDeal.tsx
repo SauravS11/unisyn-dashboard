@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Calendar } from "@/components/ui/calendar";
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { CalendarIcon, X, ArrowLeft } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -18,9 +18,11 @@ import { PageNavigation } from "@/components/PageNavigation";
 
 const CreateDeal = () => {
   const navigate = useNavigate();
+  const { id: routeDealId } = useParams<{ id: string }>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(false);
-  const [dealId, setDealId] = useState<string | null>(null);
+  const [dealId, setDealId] = useState<string | null>(routeDealId ?? null);
+  const [loadingExisting, setLoadingExisting] = useState(!!routeDealId);
   const creatingRef = useRef(false);
   const [formData, setFormData] = useState({
     dealName: "",
@@ -52,6 +54,36 @@ const CreateDeal = () => {
     checkAuth();
   }, [navigate]);
 
+  // If editing an existing deal, load its values into the form
+  useEffect(() => {
+    if (!routeDealId) return;
+    (async () => {
+      const { data, error } = await supabase
+        .from("deals")
+        .select("*")
+        .eq("id", routeDealId)
+        .maybeSingle();
+      if (error || !data) {
+        setLoadingExisting(false);
+        return;
+      }
+      setFormData((prev) => ({
+        ...prev,
+        dealName: data.name ?? "",
+        buyer: data.buyer_name ?? "",
+        buyerEmail: data.buyer_email ?? "",
+        seller: data.seller_name ?? "",
+        sellerEmail: data.seller_email ?? "",
+        buyerLegalName: data.buyer_legal_name ?? "",
+        buyerLegalEmail: data.buyer_legal_email ?? "",
+        sellerLegalName: data.seller_legal_name ?? "",
+        sellerLegalEmail: data.seller_legal_email ?? "",
+        timeline: data.target_close_date ? new Date(data.target_close_date) : undefined,
+      }));
+      setLoadingExisting(false);
+    })();
+  }, [routeDealId]);
+
   const buildDealPayload = () => ({
     name: formData.dealName,
     target_close_date: formData.timeline ? format(formData.timeline, 'yyyy-MM-dd') : null,
@@ -67,6 +99,7 @@ const CreateDeal = () => {
 
   // Auto-create the deal as soon as the user types a name, then auto-update on changes
   useEffect(() => {
+    if (loadingExisting) return;
     const trimmedName = formData.dealName.trim();
     if (!trimmedName) return;
 
