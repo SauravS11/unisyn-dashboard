@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { SignOutButton } from "@/components/SignOutButton";
 import { PageNavigation } from "@/components/PageNavigation";
+import { DealProgressStepper } from "@/components/DealProgressStepper";
 
 const CreateDeal = () => {
   const navigate = useNavigate();
@@ -236,6 +237,9 @@ const CreateDeal = () => {
               { to: "/deals", label: "Deals" },
             ]}
           />
+        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-4">
+          <DealProgressStepper current="deal" />
         </div>
       </div>
 

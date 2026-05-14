@@ -11,6 +11,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { MoreVertical, Trash2, Edit, UserPlus, X, ArrowLeft } from "lucide-react";
 import { PageNavigation } from "@/components/PageNavigation";
 import { SignOutButton } from "@/components/SignOutButton";
+import { DealProgressStepper } from "@/components/DealProgressStepper";
 import { teamMemberSchema, validateInput } from "@/lib/validation";
 import { handleError } from "@/lib/errorHandler";
 
@@ -231,6 +232,9 @@ const CoreDealTeam = () => {
             { to: `/deals/${id}/team`, label: "Core Team", isActive: true },
             { to: `/deals/${id}/checklist`, label: "Checklist" },
           ]} />
+        </div>
+        <div className="container mx-auto px-4 pb-4">
+          <DealProgressStepper current="team" />
         </div>
       </div>
       
