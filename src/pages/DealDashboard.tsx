@@ -628,28 +628,28 @@ const DealDashboard = () => {
             </Card>
 
             {/* Summary Cards */}
-            <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-xl">
+            <Card className={`backdrop-blur-xl bg-card/60 border-2 ${openTasks > 0 ? 'border-orange-500/40' : 'border-green-500/40'} shadow-xl`}>
               <CardContent className="flex items-center justify-center py-8">
                 <div className="text-center">
-                  <div className="text-4xl font-bold text-primary mb-2">{openTasks}</div>
+                  <div className={`text-4xl font-bold mb-2 ${openTasks > 0 ? 'text-orange-500' : 'text-green-500'}`}>{openTasks}</div>
                   <div className="text-sm text-muted-foreground">Open Tasks</div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-xl">
+            <Card className={`backdrop-blur-xl bg-card/60 border-2 ${highPriorityTasks > 0 ? 'border-red-500/40' : 'border-green-500/40'} shadow-xl`}>
               <CardContent className="flex items-center justify-center py-8">
                 <div className="text-center">
-                  <div className="text-4xl font-bold text-primary mb-2">{highPriorityTasks}</div>
+                  <div className={`text-4xl font-bold mb-2 ${highPriorityTasks > 0 ? 'text-red-500' : 'text-green-500'}`}>{highPriorityTasks}</div>
                   <div className="text-sm text-muted-foreground">High Priority</div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-xl cursor-pointer hover:shadow-2xl transition-shadow" onClick={() => setSpecialistsModalOpen(true)}>
+            <Card className={`backdrop-blur-xl bg-card/60 border-2 ${specialistsAssigned > 0 ? 'border-blue-500/40' : 'border-orange-500/40'} shadow-xl cursor-pointer hover:shadow-2xl transition-shadow`} onClick={() => setSpecialistsModalOpen(true)}>
               <CardContent className="flex items-center justify-center py-8">
                 <div className="text-center">
-                  <div className="text-4xl font-bold text-primary mb-2">{specialistsAssigned}</div>
+                  <div className={`text-4xl font-bold mb-2 ${specialistsAssigned > 0 ? 'text-blue-500' : 'text-orange-500'}`}>{specialistsAssigned}</div>
                   <div className="text-sm text-muted-foreground">Specialists Assigned</div>
                   <Button variant="link" className="mt-2 text-xs">
                     View Details
