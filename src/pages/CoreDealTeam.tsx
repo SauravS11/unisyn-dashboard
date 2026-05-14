@@ -213,7 +213,7 @@ const CoreDealTeam = () => {
   };
 
   const handleContinue = () => {
-    navigate(`/deals/${id}/checklist`);
+    navigate(`/deals/${id}/categories`);
   };
 
   if (isLoading) {
@@ -230,6 +230,7 @@ const CoreDealTeam = () => {
           <PageNavigation items={[
             { to: "/deals", label: "Deals" },
             { to: `/deals/${id}/team`, label: "Core Team", isActive: true },
+            { to: `/deals/${id}/categories`, label: "Categories" },
             { to: `/deals/${id}/checklist`, label: "Checklist" },
           ]} />
         </div>
@@ -445,7 +446,7 @@ const CoreDealTeam = () => {
             Back to New Deal
           </Button>
           <Button onClick={handleContinue} size="lg" className="w-full sm:w-auto touch-manipulation">
-            Continue to Pre-Due Diligence Checklist
+            Continue to Select Categories
           </Button>
         </div>
       </div>

@@ -257,6 +257,7 @@ const DueDiligenceChecklist = () => {
   const [savingDraft, setSavingDraft] = useState(false);
   const [loadingDraft, setLoadingDraft] = useState(true);
   const [autoSaving, setAutoSaving] = useState(false);
+  const [activeChecklistData, setActiveChecklistData] = useState<ChecklistSection[]>(checklistData);
   const [currentSectionIndex, _setCurrentSectionIndex] = useState(0);
   const setCurrentSectionIndex = (updater: number | ((prev: number) => number)) => {
     _setCurrentSectionIndex((prev) => {
@@ -292,10 +293,12 @@ const DueDiligenceChecklist = () => {
     return initial;
   });
 
-  const currentSection = checklistData[currentSectionIndex];
+  const currentSection = activeChecklistData[currentSectionIndex] ?? activeChecklistData[0];
   const isFirstSection = currentSectionIndex === 0;
-  const isLastSection = currentSectionIndex === checklistData.length - 1;
-  const progressPercentage = ((currentSectionIndex + 1) / checklistData.length) * 100;
+  const isLastSection = currentSectionIndex === activeChecklistData.length - 1;
+  const progressPercentage = activeChecklistData.length > 0
+    ? ((currentSectionIndex + 1) / activeChecklistData.length) * 100
+    : 0;
 
   // Check authentication and load existing draft data
   useEffect(() => {
@@ -325,6 +328,25 @@ const DueDiligenceChecklist = () => {
 
       // Mark deal as in_progress so user can resume from deals list
       await supabase.from('deals').update({ status: 'in_progress' }).eq('id', dealId);
+
+      // Load selected categories for this deal and filter checklist
+      try {
+        const { data: dealRow } = await supabase
+          .from('deals')
+          .select('selected_categories')
+          .eq('id', dealId)
+          .single();
+        const selected = dealRow?.selected_categories;
+        if (selected && Array.isArray(selected) && selected.length > 0) {
+          const filtered = checklistData.filter((s) => selected.includes(s.id));
+          if (filtered.length > 0) {
+            setActiveChecklistData(filtered);
+            _setCurrentSectionIndex((prev) => Math.min(prev, filtered.length - 1));
+          }
+        }
+      } catch (e) {
+        console.error('Could not load selected categories', e);
+      }
 
       try {
         // Load existing categories
@@ -499,7 +521,7 @@ const DueDiligenceChecklist = () => {
       }
 
       // Batch insert all categories
-      const categories = checklistData.map((section, index) => ({
+      const categories = activeChecklistData.map((section, index) => ({
         deal_id: dealId,
         title: section.title,
         category_code: section.id,
@@ -520,7 +542,7 @@ const DueDiligenceChecklist = () => {
       );
 
       // Batch insert all specialists
-      const specialists = checklistData
+      const specialists = activeChecklistData
         .flatMap(section => {
           const sectionSpecs = sectionSpecialists[section.id];
           const categoryId = categoryMap.get(section.id);
@@ -559,7 +581,7 @@ const DueDiligenceChecklist = () => {
       }
 
       // Batch insert all tasks
-      const tasks = checklistData.flatMap((section) => 
+      const tasks = activeChecklistData.flatMap((section) => 
         section.items.map((item, itemIndex) => {
           const itemId = `${section.id}-${itemIndex}`;
           const checklistItem = checklist[itemId];
@@ -654,7 +676,7 @@ const DueDiligenceChecklist = () => {
       }
 
       // Batch insert all categories
-      const categories = checklistData.map((section, index) => ({
+      const categories = activeChecklistData.map((section, index) => ({
         deal_id: dealId,
         title: section.title,
         category_code: section.id,
@@ -676,7 +698,7 @@ const DueDiligenceChecklist = () => {
       );
 
       // Batch insert all specialists
-      const specialists = checklistData
+      const specialists = activeChecklistData
         .flatMap(section => {
           const sectionSpecs = sectionSpecialists[section.id];
           const categoryId = categoryMap.get(section.id);
@@ -715,7 +737,7 @@ const DueDiligenceChecklist = () => {
       }
 
       // Batch insert all tasks
-      const tasks = checklistData.flatMap((section, sectionIndex) => 
+      const tasks = activeChecklistData.flatMap((section, sectionIndex) => 
         section.items.map((item, itemIndex) => {
           const itemId = `${section.id}-${itemIndex}`;
           const checklistItem = checklist[itemId];
@@ -910,7 +932,7 @@ const DueDiligenceChecklist = () => {
               </div>
               <div className="text-right">
                 <div className="text-sm text-muted-foreground mb-1">
-                  Section {currentSectionIndex + 1} of {checklistData.length}
+                  Section {currentSectionIndex + 1} of {activeChecklistData.length}
                 </div>
                 <Progress value={progressPercentage} className="w-32 h-2" />
               </div>

@@ -2,7 +2,7 @@ import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
-export type DealStep = "deal" | "team" | "checklist";
+export type DealStep = "deal" | "team" | "categories" | "checklist";
 
 interface DealProgressStepperProps {
   current: DealStep;
@@ -12,6 +12,7 @@ interface DealProgressStepperProps {
 const STEPS: { key: DealStep; label: string; shortLabel: string }[] = [
   { key: "deal", label: "Deal Details", shortLabel: "Deal" },
   { key: "team", label: "Core Team", shortLabel: "Team" },
+  { key: "categories", label: "Categories", shortLabel: "Categories" },
   { key: "checklist", label: "Pre-DD Checklist", shortLabel: "Checklist" },
 ];
 
