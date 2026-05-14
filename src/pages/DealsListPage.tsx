@@ -112,16 +112,17 @@ const DealsListPage = () => {
 
   const handleDealClick = async (deal: Deal) => {
     if (deal.status === 'in_progress') {
-      // Resume where the user left off: checklist if any tasks saved, otherwise team
-      const { data: categories } = await supabase
-        .from('deal_categories')
-        .select('id')
-        .eq('deal_id', deal.id)
-        .limit(1);
+      // Resume where the user left off
+      const [{ data: categories }, { data: members }] = await Promise.all([
+        supabase.from('deal_categories').select('id').eq('deal_id', deal.id).limit(1),
+        supabase.from('deal_team_members').select('id').eq('deal_id', deal.id).limit(1),
+      ]);
       if (categories && categories.length > 0) {
         navigate(`/deals/${deal.id}/checklist`);
-      } else {
+      } else if (members && members.length > 0) {
         navigate(`/deals/${deal.id}/team`);
+      } else {
+        navigate(`/deals/${deal.id}/edit`);
       }
     } else {
       navigate(`/deals/${deal.id}/dashboard`);
