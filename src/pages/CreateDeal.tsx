@@ -99,6 +99,7 @@ const CreateDeal = () => {
 
   // Auto-create the deal as soon as the user types a name, then auto-update on changes
   useEffect(() => {
+    if (loadingExisting) return;
     const trimmedName = formData.dealName.trim();
     if (!trimmedName) return;
 
