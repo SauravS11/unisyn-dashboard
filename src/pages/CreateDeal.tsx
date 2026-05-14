@@ -54,6 +54,36 @@ const CreateDeal = () => {
     checkAuth();
   }, [navigate]);
 
+  // If editing an existing deal, load its values into the form
+  useEffect(() => {
+    if (!routeDealId) return;
+    (async () => {
+      const { data, error } = await supabase
+        .from("deals")
+        .select("*")
+        .eq("id", routeDealId)
+        .maybeSingle();
+      if (error || !data) {
+        setLoadingExisting(false);
+        return;
+      }
+      setFormData((prev) => ({
+        ...prev,
+        dealName: data.name ?? "",
+        buyer: data.buyer_name ?? "",
+        buyerEmail: data.buyer_email ?? "",
+        seller: data.seller_name ?? "",
+        sellerEmail: data.seller_email ?? "",
+        buyerLegalName: data.buyer_legal_name ?? "",
+        buyerLegalEmail: data.buyer_legal_email ?? "",
+        sellerLegalName: data.seller_legal_name ?? "",
+        sellerLegalEmail: data.seller_legal_email ?? "",
+        timeline: data.target_close_date ? new Date(data.target_close_date) : undefined,
+      }));
+      setLoadingExisting(false);
+    })();
+  }, [routeDealId]);
+
   const buildDealPayload = () => ({
     name: formData.dealName,
     target_close_date: formData.timeline ? format(formData.timeline, 'yyyy-MM-dd') : null,
