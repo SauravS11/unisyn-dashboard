@@ -477,17 +477,16 @@ const DueDiligenceChecklist = () => {
     });
   };
 
-  const handleSaveDraft = async () => {
+  const persistDraft = async (silent: boolean) => {
     if (!dealId) {
-      toast({
-        title: "Error",
-        description: "Deal ID is missing.",
-        variant: "destructive",
-      });
-      return;
+      if (!silent) {
+        toast({ title: "Error", description: "Deal ID is missing.", variant: "destructive" });
+      }
+      return false;
     }
 
-    setSavingDraft(true);
+    if (silent) setAutoSaving(true);
+    else setSavingDraft(true);
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
