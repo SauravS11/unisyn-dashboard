@@ -238,6 +238,9 @@ const CreateDeal = () => {
             ]}
           />
         </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-4">
+          <DealProgressStepper current="deal" />
+        </div>
       </div>
 
       {/* Content */}
