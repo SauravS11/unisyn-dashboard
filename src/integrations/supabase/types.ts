@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      dd_categories: {
+        Row: {
+          category_no: number
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          category_no: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          category_no?: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       deal_access_tokens: {
         Row: {
           created_at: string
@@ -365,6 +389,294 @@ export type Database = {
         }
         Relationships: []
       }
+      expert_access_log: {
+        Row: {
+          accessed_at: string | null
+          code_id: string
+          id: string
+          ip_address: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          accessed_at?: string | null
+          code_id: string
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          accessed_at?: string | null
+          code_id?: string
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expert_access_log_code_id_fkey"
+            columns: ["code_id"]
+            isOneToOne: false
+            referencedRelation: "expert_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expert_access_tokens: {
+        Row: {
+          code_id: string
+          created_at: string | null
+          expires_at: string
+          id: string
+          ip_address: string | null
+          token_hash: string
+          user_agent: string | null
+        }
+        Insert: {
+          code_id: string
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          ip_address?: string | null
+          token_hash: string
+          user_agent?: string | null
+        }
+        Update: {
+          code_id?: string
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          ip_address?: string | null
+          token_hash?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expert_access_tokens_code_id_fkey"
+            columns: ["code_id"]
+            isOneToOne: false
+            referencedRelation: "expert_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expert_codes: {
+        Row: {
+          category_id: string
+          code: string
+          created_at: string | null
+          deal_id: string
+          expert_email: string | null
+          expert_name: string | null
+          expires_at: string | null
+          id: string
+          instructions: string | null
+          is_active: boolean | null
+          last_accessed_at: string | null
+        }
+        Insert: {
+          category_id: string
+          code: string
+          created_at?: string | null
+          deal_id: string
+          expert_email?: string | null
+          expert_name?: string | null
+          expires_at?: string | null
+          id?: string
+          instructions?: string | null
+          is_active?: boolean | null
+          last_accessed_at?: string | null
+        }
+        Update: {
+          category_id?: string
+          code?: string
+          created_at?: string | null
+          deal_id?: string
+          expert_email?: string | null
+          expert_name?: string | null
+          expires_at?: string | null
+          id?: string
+          instructions?: string | null
+          is_active?: boolean | null
+          last_accessed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expert_codes_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "dd_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expert_codes_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expert_documents: {
+        Row: {
+          category_id: string
+          code_id: string
+          deal_id: string
+          file_name: string
+          file_size_bytes: number | null
+          file_url: string
+          id: string
+          mime_type: string | null
+          notes: string | null
+          task_id: string | null
+          uploaded_at: string | null
+        }
+        Insert: {
+          category_id: string
+          code_id: string
+          deal_id: string
+          file_name: string
+          file_size_bytes?: number | null
+          file_url: string
+          id?: string
+          mime_type?: string | null
+          notes?: string | null
+          task_id?: string | null
+          uploaded_at?: string | null
+        }
+        Update: {
+          category_id?: string
+          code_id?: string
+          deal_id?: string
+          file_name?: string
+          file_size_bytes?: number | null
+          file_url?: string
+          id?: string
+          mime_type?: string | null
+          notes?: string | null
+          task_id?: string | null
+          uploaded_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expert_documents_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "dd_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expert_documents_code_id_fkey"
+            columns: ["code_id"]
+            isOneToOne: false
+            referencedRelation: "expert_codes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expert_documents_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expert_documents_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "expert_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expert_task_completions: {
+        Row: {
+          code_id: string
+          completed_at: string | null
+          id: string
+          is_complete: boolean | null
+          notes: string | null
+          task_id: string
+        }
+        Insert: {
+          code_id: string
+          completed_at?: string | null
+          id?: string
+          is_complete?: boolean | null
+          notes?: string | null
+          task_id: string
+        }
+        Update: {
+          code_id?: string
+          completed_at?: string | null
+          id?: string
+          is_complete?: boolean | null
+          notes?: string | null
+          task_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expert_task_completions_code_id_fkey"
+            columns: ["code_id"]
+            isOneToOne: false
+            referencedRelation: "expert_codes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expert_task_completions_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "expert_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expert_tasks: {
+        Row: {
+          category_id: string
+          created_at: string | null
+          deal_id: string
+          description: string | null
+          id: string
+          is_required: boolean | null
+          sort_order: number | null
+          title: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string | null
+          deal_id: string
+          description?: string | null
+          id?: string
+          is_required?: boolean | null
+          sort_order?: number | null
+          title: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string | null
+          deal_id?: string
+          description?: string | null
+          id?: string
+          is_required?: boolean | null
+          sort_order?: number | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expert_tasks_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "dd_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expert_tasks_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           created_at: string
@@ -440,8 +752,48 @@ export type Database = {
       deal_exists_uuid: { Args: { p_deal_id: string }; Returns: boolean }
       deal_has_passcode: { Args: { deal_id_text: string }; Returns: boolean }
       generate_deal_code: { Args: { deal_name: string }; Returns: string }
+      generate_expert_access_code: {
+        Args: { p_category_no: number }
+        Returns: string
+      }
+      generate_expert_code_segment: { Args: never; Returns: string }
+      generate_expert_codes_for_deal: {
+        Args: { p_deal_id: string }
+        Returns: number
+      }
+      regenerate_expert_code: { Args: { p_code_id: string }; Returns: string }
+      register_expert_document: {
+        Args: {
+          p_access_token: string
+          p_code_id: string
+          p_file_name: string
+          p_file_size_bytes?: number
+          p_file_url: string
+          p_mime_type?: string
+          p_notes?: string
+          p_task_id?: string
+        }
+        Returns: string
+      }
+      seed_expert_tasks_for_category: {
+        Args: { p_category_id: string; p_deal_id: string }
+        Returns: undefined
+      }
+      toggle_expert_task_completion: {
+        Args: {
+          p_access_token: string
+          p_code_id: string
+          p_is_complete: boolean
+          p_task_id: string
+        }
+        Returns: boolean
+      }
       validate_deal_access_token: {
         Args: { p_access_token: string; p_deal_id: string }
+        Returns: boolean
+      }
+      validate_expert_access_token: {
+        Args: { p_access_token: string; p_code_id: string }
         Returns: boolean
       }
       verify_deal_code: {
@@ -479,6 +831,18 @@ export type Database = {
               success: boolean
             }[]
           }
+      verify_expert_code: {
+        Args: { p_code: string; p_ip_address?: string; p_user_agent?: string }
+        Returns: {
+          access_token: string
+          category_id: string
+          code_id: string
+          deal_id: string
+          expert_code: string
+          message: string
+          success: boolean
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
