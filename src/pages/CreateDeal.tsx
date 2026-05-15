@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 import unisynLogo from "@/assets/unisyn-logo.svg";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { SignOutButton } from "@/components/SignOutButton";
+import { PageHeaderActions } from "@/components/PageHeaderActions";
 import { PageNavigation } from "@/components/PageNavigation";
 import { DealProgressStepper } from "@/components/DealProgressStepper";
 
@@ -227,9 +227,7 @@ const CreateDeal = () => {
       {/* Header */}
       <div className="relative z-10 border-b border-border/50 bg-background/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 flex flex-col items-center gap-3 sm:gap-4 relative">
-          <div className="absolute top-4 left-4 sm:top-6 sm:left-6">
-            <SignOutButton />
-          </div>
+          <PageHeaderActions />
           <img src={unisynLogo} alt="UniSyn Technology" className="w-36 sm:w-44 h-auto" />
           <PageNavigation
             items={[

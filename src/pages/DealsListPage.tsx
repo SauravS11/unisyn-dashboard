@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import unisynLogo from "@/assets/unisyn-logo.svg";
 import { format } from "date-fns";
 import { PageNavigation } from "@/components/PageNavigation";
-import { SignOutButton } from "@/components/SignOutButton";
+import { PageHeaderActions } from "@/components/PageHeaderActions";
 import { NotificationButton } from "@/components/NotificationButton";
 import { toast as sonnerToast } from "sonner";
 import { PasscodeDialog } from "@/components/PasscodeDialog";
@@ -175,12 +175,7 @@ const DealsListPage = () => {
       {/* Header */}
       <div className="relative z-10 border-b border-border/50 bg-background/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 flex flex-col items-center gap-3 sm:gap-4 relative">
-          <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-10">
-            <SignOutButton />
-          </div>
-          <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-10">
-            <NotificationButton />
-          </div>
+          <PageHeaderActions rightSlot={<NotificationButton />} />
           <img src={unisynLogo} alt="UniSyn Technology" className="w-32 sm:w-44 h-auto mt-2 sm:mt-0" />
           <PageNavigation
             items={[

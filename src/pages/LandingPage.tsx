@@ -4,6 +4,7 @@ import unisynLogo from "@/assets/unisyn-logo.svg";
 import { Target, Shield, Sparkles, ArrowRight } from "lucide-react";
 import { motion, type Variants, type Easing, useMotionValue, useTransform, useSpring } from "framer-motion";
 import { AnimatedBackground } from "@/components/AnimatedBackground";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -188,6 +189,10 @@ const LandingPage = () => {
       
       {/* Animated particle background */}
       <AnimatedBackground />
+
+      <div className="absolute top-4 right-4 md:top-6 md:right-6 z-20">
+        <ThemeToggle />
+      </div>
 
       {/* Dynamic gradient that follows cursor */}
       <motion.div 

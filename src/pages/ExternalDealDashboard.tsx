@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import unisynLogo from "@/assets/unisyn-logo.svg";
 import { DocumentsModal } from "@/components/DocumentsModal";
 import { getProgressColors } from "@/lib/progressColors";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 interface Task {
   id: string;
@@ -289,10 +290,13 @@ const ExternalDealDashboard = () => {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Exit
           </Button>
-          <Badge className="absolute top-4 right-4 sm:top-6 sm:right-6 bg-primary/10 text-primary border-primary/20">
-            <Lock className="h-3 w-3 mr-1" />
-            External View
-          </Badge>
+          <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-10 flex items-center gap-2">
+            <ThemeToggle />
+            <Badge className="bg-primary/10 text-primary border-primary/20">
+              <Lock className="h-3 w-3 mr-1" />
+              External View
+            </Badge>
+          </div>
           <img src={unisynLogo} alt="UniSyn Technology" className="w-36 sm:w-44 h-auto mt-8 sm:mt-0" />
           <h1 className="text-lg sm:text-xl font-semibold text-center">{dealName}</h1>
         </div>

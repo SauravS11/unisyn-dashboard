@@ -2,6 +2,7 @@ import { SignInCard } from "@/components/SignInCard";
 import { SignUpCard } from "@/components/SignUpCard";
 import { DealCodeCard } from "@/components/DealCodeCard";
 import unisynLogo from "@/assets/unisyn-logo.svg";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { useState } from "react";
 
 const Index = () => {
@@ -22,6 +23,10 @@ const Index = () => {
           </defs>
           <rect width="100%" height="100%" fill="url(#grid)" />
         </svg>
+      </div>
+
+      <div className="absolute top-4 right-4 md:top-6 md:right-6 z-20">
+        <ThemeToggle />
       </div>
 
       {/* Content */}

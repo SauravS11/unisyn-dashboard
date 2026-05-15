@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { MoreVertical, Trash2, Edit, UserPlus, X, ArrowLeft } from "lucide-react";
 import { PageNavigation } from "@/components/PageNavigation";
-import { SignOutButton } from "@/components/SignOutButton";
+import { PageHeaderActions } from "@/components/PageHeaderActions";
 import { DealProgressStepper } from "@/components/DealProgressStepper";
 import { teamMemberSchema, validateInput } from "@/lib/validation";
 import { handleError } from "@/lib/errorHandler";
@@ -224,9 +224,7 @@ const CoreDealTeam = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <div className="border-b border-border/50 bg-background/80 backdrop-blur-xl">
         <div className="container mx-auto px-4 py-3 sm:py-4 flex items-center justify-center relative">
-          <div className="absolute top-3 sm:top-4 left-4 sm:left-6">
-            <SignOutButton />
-          </div>
+          <PageHeaderActions className="!top-3 sm:!top-4" />
           <PageNavigation items={[
             { to: "/deals", label: "Deals" },
             { to: `/deals/${id}/team`, label: "Core Team", isActive: true },

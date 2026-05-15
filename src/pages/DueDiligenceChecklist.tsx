@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import unisynLogo from "@/assets/unisyn-logo.svg";
 import { toast as sonnerToast } from "sonner";
-import { SignOutButton } from "@/components/SignOutButton";
+import { PageHeaderActions } from "@/components/PageHeaderActions";
 import { DealProgressStepper } from "@/components/DealProgressStepper";
 
 interface ChecklistItem {
@@ -908,9 +908,7 @@ const DueDiligenceChecklist = () => {
 ...
           </Breadcrumb>
           <img src={unisynLogo} alt="UniSyn Technology" className="w-36 sm:w-44 h-auto" />
-          <div className="absolute top-4 left-6">
-            <SignOutButton />
-          </div>
+          <PageHeaderActions />
         </div>
         <div className="max-w-7xl mx-auto px-6 pb-4">
           <DealProgressStepper current="checklist" />

@@ -3,6 +3,7 @@ import unisynLogo from "@/assets/unisyn-logo.svg";
 import { Briefcase, FileSearch, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { SignOutButton } from "@/components/SignOutButton";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const Welcome = () => {
   const navigate = useNavigate();
@@ -44,9 +45,11 @@ const Welcome = () => {
         </svg>
       </div>
 
-      {/* Sign Out Button */}
       <div className="absolute top-4 left-4 md:top-6 md:left-6 z-20">
         <SignOutButton />
+      </div>
+      <div className="absolute top-4 right-4 md:top-6 md:right-6 z-20">
+        <ThemeToggle />
       </div>
 
       {/* Content */}

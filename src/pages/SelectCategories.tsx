@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { PageNavigation } from "@/components/PageNavigation";
-import { SignOutButton } from "@/components/SignOutButton";
+import { PageHeaderActions } from "@/components/PageHeaderActions";
 import { DealProgressStepper } from "@/components/DealProgressStepper";
 import { DEAL_CATEGORIES } from "@/lib/dealCategories";
 import { cn } from "@/lib/utils";
@@ -87,9 +87,7 @@ const SelectCategories = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <div className="border-b border-border/50 bg-background/80 backdrop-blur-xl">
         <div className="container mx-auto px-4 py-3 sm:py-4 flex items-center justify-center relative">
-          <div className="absolute top-3 sm:top-4 left-4 sm:left-6">
-            <SignOutButton />
-          </div>
+          <PageHeaderActions className="!top-3 sm:!top-4" />
           <PageNavigation
             items={[
               { to: "/deals", label: "Deals" },
