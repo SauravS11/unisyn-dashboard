@@ -11,7 +11,7 @@ import { CalendarIcon, X, ArrowLeft } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import unisynLogo from "@/assets/unisyn-logo.svg";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/customClient";
 import { toast } from "sonner";
 import { PageHeaderActions } from "@/components/PageHeaderActions";
 import { PageNavigation } from "@/components/PageNavigation";

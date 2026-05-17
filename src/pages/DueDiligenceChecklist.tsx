@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Paperclip, ChevronLeft, ChevronRight, X, Upload, File, Plus, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/customClient";
 import unisynLogo from "@/assets/unisyn-logo.svg";
 import { toast as sonnerToast } from "sonner";
 import { PageHeaderActions } from "@/components/PageHeaderActions";
