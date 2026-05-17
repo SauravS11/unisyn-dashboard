@@ -2,7 +2,6 @@
 -- PostgreSQL database dump
 --
 
-\restrict HvNxiJqlb9ckXMDeAQRdmop6QIb2rsduHk3aY8sqCtJrG3o6phMqgWOUgQDNGkZ
 
 -- Dumped from database version 17.6
 -- Dumped by pg_dump version 17.9
@@ -11,7 +10,7 @@ SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
 SET transaction_timeout = 0;
-SET client_encoding = 'SQL_ASCII';
+SET client_encoding = 'UTF8';
 SET standard_conforming_strings = off;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
@@ -24,7 +23,7 @@ SET row_security = off;
 -- Name: public; Type: SCHEMA; Schema: -; Owner: -
 --
 
-CREATE SCHEMA public;
+CREATE SCHEMA IF NOT EXISTS public;
 
 
 --
@@ -2086,5 +2085,4 @@ ALTER TABLE public.passcode_attempts ENABLE ROW LEVEL SECURITY;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict HvNxiJqlb9ckXMDeAQRdmop6QIb2rsduHk3aY8sqCtJrG3o6phMqgWOUgQDNGkZ
 
