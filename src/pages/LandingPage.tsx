@@ -6,7 +6,7 @@ import { motion, type Variants, type Easing, useMotionValue, useTransform, useSp
 import { AnimatedBackground } from "@/components/AnimatedBackground";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/customClient";
 
 const LandingPage = () => {
   const navigate = useNavigate();
