@@ -24,7 +24,6 @@ SET row_security = off;
 
 SET SESSION AUTHORIZATION DEFAULT;
 
-ALTER TABLE public.dd_categories DISABLE TRIGGER ALL;
 
 INSERT INTO public.dd_categories (id, category_no, name, description, created_at) VALUES ('228e0765-385c-490a-8594-2fed59e816c0', 1, 'Corporate & Structural Integrity', 'Entity structure, governance, cap table, and corporate records', '2026-05-15 15:19:47.548383+00');
 INSERT INTO public.dd_categories (id, category_no, name, description, created_at) VALUES ('9f7ce2f0-41af-4b33-9e31-05563c438557', 2, 'Financial Integrity & Performance', 'Historical financials, forecasts, and financial controls', '2026-05-15 15:19:47.548383+00');
@@ -42,26 +41,22 @@ INSERT INTO public.dd_categories (id, category_no, name, description, created_at
 INSERT INTO public.dd_categories (id, category_no, name, description, created_at) VALUES ('f1f336c4-0f34-4c83-a0df-ad2583d27496', 14, 'Real Estate & Assets', 'Property, leases, equipment, and asset valuations', '2026-05-15 15:19:47.548383+00');
 
 
-ALTER TABLE public.dd_categories ENABLE TRIGGER ALL;
 
 --
 -- Data for Name: deals; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.deals DISABLE TRIGGER ALL;
 
 INSERT INTO public.deals (id, name, user_id, created_at, updated_at, target_close_date, status, passcode, buyer_name, buyer_email, seller_name, seller_email, buyer_legal_name, buyer_legal_email, seller_legal_name, seller_legal_email, deal_code, deal_value, industry, deal_stage, lead_advisor, confidentiality_level, selected_categories) VALUES ('b091c76b-cf58-4236-8f6a-2ec8a185b4ed', 'T E S T', '2f01d6b1-896e-42d1-8f87-adc571a409fa', '2026-05-13 08:31:01.954515+00', '2026-05-13 08:31:01.954515+00', '2026-05-31', 'active', NULL, 'Tlotlo', 'Tlotlo.molope@afda.co.za', 'Paramount', 'sauravsathyapal@gmail.com', 'ZCW (PTY)', 'Tlotlo@zcollabworks.co.za', 'UnISyn Technology', 'sauravsathyapal@gmail.com', '580473', NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO public.deals (id, name, user_id, created_at, updated_at, target_close_date, status, passcode, buyer_name, buyer_email, seller_name, seller_email, buyer_legal_name, buyer_legal_email, seller_legal_name, seller_legal_email, deal_code, deal_value, industry, deal_stage, lead_advisor, confidentiality_level, selected_categories) VALUES ('928e4760-3534-4ba1-ab0a-babce73a4d6e', 'StarLink', 'ff82ef15-7264-46ba-bc43-bdd80e9aaa42', '2026-03-27 10:12:33.863949+00', '2026-05-15 09:04:56.73412+00', '2027-03-27', 'active', NULL, 'Elon Musk', 'elonmusk@gmail.com', 'Vodacom', 'vodacom@gmail.com', 'UniSyn Technology', 'social@unisyntechnology.co.za', 'UnISyn Technology', 'support@unisyntechnology.co.za', '123456', NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO public.deals (id, name, user_id, created_at, updated_at, target_close_date, status, passcode, buyer_name, buyer_email, seller_name, seller_email, buyer_legal_name, buyer_legal_email, seller_legal_name, seller_legal_email, deal_code, deal_value, industry, deal_stage, lead_advisor, confidentiality_level, selected_categories) VALUES ('e9874718-28fd-48b7-a817-25d7227d692e', 'Parkito', 'ff82ef15-7264-46ba-bc43-bdd80e9aaa42', '2026-05-15 08:45:49.632492+00', '2026-05-15 10:19:47.516849+00', '2026-09-30', 'active', NULL, 'Northline Ventures', 'ayesha.naidoo@northlineventures.co.za', 'Parkito', 'daniel@parkito.co.za', 'Mokoena & Stein Attorneys', 'lerato@mokoenastein.co.za', 'Vantage Corporate Finance', 'andre@vantagecf.co.za', '654321', '18000000', 'technology', 'due-diligence', 'Ayesha Naidoo', 'confidential', '{A}');
 
 
-ALTER TABLE public.deals ENABLE TRIGGER ALL;
 
 --
 -- Data for Name: deal_access_tokens; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.deal_access_tokens DISABLE TRIGGER ALL;
 
 INSERT INTO public.deal_access_tokens (id, deal_id, token_hash, created_at, expires_at, ip_address, user_agent) VALUES ('bc07e79f-0832-4132-8d3a-3a349ba68539', '928e4760-3534-4ba1-ab0a-babce73a4d6e', 'ac5d42d22c7a845ba14e6f05376fee1039def091410b67a12bebc5cd5720fe58', '2026-03-27 10:19:35.708051+00', '2026-03-28 10:19:35.708051+00', '102.206.82.83', NULL);
 INSERT INTO public.deal_access_tokens (id, deal_id, token_hash, created_at, expires_at, ip_address, user_agent) VALUES ('71041568-cb25-46be-b2d5-2ae7f3b29d32', '928e4760-3534-4ba1-ab0a-babce73a4d6e', 'a1cf7f1682781f6de3ab89558f53f70c3c26ddc310176bd6fd12d174da1a06f9', '2026-05-14 11:55:37.495216+00', '2026-05-15 11:55:37.495216+00', '105.19.50.66', NULL);
@@ -76,13 +71,11 @@ INSERT INTO public.deal_access_tokens (id, deal_id, token_hash, created_at, expi
 INSERT INTO public.deal_access_tokens (id, deal_id, token_hash, created_at, expires_at, ip_address, user_agent) VALUES ('f31a77ce-57d1-4bdb-9fb3-3acf774cdf33', '928e4760-3534-4ba1-ab0a-babce73a4d6e', 'b3b09ad2de6f8e1515d5a137e54c5efd29d9ae154e59a0457d9bce0c8f9008bb', '2026-05-15 12:17:24.979994+00', '2026-05-16 12:17:24.979994+00', '105.19.50.66', NULL);
 
 
-ALTER TABLE public.deal_access_tokens ENABLE TRIGGER ALL;
 
 --
 -- Data for Name: deal_categories; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.deal_categories DISABLE TRIGGER ALL;
 
 INSERT INTO public.deal_categories (id, deal_id, category_code, title, category_order, created_at) VALUES ('eec711ae-c950-446e-9618-6365494f677d', 'e9874718-28fd-48b7-a817-25d7227d692e', 'A', 'HISTORICAL FINANCIALS', 1, '2026-05-15 09:14:53.479906+00');
 INSERT INTO public.deal_categories (id, deal_id, category_code, title, category_order, created_at) VALUES ('92e2ecf3-d073-46d8-8f63-444afbba7446', '928e4760-3534-4ba1-ab0a-babce73a4d6e', 'A', 'HISTORICAL FINANCIALS', 1, '2026-03-27 10:17:01.279794+00');
@@ -114,13 +107,11 @@ INSERT INTO public.deal_categories (id, deal_id, category_code, title, category_
 INSERT INTO public.deal_categories (id, deal_id, category_code, title, category_order, created_at) VALUES ('ba2460af-1fb6-48fa-acbb-ebd5785f7540', 'e9874718-28fd-48b7-a817-25d7227d692e', 'N', 'ENVIRONMENTAL & SOCIAL', 14, '2026-05-15 09:14:53.479906+00');
 
 
-ALTER TABLE public.deal_categories ENABLE TRIGGER ALL;
 
 --
 -- Data for Name: deal_tasks; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.deal_tasks DISABLE TRIGGER ALL;
 
 INSERT INTO public.deal_tasks (id, category_id, task_code, title, checked, notes, priority, status, due_date, has_attachment, task_order, created_at, updated_at, assigned_to, assigned_email) VALUES ('b7edda5a-db39-4b16-a2b0-fcc981901d49', 'eec711ae-c950-446e-9618-6365494f677d', 'A-6', 'Bank statements (12 months)', false, NULL, 'medium', 'pending', NULL, false, 7, '2026-05-15 09:14:53.726647+00', '2026-05-15 09:54:29.371147+00', NULL, NULL);
 INSERT INTO public.deal_tasks (id, category_id, task_code, title, checked, notes, priority, status, due_date, has_attachment, task_order, created_at, updated_at, assigned_to, assigned_email) VALUES ('304b984d-047e-4c50-a559-377d67f62fca', 'eec711ae-c950-446e-9618-6365494f677d', 'A-7', 'Tax returns and assessments', false, NULL, 'medium', 'pending', NULL, false, 8, '2026-05-15 09:14:53.726647+00', '2026-05-15 09:54:29.371147+00', NULL, NULL);
@@ -368,13 +359,11 @@ INSERT INTO public.deal_tasks (id, category_id, task_code, title, checked, notes
 INSERT INTO public.deal_tasks (id, category_id, task_code, title, checked, notes, priority, status, due_date, has_attachment, task_order, created_at, updated_at, assigned_to, assigned_email) VALUES ('5fd8f0a8-912f-42ed-b341-08a70a80efd0', 'ba2460af-1fb6-48fa-acbb-ebd5785f7540', 'N-0', 'Environmental impact assessments', false, NULL, 'high', 'pending', NULL, false, 1, '2026-05-15 09:14:53.726647+00', '2026-05-15 09:34:16.442986+00', NULL, NULL);
 
 
-ALTER TABLE public.deal_tasks ENABLE TRIGGER ALL;
 
 --
 -- Data for Name: deal_documents; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.deal_documents DISABLE TRIGGER ALL;
 
 INSERT INTO public.deal_documents (id, deal_id, file_name, file_path, file_size, file_type, uploaded_by, uploaded_at, category, notes, task_id) VALUES ('ae5e6ec1-36ff-4159-84fc-7c1e0bdf84bf', '928e4760-3534-4ba1-ab0a-babce73a4d6e', 'UniSyn shareholders agreement draft.docx', '928e4760-3534-4ba1-ab0a-babce73a4d6e/A-0-1774606512551.docx', 82419, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'ff82ef15-7264-46ba-bc43-bdd80e9aaa42', '2026-03-27 10:15:14.257161+00', 'Checklist', 'Uploaded for task: Audited financial statements for the last 3 years', NULL);
 INSERT INTO public.deal_documents (id, deal_id, file_name, file_path, file_size, file_type, uploaded_by, uploaded_at, category, notes, task_id) VALUES ('bfa1fc2c-135a-45ea-a6ce-cdd373b6fe9a', '928e4760-3534-4ba1-ab0a-babce73a4d6e', 'UniSyn shareholders agreement draft.docx', '928e4760-3534-4ba1-ab0a-babce73a4d6e/1774606681275-UniSyn shareholders agreement draft.docx', 82419, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'ff82ef15-7264-46ba-bc43-bdd80e9aaa42', '2026-03-27 10:18:02.771846+00', 'D - ASSETS', 'Uploaded from task: Lease agreements (D-1)', 'ebc51af0-5adb-4324-9737-4bafeef22ca6');
@@ -389,13 +378,11 @@ INSERT INTO public.deal_documents (id, deal_id, file_name, file_path, file_size,
 INSERT INTO public.deal_documents (id, deal_id, file_name, file_path, file_size, file_type, uploaded_by, uploaded_at, category, notes, task_id) VALUES ('30b36e03-4309-448a-aaa4-0fccd60bec63', 'e9874718-28fd-48b7-a817-25d7227d692e', 'Memorandum_of_Incorporation_-_Extract.pdf', 'e9874718-28fd-48b7-a817-25d7227d692e/1778840388420-Memorandum_of_Incorporation_-_Extract.pdf', 3315, 'application/pdf', 'ff82ef15-7264-46ba-bc43-bdd80e9aaa42', '2026-05-15 10:19:47.516849+00', 'M - Strategic & Management', NULL, NULL);
 
 
-ALTER TABLE public.deal_documents ENABLE TRIGGER ALL;
 
 --
 -- Data for Name: deal_specialists; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.deal_specialists DISABLE TRIGGER ALL;
 
 INSERT INTO public.deal_specialists (id, deal_id, category_id, name, email, role, created_at) VALUES ('3a889aea-0197-4fb4-9eb3-6391c15908f6', '928e4760-3534-4ba1-ab0a-babce73a4d6e', 'fc75ac00-b1cb-4068-8543-4504de882c1d', 'Lerato Mokoena', 'lerato@mokoenastein.co.za', 'Legal Advisor', '2026-05-15 09:04:55.068723+00');
 INSERT INTO public.deal_specialists (id, deal_id, category_id, name, email, role, created_at) VALUES ('fb9b4684-bfa1-47d9-8e1e-8331e09ea2f8', 'e9874718-28fd-48b7-a817-25d7227d692e', 'eec711ae-c950-446e-9618-6365494f677d', 'Andre Visser', 'andre@vantagecf.co.za', 'Specialist', '2026-05-15 09:38:07.483919+00');
@@ -404,13 +391,11 @@ INSERT INTO public.deal_specialists (id, deal_id, category_id, name, email, role
 INSERT INTO public.deal_specialists (id, deal_id, category_id, name, email, role, created_at) VALUES ('5852fa82-185d-4823-9a60-71ba305b651e', 'e9874718-28fd-48b7-a817-25d7227d692e', '850e6404-2765-408c-b9d5-656d60e1cefc', 'Michael Pretorius', 'michael.p@northlines.co.za', 'Investment Banker', '2026-05-15 10:11:33.734931+00');
 
 
-ALTER TABLE public.deal_specialists ENABLE TRIGGER ALL;
 
 --
 -- Data for Name: deal_team_members; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.deal_team_members DISABLE TRIGGER ALL;
 
 INSERT INTO public.deal_team_members (id, deal_id, full_name, email, contact_number, role, permission_level, created_at, updated_at) VALUES ('817e8ae3-549b-4ef2-9d29-fc3434b9b3d2', '5c4d5278-1b73-4603-91a7-2bf024360ab3', 'Jake Paul', 'jakepaul@gmail.com', '084 585 9479', 'Deal Owner', 'Full Access', '2025-11-22 16:41:10.09402+00', '2025-11-22 16:41:10.09402+00');
 INSERT INTO public.deal_team_members (id, deal_id, full_name, email, contact_number, role, permission_level, created_at, updated_at) VALUES ('d24e3b61-cced-4157-8459-bb71ee6cae4b', '5c4d5278-1b73-4603-91a7-2bf024360ab3', 'Logan Paul', 'logan@gmail.com', '083 567 9479', 'Legal Lead', 'Standard Access', '2025-11-22 16:41:47.226178+00', '2025-11-22 16:41:47.226178+00');
@@ -448,13 +433,11 @@ INSERT INTO public.deal_team_members (id, deal_id, full_name, email, contact_num
 INSERT INTO public.deal_team_members (id, deal_id, full_name, email, contact_number, role, permission_level, created_at, updated_at) VALUES ('6c1a344d-4580-4123-8b50-82b00facfe32', 'e9874718-28fd-48b7-a817-25d7227d692e', 'Michael Pretorius', 'michael.p@northlineventures.co.za', '+27 76 421 9077', 'Investment Analyst', 'Full Access', '2026-05-15 09:03:17.17407+00', '2026-05-15 09:05:06.616219+00');
 
 
-ALTER TABLE public.deal_team_members ENABLE TRIGGER ALL;
 
 --
 -- Data for Name: expert_codes; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.expert_codes DISABLE TRIGGER ALL;
 
 INSERT INTO public.expert_codes (id, deal_id, category_id, code, expert_name, expert_email, instructions, is_active, expires_at, last_accessed_at, created_at) VALUES ('9e92a1bc-0716-4723-877c-4b5c8c48da75', '928e4760-3534-4ba1-ab0a-babce73a4d6e', '9f7ce2f0-41af-4b33-9e31-05563c438557', 'QQLTZL-CAT02', NULL, NULL, NULL, true, NULL, NULL, '2026-05-15 15:20:32.519784+00');
 INSERT INTO public.expert_codes (id, deal_id, category_id, code, expert_name, expert_email, instructions, is_active, expires_at, last_accessed_at, created_at) VALUES ('e44c8943-b307-4a3d-bb91-688e58a028f2', '928e4760-3534-4ba1-ab0a-babce73a4d6e', '5e9f9d63-2620-4718-a90f-0e8dba27bbc0', 'JGF3FW-CAT03', NULL, NULL, NULL, true, NULL, NULL, '2026-05-15 15:20:32.519784+00');
@@ -486,33 +469,27 @@ INSERT INTO public.expert_codes (id, deal_id, category_id, code, expert_name, ex
 INSERT INTO public.expert_codes (id, deal_id, category_id, code, expert_name, expert_email, instructions, is_active, expires_at, last_accessed_at, created_at) VALUES ('d8085769-84dc-4954-a827-74435148c18f', 'e9874718-28fd-48b7-a817-25d7227d692e', 'a5f752bd-0682-4b4a-a762-ea330cf68e6e', 'H7RP8M-CAT07', NULL, NULL, NULL, true, NULL, NULL, '2026-05-15 15:29:34.448268+00');
 
 
-ALTER TABLE public.expert_codes ENABLE TRIGGER ALL;
 
 --
 -- Data for Name: expert_access_log; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.expert_access_log DISABLE TRIGGER ALL;
 
 
 
-ALTER TABLE public.expert_access_log ENABLE TRIGGER ALL;
 
 --
 -- Data for Name: expert_access_tokens; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.expert_access_tokens DISABLE TRIGGER ALL;
 
 
 
-ALTER TABLE public.expert_access_tokens ENABLE TRIGGER ALL;
 
 --
 -- Data for Name: expert_tasks; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.expert_tasks DISABLE TRIGGER ALL;
 
 INSERT INTO public.expert_tasks (id, deal_id, category_id, title, description, is_required, sort_order, created_at) VALUES ('efc88f83-f9eb-473d-8854-f9a2320aa59a', '928e4760-3534-4ba1-ab0a-babce73a4d6e', '228e0765-385c-490a-8594-2fed59e816c0', 'Review category documentation requirements', 'Confirm you have received all required document lists', true, 1, '2026-05-15 15:20:32.519784+00');
 INSERT INTO public.expert_tasks (id, deal_id, category_id, title, description, is_required, sort_order, created_at) VALUES ('85ddc1f5-62d8-40b1-9b7f-d39bfc8463fd', '928e4760-3534-4ba1-ab0a-babce73a4d6e', '228e0765-385c-490a-8594-2fed59e816c0', 'Gather and organise source materials', 'Collect all relevant files and data for this workstream', true, 2, '2026-05-15 15:20:32.519784+00');
@@ -656,33 +633,27 @@ INSERT INTO public.expert_tasks (id, deal_id, category_id, title, description, i
 INSERT INTO public.expert_tasks (id, deal_id, category_id, title, description, is_required, sort_order, created_at) VALUES ('36af12e9-95e1-4e4b-ab4a-ca7f41fb495f', 'e9874718-28fd-48b7-a817-25d7227d692e', 'f1f336c4-0f34-4c83-a0df-ad2583d27496', 'Submit final deliverables', 'Upload your completed work product for this category', true, 5, '2026-05-15 15:29:34.448268+00');
 
 
-ALTER TABLE public.expert_tasks ENABLE TRIGGER ALL;
 
 --
 -- Data for Name: expert_documents; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.expert_documents DISABLE TRIGGER ALL;
 
 
 
-ALTER TABLE public.expert_documents ENABLE TRIGGER ALL;
 
 --
 -- Data for Name: expert_task_completions; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.expert_task_completions DISABLE TRIGGER ALL;
 
 
 
-ALTER TABLE public.expert_task_completions ENABLE TRIGGER ALL;
 
 --
 -- Data for Name: notifications; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.notifications DISABLE TRIGGER ALL;
 
 INSERT INTO public.notifications (id, user_id, type, title, message, read, deal_id, created_at) VALUES ('affb964c-85d9-49f7-a454-4b957818ef09', 'ff82ef15-7264-46ba-bc43-bdd80e9aaa42', 'close_date_changed', 'Close Date Updated', 'Target close date for deal "UniSyn" changed from Dec 07, 2025 to Dec 31, 2025', true, 'b5504160-eba2-4a39-8de8-f8910f5b02c9', '2025-12-06 16:42:34.973355+00');
 INSERT INTO public.notifications (id, user_id, type, title, message, read, deal_id, created_at) VALUES ('cea5e227-3580-41ba-b549-749322d439bb', 'ff82ef15-7264-46ba-bc43-bdd80e9aaa42', 'task_changed', 'Task Updated', 'Task "Audited financial statements for the last 3 years" status changed to pending in deal "UniSyn"', true, 'b5504160-eba2-4a39-8de8-f8910f5b02c9', '2025-12-06 16:42:39.604431+00');
@@ -961,17 +932,14 @@ INSERT INTO public.notifications (id, user_id, type, title, message, read, deal_
 INSERT INTO public.notifications (id, user_id, type, title, message, read, deal_id, created_at) VALUES ('756b2a4b-b600-41eb-9149-15e4c9332031', 'ff82ef15-7264-46ba-bc43-bdd80e9aaa42', 'task_completed', 'Task Completed', 'Task "Fixed asset register" completed in deal "2026"', true, 'f8ed0c61-0b9b-4250-a84f-7e15b6179674', '2026-05-14 11:53:33.266936+00');
 
 
-ALTER TABLE public.notifications ENABLE TRIGGER ALL;
 
 --
 -- Data for Name: passcode_attempts; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.passcode_attempts DISABLE TRIGGER ALL;
 
 
 
-ALTER TABLE public.passcode_attempts ENABLE TRIGGER ALL;
 
 --
 -- PostgreSQL database dump complete
