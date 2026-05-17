@@ -2,7 +2,6 @@
 -- PostgreSQL database dump
 --
 
-\restrict s2H5Ie9LqAAD8TNy3pPzYcN9HkpNM4GPQ37BlPs1V7aq5a7rMTUqcMmP9Iq8B7a
 
 -- Dumped from database version 17.6
 -- Dumped by pg_dump version 17.9
@@ -978,5 +977,4 @@ ALTER TABLE public.passcode_attempts ENABLE TRIGGER ALL;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict s2H5Ie9LqAAD8TNy3pPzYcN9HkpNM4GPQ37BlPs1V7aq5a7rMTUqcMmP9Iq8B7a
 
