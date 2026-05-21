@@ -117,11 +117,16 @@ export default function CategoryPart1() {
           <CardHeader>
             <CardTitle className="text-xl">
               <span className="text-destructive font-bold mr-2">{categoryCode}</span>
-              {category?.category_name} — Part 1: Responses &amp; Confirmations
+              {category?.category_name}
+              {order.length > 0 && idx >= 0 && (
+                <span className="ml-2 text-xs font-normal text-muted-foreground">
+                  Stage 1 · Category {idx + 1} of {order.length}
+                </span>
+              )}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
-            {reqs.length === 0 && <p className="text-sm text-muted-foreground">No written responses required for this category. Continue to Part 2.</p>}
+            {reqs.length === 0 && <p className="text-sm text-muted-foreground">No written responses required for this category. Continue to the next step.</p>}
             {reqs.map((r) => (
               <div key={r.id} className="rounded-lg border border-border/50 bg-card/40 p-4 space-y-3">
                 <div className="flex items-baseline gap-2">
