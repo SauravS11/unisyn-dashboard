@@ -34,8 +34,14 @@ export async function submitResponse(opts: {
 }) {
   const { accessToken, intakeId } = getIntakeSession();
   if (!accessToken || !intakeId) throw new Error("Session expired");
-  const { data, error } = await supabase.functions.invoke("submit-intake-response", {
-    body: { intakeId, accessToken, ...opts },
+  const { data, error } = await supabase.rpc("submit_intake_response", {
+    p_intake_id: intakeId,
+    p_token: accessToken,
+    p_requirement_id: opts.requirementId,
+    p_response_value: opts.responseValue ?? null,
+    p_yes_no: opts.yesNo ?? null,
+    p_applicable_status: opts.applicableStatus ?? null,
+    p_comment: opts.comment ?? null,
   });
   if (error) throw error;
   return data;
@@ -52,8 +58,16 @@ export async function registerDocument(opts: {
 }) {
   const { accessToken, intakeId } = getIntakeSession();
   if (!accessToken || !intakeId) throw new Error("Session expired");
-  const { data, error } = await supabase.functions.invoke("register-intake-document", {
-    body: { intakeId, accessToken, ...opts },
+  const { data, error } = await supabase.rpc("register_intake_document", {
+    p_intake_id: intakeId,
+    p_token: accessToken,
+    p_requirement_id: opts.requirementId,
+    p_file_name: opts.fileName,
+    p_file_url: opts.fileUrl,
+    p_file_type: opts.fileType ?? null,
+    p_file_size: opts.fileSize ?? null,
+    p_upload_comment: opts.uploadComment ?? null,
+    p_uploaded_by_email: opts.uploadedByEmail ?? null,
   });
   if (error) throw error;
   return data;
