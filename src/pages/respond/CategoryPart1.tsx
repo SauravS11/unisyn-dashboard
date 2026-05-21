@@ -3,7 +3,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/customClient";
 import { getIntakeSession, submitResponse } from "@/lib/intakeClient";
@@ -15,39 +14,36 @@ interface Req {
   id: string;
   requirement_code: string;
   requirement_text: string;
-  input_type: "written_response" | "yes_no" | "applicable_na";
+  input_type: "written_response" | "yes_no" | "applicable_na" | string;
 }
 
 export default function CategoryPart1() {
   const { intakeId, categoryCode } = useParams();
   const navigate = useNavigate();
-  const [intake, setIntake] = useState<any>(null);
   const [category, setCategory] = useState<any>(null);
+  const [intakeMeta, setIntakeMeta] = useState<{ intake_code?: string; company_name?: string }>({});
   const [reqs, setReqs] = useState<Req[]>([]);
   const [values, setValues] = useState<Record<string, any>>({});
   const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const session = getIntakeSession();
     if (!session.accessToken || session.intakeId !== intakeId) { navigate("/respond"); return; }
+    setIntakeMeta({ intake_code: session.intakeCode ?? undefined });
     (async () => {
-      const { data: i } = await (supabase as any).from("client_intakes").select("intake_code, company_name").eq("id", intakeId).single();
-      const { data: cat } = await (supabase as any).from("due_diligence_categories").select("*").eq("category_code", categoryCode).single();
-      setIntake(i); setCategory(cat);
-      const { data: r } = await (supabase as any)
-        .from("due_diligence_requirements")
-        .select("id, requirement_code, requirement_text, input_type, display_order")
-        .eq("category_id", cat.id)
-        .in("input_type", ["written_response", "yes_no", "applicable_na"])
-        .order("display_order");
-      setReqs(r ?? []);
-      const { data: existing } = await (supabase as any)
-        .from("client_requirement_responses")
-        .select("*")
-        .eq("client_intake_id", intakeId)
-        .eq("category_id", cat.id);
+      const { data, error } = await supabase.rpc("get_intake_category_detail", {
+        p_intake_id: intakeId,
+        p_token: session.accessToken,
+        p_category_code: categoryCode,
+      });
+      if (error) { toast.error(error.message); navigate(`/respond/${intakeId}`); return; }
+      const payload = data as any;
+      setCategory(payload?.category);
+      const allReqs: Req[] = payload?.requirements ?? [];
+      setReqs(allReqs.filter((r) => ["written_response","yes_no","applicable_na"].includes(r.input_type)));
       const v: Record<string, any> = {};
-      (existing ?? []).forEach((e: any) => {
+      (payload?.responses ?? []).forEach((e: any) => {
         v[e.requirement_id] = {
           response_value: e.response_value ?? "",
           yes_no_value: e.yes_no_value,
@@ -56,6 +52,7 @@ export default function CategoryPart1() {
         };
       });
       setValues(v);
+      setLoading(false);
     })();
   }, [intakeId, categoryCode, navigate]);
 
@@ -85,9 +82,11 @@ export default function CategoryPart1() {
     } finally { setBusy(false); }
   };
 
+  if (loading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading…</div>;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted">
-      <RespondentHeader intakeCode={intake?.intake_code} companyName={intake?.company_name} />
+      <RespondentHeader intakeCode={intakeMeta.intake_code} companyName={intakeMeta.company_name} />
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-6">
         <Button variant="ghost" size="sm" onClick={() => navigate(`/respond/${intakeId}`)} className="gap-1">
           <ArrowLeft className="h-4 w-4" /> Back to categories
@@ -108,50 +107,23 @@ export default function CategoryPart1() {
                   <p className="font-medium text-sm">{r.requirement_text}</p>
                 </div>
                 {r.input_type === "written_response" && (
-                  <Textarea
-                    rows={3}
-                    placeholder="Your response…"
+                  <Textarea rows={3} placeholder="Your response…"
                     value={values[r.id]?.response_value ?? ""}
-                    onChange={(e) => update(r.id, "response_value", e.target.value)}
-                  />
+                    onChange={(e) => update(r.id, "response_value", e.target.value)} />
                 )}
                 {r.input_type === "yes_no" && (
                   <div className="space-y-2">
                     <div className="flex gap-2">
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant={values[r.id]?.yes_no_value === true ? "default" : "outline"}
-                        onClick={() => update(r.id, "yes_no_value", true)}
-                      >Yes</Button>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant={values[r.id]?.yes_no_value === false ? "default" : "outline"}
-                        onClick={() => update(r.id, "yes_no_value", false)}
-                      >No</Button>
+                      <Button type="button" size="sm" variant={values[r.id]?.yes_no_value === true ? "default" : "outline"} onClick={() => update(r.id, "yes_no_value", true)}>Yes</Button>
+                      <Button type="button" size="sm" variant={values[r.id]?.yes_no_value === false ? "default" : "outline"} onClick={() => update(r.id, "yes_no_value", false)}>No</Button>
                     </div>
-                    <Input
-                      placeholder="Optional explanation"
-                      value={values[r.id]?.comment ?? ""}
-                      onChange={(e) => update(r.id, "comment", e.target.value)}
-                    />
+                    <Input placeholder="Optional explanation" value={values[r.id]?.comment ?? ""} onChange={(e) => update(r.id, "comment", e.target.value)} />
                   </div>
                 )}
                 {r.input_type === "applicable_na" && (
                   <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant={values[r.id]?.applicable_status === "applicable" ? "default" : "outline"}
-                      onClick={() => update(r.id, "applicable_status", "applicable")}
-                    >Applicable</Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant={values[r.id]?.applicable_status === "not_applicable" ? "default" : "outline"}
-                      onClick={() => update(r.id, "applicable_status", "not_applicable")}
-                    >Not Applicable</Button>
+                    <Button type="button" size="sm" variant={values[r.id]?.applicable_status === "applicable" ? "default" : "outline"} onClick={() => update(r.id, "applicable_status", "applicable")}>Applicable</Button>
+                    <Button type="button" size="sm" variant={values[r.id]?.applicable_status === "not_applicable" ? "default" : "outline"} onClick={() => update(r.id, "applicable_status", "not_applicable")}>Not Applicable</Button>
                   </div>
                 )}
               </div>
