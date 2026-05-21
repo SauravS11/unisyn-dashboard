@@ -49,6 +49,7 @@ const App = () => (
 
             {/* Advisor onboarding flow */}
             <Route path="/onboarding/new" element={<NewIntake />} />
+            <Route path="/onboarding/:intakeId/profile" element={<NewIntake />} />
             <Route path="/onboarding/:intakeId/categories" element={<IntakeCategories />} />
             <Route path="/onboarding/:intakeId/send" element={<SendRequest />} />
             <Route path="/onboarding/:intakeId/review" element={<IntakeReview />} />
