@@ -173,7 +173,8 @@ const DealDashboard = () => {
       }
 
       // Fetch tasks for all categories
-      const categoryIds = categoriesData.map(cat => cat.id);
+      const categoryIds = (categoriesData ?? []).map(cat => cat.id);
+      categoriesData = categoriesData ?? [];
       const {
         data: tasksData,
         error: tasksError
