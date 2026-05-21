@@ -295,6 +295,80 @@ export default function IntakeReview() {
           </div>
         </div>
       </div>
+
+      <Dialog open={!!reviewCat} onOpenChange={(o) => !o && setReviewCat(null)}>
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto backdrop-blur-xl bg-card/95 border-border/50">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <span className="text-destructive font-bold">{reviewCat?.category_code}</span>
+              {reviewCat?.category_name}
+            </DialogTitle>
+            <DialogDescription>Review uploaded documents and respondent answers. Approve or deny each document.</DialogDescription>
+          </DialogHeader>
+
+          {reviewLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
+
+          {reviewData && (
+            <div className="space-y-6">
+              <section>
+                <h4 className="text-sm font-semibold mb-2 flex items-center gap-2"><FileText className="h-4 w-4" /> Documents ({reviewData.documents.length})</h4>
+                {reviewData.documents.length === 0 && <p className="text-xs text-muted-foreground">No documents uploaded yet.</p>}
+                <div className="space-y-2">
+                  {reviewData.documents.map((d: any) => {
+                    const req = reviewData.requirements.find((r: any) => r.id === d.requirement_id);
+                    return (
+                      <div key={d.id} className="rounded-md border border-border/50 bg-background/40 p-3">
+                        <div className="flex items-start justify-between gap-2 flex-wrap">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-medium text-sm truncate">{d.file_name}</span>
+                              <Badge variant={d.status === "approved" ? "default" : d.status === "rejected" ? "destructive" : "secondary"}>
+                                {d.status}
+                              </Badge>
+                            </div>
+                            {req && <p className="text-xs text-muted-foreground mt-0.5">{req.requirement_code} · {req.requirement_text}</p>}
+                            {d.upload_comment && <p className="text-xs italic mt-1">"{d.upload_comment}"</p>}
+                            {d.uploaded_by_email && <p className="text-[10px] text-muted-foreground mt-0.5">by {d.uploaded_by_email}</p>}
+                          </div>
+                          <div className="flex gap-1 shrink-0">
+                            <Button size="sm" variant="outline" className="gap-1" onClick={() => openDoc(d.file_url)}>
+                              <ExternalLink className="h-3.5 w-3.5" /> View
+                            </Button>
+                            <Button size="sm" variant="default" className="gap-1" disabled={d.status === "approved"} onClick={() => setDocStatus(d.id, "approved")}>
+                              <ThumbsUp className="h-3.5 w-3.5" /> Approve
+                            </Button>
+                            <Button size="sm" variant="destructive" className="gap-1" disabled={d.status === "rejected"} onClick={() => setDocStatus(d.id, "rejected")}>
+                              <ThumbsDown className="h-3.5 w-3.5" /> Deny
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+
+              <section>
+                <h4 className="text-sm font-semibold mb-2">Responses ({reviewData.responses.length})</h4>
+                {reviewData.responses.length === 0 && <p className="text-xs text-muted-foreground">No responses submitted yet.</p>}
+                <div className="space-y-2">
+                  {reviewData.responses.map((resp: any) => {
+                    const req = reviewData.requirements.find((r: any) => r.id === resp.requirement_id);
+                    const val = resp.response_value ?? (resp.yes_no_value === null ? null : resp.yes_no_value ? "Yes" : "No") ?? resp.applicable_status;
+                    return (
+                      <div key={resp.requirement_id} className="rounded-md border border-border/50 bg-background/40 p-3 text-sm">
+                        <p className="text-xs text-muted-foreground">{req?.requirement_code} · {req?.requirement_text}</p>
+                        <p className="mt-1">{val ?? <span className="text-muted-foreground italic">No answer</span>}</p>
+                        {resp.comment && <p className="text-xs italic text-muted-foreground mt-1">"{resp.comment}"</p>}
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
