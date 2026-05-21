@@ -76,7 +76,7 @@ export const PendingIntakesSection = () => {
         {intakes.map((i) => (
           <button
             key={i.id}
-            onClick={() => navigate(`/onboarding/${i.id}/review`)}
+            onClick={() => resumeIntake(i)}
             className="w-full flex items-center justify-between gap-3 rounded-lg border border-border/40 bg-card/40 hover:bg-card/70 hover:border-primary/30 transition-all p-3 text-left"
           >
             <div className="min-w-0">
