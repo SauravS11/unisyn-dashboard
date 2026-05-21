@@ -105,8 +105,12 @@ export default function CategoryPart2() {
         p_category_id: category.id,
       });
       if (error) throw error;
-      toast.success("Category submitted");
-      navigate(`/respond/${intakeId}`);
+      toast.success(isLast ? "All categories submitted" : "Category submitted");
+      if (nextCode) {
+        navigate(`/respond/${intakeId}/category/${nextCode}/part-2`);
+      } else {
+        navigate(`/respond/${intakeId}`);
+      }
     } catch (e: any) {
       toast.error(e.message ?? "Failed");
     } finally { setBusy(false); }
