@@ -15,7 +15,7 @@ export const RespondentHeader = ({ intakeCode, companyName, completion = 0 }: Pr
   const navigate = useNavigate();
   const exit = () => {
     clearIntakeSession();
-    navigate("/respond");
+    navigate("/auth");
   };
   return (
     <header className="sticky top-0 z-30 backdrop-blur-xl bg-background/80 border-b border-border/50">
