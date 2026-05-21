@@ -45,6 +45,23 @@ export const PendingIntakesSection = () => {
     })();
   }, []);
 
+  const resumeIntake = async (intake: Intake) => {
+    // Route by status / progress so user lands where they left off
+    if (intake.status === "draft") {
+      const { count } = await (supabase as any)
+        .from("client_intake_categories")
+        .select("id", { count: "exact", head: true })
+        .eq("client_intake_id", intake.id);
+      if ((count ?? 0) === 0) {
+        navigate(`/onboarding/${intake.id}/profile`);
+      } else {
+        navigate(`/onboarding/${intake.id}/send`);
+      }
+      return;
+    }
+    navigate(`/onboarding/${intake.id}/review`);
+  };
+
   if (loading || intakes.length === 0) return null;
 
   return (
