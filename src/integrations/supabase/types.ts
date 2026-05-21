@@ -1275,6 +1275,14 @@ export type Database = {
         Returns: number
       }
       generate_intake_code: { Args: never; Returns: string }
+      get_intake_category_detail: {
+        Args: { p_category_code: string; p_intake_id: string; p_token: string }
+        Returns: Json
+      }
+      get_intake_overview: {
+        Args: { p_intake_id: string; p_token: string }
+        Returns: Json
+      }
       regenerate_expert_code: { Args: { p_code_id: string }; Returns: string }
       register_expert_document: {
         Args: {
@@ -1306,6 +1314,10 @@ export type Database = {
       seed_expert_tasks_for_category: {
         Args: { p_category_id: string; p_deal_id: string }
         Returns: undefined
+      }
+      submit_intake_category: {
+        Args: { p_category_id: string; p_intake_id: string; p_token: string }
+        Returns: boolean
       }
       submit_intake_response: {
         Args: {
