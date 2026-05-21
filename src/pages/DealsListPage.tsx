@@ -15,6 +15,7 @@ import { PageHeaderActions } from "@/components/PageHeaderActions";
 import { NotificationButton } from "@/components/NotificationButton";
 import { toast as sonnerToast } from "sonner";
 import { PasscodeDialog } from "@/components/PasscodeDialog";
+import { PendingIntakesSection } from "@/components/PendingIntakesSection";
 
 interface Deal {
   id: string;
@@ -212,7 +213,12 @@ const DealsListPage = () => {
               <Plus className="h-5 w-5 mr-2" />
               New Deal
             </Button>
-          </div>
+        </div>
+
+        <div className="mb-8">
+          <PendingIntakesSection />
+        </div>
+
         </div>
 
         {loading ? (
