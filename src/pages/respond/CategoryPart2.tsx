@@ -27,6 +27,7 @@ export default function CategoryPart2() {
   const [comments, setComments] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [order, setOrder] = useState<string[]>([]);
 
   const loadDetail = async () => {
     const session = getIntakeSession();
@@ -52,10 +53,21 @@ export default function CategoryPart2() {
     const session = getIntakeSession();
     if (!session.accessToken || session.intakeId !== intakeId) { navigate("/respond"); return; }
     setIntakeMeta({ intake_code: session.intakeCode ?? undefined });
+    (async () => {
+      const { data: overview } = await supabase.rpc("get_intake_overview", {
+        p_intake_id: intakeId,
+        p_token: session.accessToken,
+      });
+      setOrder(((overview as any)?.categories ?? []).map((c: any) => c.category_code));
+    })();
     loadDetail()
       .catch((e) => { toast.error(e.message ?? "Failed"); navigate(`/respond/${intakeId}`); })
       .finally(() => setLoading(false));
   }, [intakeId, categoryCode, navigate]);
+
+  const idx = order.indexOf(categoryCode ?? "");
+  const isLast = idx >= 0 && idx === order.length - 1;
+  const nextCode = !isLast && idx >= 0 ? order[idx + 1] : null;
 
   const onFile = async (req: Req, files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -93,8 +105,12 @@ export default function CategoryPart2() {
         p_category_id: category.id,
       });
       if (error) throw error;
-      toast.success("Category submitted");
-      navigate(`/respond/${intakeId}`);
+      toast.success(isLast ? "All categories submitted" : "Category submitted");
+      if (nextCode) {
+        navigate(`/respond/${intakeId}/category/${nextCode}/part-2`);
+      } else {
+        navigate(`/respond/${intakeId}`);
+      }
     } catch (e: any) {
       toast.error(e.message ?? "Failed");
     } finally { setBusy(false); }
@@ -106,14 +122,19 @@ export default function CategoryPart2() {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted">
       <RespondentHeader intakeCode={intakeMeta.intake_code} companyName={intakeMeta.company_name} />
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-        <Button variant="ghost" size="sm" onClick={() => navigate(`/respond/${intakeId}/category/${categoryCode}/part-1`)} className="gap-1">
-          <ArrowLeft className="h-4 w-4" /> Back to Part 1
+        <Button variant="ghost" size="sm" onClick={() => navigate(`/respond/${intakeId}`)} className="gap-1">
+          <ArrowLeft className="h-4 w-4" /> Back to overview
         </Button>
         <Card className="backdrop-blur-xl bg-card/70 border-border/50 shadow-2xl">
           <CardHeader>
             <CardTitle className="text-xl">
               <span className="text-destructive font-bold mr-2">{categoryCode}</span>
-              {category?.category_name} — Part 2: Documents &amp; Supporting Evidence
+              {category?.category_name}
+              {order.length > 0 && idx >= 0 && (
+                <span className="ml-2 text-xs font-normal text-muted-foreground">
+                  Stage 2 · Category {idx + 1} of {order.length}
+                </span>
+              )}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
@@ -149,7 +170,7 @@ export default function CategoryPart2() {
                 <Save className="h-4 w-4" /> Save Draft
               </Button>
               <Button className="gap-2 sm:ml-auto" onClick={submitCategory} disabled={busy}>
-                <CheckCircle2 className="h-4 w-4" /> Submit Category
+                <CheckCircle2 className="h-4 w-4" /> {nextCode ? `Submit & Continue to ${nextCode}` : "Submit & Finish"}
               </Button>
             </div>
           </CardContent>

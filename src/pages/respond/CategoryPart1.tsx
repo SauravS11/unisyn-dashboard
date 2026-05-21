@@ -26,17 +26,24 @@ export default function CategoryPart1() {
   const [values, setValues] = useState<Record<string, any>>({});
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [order, setOrder] = useState<string[]>([]);
 
   useEffect(() => {
     const session = getIntakeSession();
     if (!session.accessToken || session.intakeId !== intakeId) { navigate("/respond"); return; }
     setIntakeMeta({ intake_code: session.intakeCode ?? undefined });
     (async () => {
-      const { data, error } = await supabase.rpc("get_intake_category_detail", {
-        p_intake_id: intakeId,
-        p_token: session.accessToken,
-        p_category_code: categoryCode,
-      });
+      const [{ data, error }, { data: overview }] = await Promise.all([
+        supabase.rpc("get_intake_category_detail", {
+          p_intake_id: intakeId,
+          p_token: session.accessToken,
+          p_category_code: categoryCode,
+        }),
+        supabase.rpc("get_intake_overview", {
+          p_intake_id: intakeId,
+          p_token: session.accessToken,
+        }),
+      ]);
       if (error) { toast.error(error.message); navigate(`/respond/${intakeId}`); return; }
       const payload = data as any;
       setCategory(payload?.category);
@@ -52,12 +59,18 @@ export default function CategoryPart1() {
         };
       });
       setValues(v);
+      const codes = ((overview as any)?.categories ?? []).map((c: any) => c.category_code);
+      setOrder(codes);
       setLoading(false);
     })();
   }, [intakeId, categoryCode, navigate]);
 
   const update = (id: string, key: string, val: any) =>
     setValues((s) => ({ ...s, [id]: { ...(s[id] ?? {}), [key]: val } }));
+
+  const idx = order.indexOf(categoryCode ?? "");
+  const isLast = idx >= 0 && idx === order.length - 1;
+  const nextCode = !isLast && idx >= 0 ? order[idx + 1] : null;
 
   const saveAll = async (goNext: boolean) => {
     setBusy(true);
@@ -76,7 +89,16 @@ export default function CategoryPart1() {
         });
       }
       toast.success("Saved");
-      if (goNext) navigate(`/respond/${intakeId}/category/${categoryCode}/part-2`);
+      if (goNext) {
+        if (nextCode) {
+          navigate(`/respond/${intakeId}/category/${nextCode}/part-1`);
+        } else if (order.length > 0) {
+          // All Part 1s done → start Part 2 from the first category.
+          navigate(`/respond/${intakeId}/category/${order[0]}/part-2`);
+        } else {
+          navigate(`/respond/${intakeId}`);
+        }
+      }
     } catch (e: any) {
       toast.error(e.message ?? "Failed");
     } finally { setBusy(false); }
@@ -95,11 +117,16 @@ export default function CategoryPart1() {
           <CardHeader>
             <CardTitle className="text-xl">
               <span className="text-destructive font-bold mr-2">{categoryCode}</span>
-              {category?.category_name} — Part 1: Responses &amp; Confirmations
+              {category?.category_name}
+              {order.length > 0 && idx >= 0 && (
+                <span className="ml-2 text-xs font-normal text-muted-foreground">
+                  Stage 1 · Category {idx + 1} of {order.length}
+                </span>
+              )}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
-            {reqs.length === 0 && <p className="text-sm text-muted-foreground">No written responses required for this category. Continue to Part 2.</p>}
+            {reqs.length === 0 && <p className="text-sm text-muted-foreground">No written responses required for this category. Continue to the next step.</p>}
             {reqs.map((r) => (
               <div key={r.id} className="rounded-lg border border-border/50 bg-card/40 p-4 space-y-3">
                 <div className="flex items-baseline gap-2">
@@ -133,7 +160,7 @@ export default function CategoryPart1() {
                 <Save className="h-4 w-4" /> Save Draft
               </Button>
               <Button className="gap-2 sm:ml-auto" onClick={() => saveAll(true)} disabled={busy}>
-                Continue to Part 2 <ArrowRight className="h-4 w-4" />
+                {nextCode ? `Next: ${nextCode}` : "Continue to Document Uploads"} <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
           </CardContent>
