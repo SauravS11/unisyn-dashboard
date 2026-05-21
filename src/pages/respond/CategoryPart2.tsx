@@ -170,7 +170,7 @@ export default function CategoryPart2() {
                 <Save className="h-4 w-4" /> Save Draft
               </Button>
               <Button className="gap-2 sm:ml-auto" onClick={submitCategory} disabled={busy}>
-                <CheckCircle2 className="h-4 w-4" /> Submit Category
+                <CheckCircle2 className="h-4 w-4" /> {nextCode ? `Submit & Continue to ${nextCode}` : "Submit & Finish"}
               </Button>
             </div>
           </CardContent>
