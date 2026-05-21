@@ -7,10 +7,10 @@ import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/customClient";
 import { getIntakeSession, clearIntakeSession } from "@/lib/intakeClient";
 import { RespondentHeader } from "@/components/RespondentHeader";
-import { ArrowRight, Calendar } from "lucide-react";
+import { ArrowRight, Calendar, CheckCircle2, FileText, ClipboardList } from "lucide-react";
 import { toast } from "sonner";
 
-interface CategoryCard {
+interface CategoryRow {
   category_id: string;
   code: string;
   name: string;
@@ -25,7 +25,7 @@ export default function RespondentDashboard() {
   const { intakeId } = useParams();
   const navigate = useNavigate();
   const [intake, setIntake] = useState<any>(null);
-  const [cats, setCats] = useState<CategoryCard[]>([]);
+  const [cats, setCats] = useState<CategoryRow[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -47,7 +47,7 @@ export default function RespondentDashboard() {
       }
       const payload = data as any;
       setIntake(payload?.intake ?? null);
-      const list: CategoryCard[] = (payload?.categories ?? []).map((c: any) => ({
+      const list: CategoryRow[] = (payload?.categories ?? []).map((c: any) => ({
         category_id: c.category_id,
         code: c.category_code,
         name: c.category_name,
@@ -71,12 +71,36 @@ export default function RespondentDashboard() {
     return Math.round((sum / cats.length) * 100);
   }, [cats]);
 
+  const part1AllDone = cats.length > 0 && cats.every((c) => c.part1_total === 0 || c.part1_done >= c.part1_total);
+  const part2AllDone = cats.length > 0 && cats.every((c) => c.part2_total === 0 || c.part2_done >= c.part2_total);
+
+  const ctaTarget = useMemo(() => {
+    if (cats.length === 0) return null;
+    // Resume at first incomplete Part 1, else first incomplete Part 2, else first category Part 1.
+    const nextP1 = cats.find((c) => c.part1_total > 0 && c.part1_done < c.part1_total);
+    if (nextP1) return { code: nextP1.code, part: 1 as const };
+    const nextP2 = cats.find((c) => c.part2_total > 0 && c.part2_done < c.part2_total);
+    if (nextP2) return { code: nextP2.code, part: 2 as const };
+    return { code: cats[0].code, part: 1 as const };
+  }, [cats]);
+
+  const ctaLabel = !part1AllDone
+    ? "Begin Due Diligence Questionnaire"
+    : !part2AllDone
+      ? "Continue to Document Uploads"
+      : "Review & Finish";
+
+  const startFlow = () => {
+    if (!ctaTarget) return;
+    navigate(`/respond/${intakeId}/category/${ctaTarget.code}/part-${ctaTarget.part}`);
+  };
+
   if (loading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading…</div>;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted">
       <RespondentHeader intakeCode={intake?.intake_code} companyName={intake?.company_name} completion={overall} />
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-6">
         <div className="grid sm:grid-cols-3 gap-4">
           <Card className="backdrop-blur-xl bg-card/60 border-border/50">
             <CardContent className="p-4">
@@ -100,57 +124,71 @@ export default function RespondentDashboard() {
           </Card>
         </div>
 
-        {cats.length === 0 && (
+        {cats.length === 0 ? (
           <Card className="backdrop-blur-xl bg-card/60 border-border/50">
             <CardContent className="p-6 text-center text-sm text-muted-foreground">
               Your advisor hasn't assigned any categories yet. Please check back shortly.
             </CardContent>
           </Card>
-        )}
+        ) : (
+          <Card className="backdrop-blur-xl bg-card/70 border-border/50 shadow-2xl">
+            <CardHeader>
+              <CardTitle className="text-xl">Due Diligence Questionnaire</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-5">
+              <p className="text-sm text-muted-foreground">
+                You'll be guided through {cats.length} {cats.length === 1 ? "category" : "categories"} in two stages:
+                first answering all written questions and confirmations (Part 1), then uploading supporting documents
+                for each category (Part 2). Your progress is saved automatically after every step.
+              </p>
 
-        <div className="grid md:grid-cols-2 gap-4">
-          {cats.map((c) => {
-            const total = c.part1_total + c.part2_total;
-            const done = c.part1_done + c.part2_done;
-            const pct = total ? Math.round((done / total) * 100) : 0;
-            const missing = Math.max(0, total - done);
-            return (
-              <Card key={c.code} className="backdrop-blur-xl bg-card/60 border-border/50 hover:shadow-xl hover:border-primary/30 transition-all">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="text-base">
-                      <span className="text-destructive font-bold mr-2">{c.code}</span>
-                      {c.name}
-                    </CardTitle>
-                    <Badge variant={c.status === "approved" ? "default" : c.status === "changes_requested" ? "destructive" : "secondary"} className="text-xs whitespace-nowrap">
-                      {c.status.replace(/_/g, " ")}
-                    </Badge>
+              <div className="grid sm:grid-cols-2 gap-3">
+                <div className="rounded-lg border border-border/50 bg-card/40 p-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <ClipboardList className="h-4 w-4 text-destructive" />
+                    <p className="font-semibold text-sm">Stage 1 · Responses</p>
+                    {part1AllDone && <CheckCircle2 className="h-4 w-4 text-primary ml-auto" />}
                   </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <Progress value={pct} className="h-1.5 flex-1" />
-                    <span className="text-xs font-medium tabular-nums">{pct}%</span>
+                  <p className="text-xs text-muted-foreground">
+                    {cats.reduce((a, c) => a + c.part1_done, 0)} / {cats.reduce((a, c) => a + c.part1_total, 0)} questions answered
+                  </p>
+                </div>
+                <div className="rounded-lg border border-border/50 bg-card/40 p-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <FileText className="h-4 w-4 text-destructive" />
+                    <p className="font-semibold text-sm">Stage 2 · Documents</p>
+                    {part2AllDone && <CheckCircle2 className="h-4 w-4 text-primary ml-auto" />}
                   </div>
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="rounded-md bg-muted/40 p-2">
-                      <p className="text-muted-foreground">Part 1 · Responses</p>
-                      <p className="font-semibold">{c.part1_done}/{c.part1_total}</p>
-                    </div>
-                    <div className="rounded-md bg-muted/40 p-2">
-                      <p className="text-muted-foreground">Part 2 · Documents</p>
-                      <p className="font-semibold">{c.part2_done}/{c.part2_total}</p>
-                    </div>
-                  </div>
-                  {missing > 0 && <p className="text-xs text-destructive">{missing} items remaining</p>}
-                  <Button className="w-full gap-2" onClick={() => navigate(`/respond/${intakeId}/category/${c.code}/part-1`)}>
-                    Open Category <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+                  <p className="text-xs text-muted-foreground">
+                    {cats.reduce((a, c) => a + c.part2_done, 0)} / {cats.reduce((a, c) => a + c.part2_total, 0)} documents uploaded
+                  </p>
+                </div>
+              </div>
+
+              <Button size="lg" className="w-full gap-2 h-12 text-base" onClick={startFlow}>
+                {ctaLabel} <ArrowRight className="h-4 w-4" />
+              </Button>
+
+              <details className="text-xs text-muted-foreground">
+                <summary className="cursor-pointer hover:text-foreground">View category checklist</summary>
+                <ul className="mt-3 space-y-1.5">
+                  {cats.map((c) => {
+                    const total = c.part1_total + c.part2_total;
+                    const done = c.part1_done + c.part2_done;
+                    const pct = total ? Math.round((done / total) * 100) : 0;
+                    return (
+                      <li key={c.code} className="flex items-center gap-2">
+                        <span className="font-bold text-destructive tabular-nums w-6">{c.code}</span>
+                        <span className="flex-1 truncate">{c.name}</span>
+                        <Badge variant={pct === 100 ? "default" : "secondary"} className="text-[10px]">{pct}%</Badge>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </details>
+            </CardContent>
+          </Card>
+        )}
       </main>
     </div>
   );
