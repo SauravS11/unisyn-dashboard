@@ -27,6 +27,7 @@ export default function CategoryPart2() {
   const [comments, setComments] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [order, setOrder] = useState<string[]>([]);
 
   const loadDetail = async () => {
     const session = getIntakeSession();
@@ -52,10 +53,21 @@ export default function CategoryPart2() {
     const session = getIntakeSession();
     if (!session.accessToken || session.intakeId !== intakeId) { navigate("/respond"); return; }
     setIntakeMeta({ intake_code: session.intakeCode ?? undefined });
+    (async () => {
+      const { data: overview } = await supabase.rpc("get_intake_overview", {
+        p_intake_id: intakeId,
+        p_token: session.accessToken,
+      });
+      setOrder(((overview as any)?.categories ?? []).map((c: any) => c.category_code));
+    })();
     loadDetail()
       .catch((e) => { toast.error(e.message ?? "Failed"); navigate(`/respond/${intakeId}`); })
       .finally(() => setLoading(false));
   }, [intakeId, categoryCode, navigate]);
+
+  const idx = order.indexOf(categoryCode ?? "");
+  const isLast = idx >= 0 && idx === order.length - 1;
+  const nextCode = !isLast && idx >= 0 ? order[idx + 1] : null;
 
   const onFile = async (req: Req, files: FileList | null) => {
     if (!files || files.length === 0) return;
