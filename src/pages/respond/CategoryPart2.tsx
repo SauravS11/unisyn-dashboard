@@ -122,14 +122,19 @@ export default function CategoryPart2() {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted">
       <RespondentHeader intakeCode={intakeMeta.intake_code} companyName={intakeMeta.company_name} />
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-        <Button variant="ghost" size="sm" onClick={() => navigate(`/respond/${intakeId}/category/${categoryCode}/part-1`)} className="gap-1">
-          <ArrowLeft className="h-4 w-4" /> Back to Part 1
+        <Button variant="ghost" size="sm" onClick={() => navigate(`/respond/${intakeId}`)} className="gap-1">
+          <ArrowLeft className="h-4 w-4" /> Back to overview
         </Button>
         <Card className="backdrop-blur-xl bg-card/70 border-border/50 shadow-2xl">
           <CardHeader>
             <CardTitle className="text-xl">
               <span className="text-destructive font-bold mr-2">{categoryCode}</span>
-              {category?.category_name} — Part 2: Documents &amp; Supporting Evidence
+              {category?.category_name}
+              {order.length > 0 && idx >= 0 && (
+                <span className="ml-2 text-xs font-normal text-muted-foreground">
+                  Stage 2 · Category {idx + 1} of {order.length}
+                </span>
+              )}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
