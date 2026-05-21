@@ -5,17 +5,20 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/customClient";
-import { getIntakeSession } from "@/lib/intakeClient";
+import { getIntakeSession, clearIntakeSession } from "@/lib/intakeClient";
 import { RespondentHeader } from "@/components/RespondentHeader";
 import { ArrowRight, Calendar } from "lucide-react";
+import { toast } from "sonner";
 
 interface CategoryCard {
+  category_id: string;
   code: string;
   name: string;
-  total: number;
-  part1: { total: number; done: number };
-  part2: { total: number; done: number };
   status: string;
+  part1_total: number;
+  part1_done: number;
+  part2_total: number;
+  part2_done: number;
 }
 
 export default function RespondentDashboard() {
@@ -32,43 +35,39 @@ export default function RespondentDashboard() {
       return;
     }
     (async () => {
-      const [{ data: i }, { data: selected }, { data: reqs }, { data: resps }, { data: docs }, { data: catMeta }] = await Promise.all([
-        (supabase as any).from("client_intakes").select("intake_code, company_name, due_date, status").eq("id", intakeId).single(),
-        (supabase as any).from("client_intake_categories").select("category_id, status").eq("client_intake_id", intakeId),
-        (supabase as any).from("due_diligence_requirements").select("id, category_id, input_type"),
-        (supabase as any).from("client_requirement_responses").select("requirement_id, category_id").eq("client_intake_id", intakeId),
-        (supabase as any).from("client_requirement_documents").select("requirement_id, category_id").eq("client_intake_id", intakeId),
-        (supabase as any).from("due_diligence_categories").select("id, category_code, category_name, display_order").order("display_order"),
-      ]);
-
-      const catById: Record<string, any> = {};
-      (catMeta ?? []).forEach((c: any) => { catById[c.id] = c; });
-
-      const result: CategoryCard[] = (selected ?? []).map((s: any) => {
-        const meta = catById[s.category_id];
-        const part1Reqs = (reqs ?? []).filter((r: any) => r.category_id === s.category_id && (r.input_type === "written_response" || r.input_type === "yes_no" || r.input_type === "applicable_na"));
-        const part2Reqs = (reqs ?? []).filter((r: any) => r.category_id === s.category_id && (r.input_type === "document_upload" || r.input_type === "document_upload_with_comment"));
-        const respIds = new Set((resps ?? []).filter((r: any) => r.category_id === s.category_id).map((r: any) => r.requirement_id));
-        const docIds = new Set((docs ?? []).filter((d: any) => d.category_id === s.category_id).map((d: any) => d.requirement_id));
-        return {
-          code: meta?.category_code ?? "",
-          name: meta?.category_name ?? "",
-          total: part1Reqs.length + part2Reqs.length,
-          part1: { total: part1Reqs.length, done: part1Reqs.filter((r: any) => respIds.has(r.id)).length },
-          part2: { total: part2Reqs.length, done: part2Reqs.filter((r: any) => docIds.has(r.id)).length },
-          status: s.status,
-        };
-      }).sort((a, b) => a.code.localeCompare(b.code));
-
-      setIntake(i);
-      setCats(result);
+      const { data, error } = await supabase.rpc("get_intake_overview", {
+        p_intake_id: intakeId,
+        p_token: session.accessToken,
+      });
+      if (error) {
+        toast.error("Session expired — please re-enter your code");
+        clearIntakeSession();
+        navigate("/respond");
+        return;
+      }
+      const payload = data as any;
+      setIntake(payload?.intake ?? null);
+      const list: CategoryCard[] = (payload?.categories ?? []).map((c: any) => ({
+        category_id: c.category_id,
+        code: c.category_code,
+        name: c.category_name,
+        status: c.status,
+        part1_total: c.part1_total ?? 0,
+        part1_done: c.part1_done ?? 0,
+        part2_total: c.part2_total ?? 0,
+        part2_done: c.part2_done ?? 0,
+      }));
+      setCats(list);
       setLoading(false);
     })();
   }, [intakeId, navigate]);
 
   const overall = useMemo(() => {
     if (cats.length === 0) return 0;
-    const sum = cats.reduce((acc, c) => acc + (c.total ? (c.part1.done + c.part2.done) / c.total : 0), 0);
+    const sum = cats.reduce((acc, c) => {
+      const total = c.part1_total + c.part2_total;
+      return acc + (total ? (c.part1_done + c.part2_done) / total : 0);
+    }, 0);
     return Math.round((sum / cats.length) * 100);
   }, [cats]);
 
@@ -101,10 +100,20 @@ export default function RespondentDashboard() {
           </Card>
         </div>
 
+        {cats.length === 0 && (
+          <Card className="backdrop-blur-xl bg-card/60 border-border/50">
+            <CardContent className="p-6 text-center text-sm text-muted-foreground">
+              Your advisor hasn't assigned any categories yet. Please check back shortly.
+            </CardContent>
+          </Card>
+        )}
+
         <div className="grid md:grid-cols-2 gap-4">
           {cats.map((c) => {
-            const pct = c.total ? Math.round(((c.part1.done + c.part2.done) / c.total) * 100) : 0;
-            const missing = Math.max(0, c.total - c.part1.done - c.part2.done);
+            const total = c.part1_total + c.part2_total;
+            const done = c.part1_done + c.part2_done;
+            const pct = total ? Math.round((done / total) * 100) : 0;
+            const missing = Math.max(0, total - done);
             return (
               <Card key={c.code} className="backdrop-blur-xl bg-card/60 border-border/50 hover:shadow-xl hover:border-primary/30 transition-all">
                 <CardHeader className="pb-3">
@@ -126,11 +135,11 @@ export default function RespondentDashboard() {
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div className="rounded-md bg-muted/40 p-2">
                       <p className="text-muted-foreground">Part 1 · Responses</p>
-                      <p className="font-semibold">{c.part1.done}/{c.part1.total}</p>
+                      <p className="font-semibold">{c.part1_done}/{c.part1_total}</p>
                     </div>
                     <div className="rounded-md bg-muted/40 p-2">
                       <p className="text-muted-foreground">Part 2 · Documents</p>
-                      <p className="font-semibold">{c.part2.done}/{c.part2.total}</p>
+                      <p className="font-semibold">{c.part2_done}/{c.part2_total}</p>
                     </div>
                   </div>
                   {missing > 0 && <p className="text-xs text-destructive">{missing} items remaining</p>}
