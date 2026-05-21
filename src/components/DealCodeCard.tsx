@@ -23,23 +23,24 @@ export const DealCodeCard = () => {
 
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("verify-intake-code", {
-        body: { code: trimmed },
+      const { data, error } = await supabase.rpc("verify_intake_code", {
+        p_code: trimmed,
       });
 
-      if (error || !data?.success) {
-        toast.error(data?.message || "Invalid code. Please check and try again.");
+      const row = Array.isArray(data) ? data[0] : data;
+      if (error || !row?.success) {
+        toast.error(row?.message || error?.message || "Invalid code. Please check and try again.");
         return;
       }
 
       setIntakeSession({
-        accessToken: data.accessToken,
-        intakeId: data.intakeId,
-        intakeCode: data.intakeCode,
+        accessToken: row.access_token,
+        intakeId: row.intake_id,
+        intakeCode: row.intake_code,
       });
 
       toast.success("Access granted!");
-      navigate(`/respond/${data.intakeId}`);
+      navigate(`/respond/${row.intake_id}`);
     } catch (err) {
       console.error("Error verifying access code:", err);
       toast.error("Failed to verify code. Please try again.");
