@@ -29,6 +29,48 @@ export default function IntakeReview() {
   const [rows, setRows] = useState<CatRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [reviewCat, setReviewCat] = useState<CatRow | null>(null);
+  const [reviewData, setReviewData] = useState<{ requirements: any[]; responses: any[]; documents: any[] } | null>(null);
+  const [reviewLoading, setReviewLoading] = useState(false);
+
+  const openReview = async (row: CatRow) => {
+    setReviewCat(row);
+    setReviewData(null);
+    setReviewLoading(true);
+    try {
+      const [{ data: reqs }, { data: resps }, { data: docs }] = await Promise.all([
+        (supabase as any).from("due_diligence_requirements")
+          .select("id, requirement_code, requirement_text, input_type, display_order")
+          .eq("category_id", row.category_id).eq("is_active", true).order("display_order"),
+        (supabase as any).from("client_requirement_responses")
+          .select("requirement_id, response_value, yes_no_value, applicable_status, comment, status")
+          .eq("client_intake_id", intakeId).eq("category_id", row.category_id),
+        (supabase as any).from("client_requirement_documents")
+          .select("id, requirement_id, file_name, file_url, file_type, upload_comment, uploaded_by_email, status, uploaded_at")
+          .eq("client_intake_id", intakeId).eq("category_id", row.category_id)
+          .order("uploaded_at", { ascending: false }),
+      ]);
+      setReviewData({ requirements: reqs ?? [], responses: resps ?? [], documents: docs ?? [] });
+    } finally {
+      setReviewLoading(false);
+    }
+  };
+
+  const setDocStatus = async (docId: string, status: "approved" | "rejected") => {
+    const { error } = await (supabase as any).from("client_requirement_documents")
+      .update({ status, updated_at: new Date().toISOString() }).eq("id", docId);
+    if (error) { toast.error(error.message); return; }
+    toast.success(status === "approved" ? "Document approved" : "Document denied");
+    if (reviewCat) openReview(reviewCat);
+    load();
+  };
+
+  const openDoc = async (url: string) => {
+    if (/^https?:\/\//i.test(url)) { window.open(url, "_blank"); return; }
+    const { data, error } = await (supabase as any).storage.from("intake-documents").createSignedUrl(url, 300);
+    if (error || !data?.signedUrl) { toast.error("Unable to open document"); return; }
+    window.open(data.signedUrl, "_blank");
+  };
 
   const load = async () => {
     const [{ data: i }, { data: cats }, { data: reqs }, { data: resps }, { data: docs }] = await Promise.all([
