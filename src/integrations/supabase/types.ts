@@ -14,6 +14,346 @@ export type Database = {
   }
   public: {
     Tables: {
+      advisor_review_comments: {
+        Row: {
+          category_id: string | null
+          client_intake_id: string
+          comment_text: string
+          comment_type: Database["public"]["Enums"]["advisor_comment_type"]
+          created_at: string
+          created_by: string
+          document_id: string | null
+          id: string
+          requirement_id: string | null
+          visible_to_respondent: boolean
+        }
+        Insert: {
+          category_id?: string | null
+          client_intake_id: string
+          comment_text: string
+          comment_type?: Database["public"]["Enums"]["advisor_comment_type"]
+          created_at?: string
+          created_by: string
+          document_id?: string | null
+          id?: string
+          requirement_id?: string | null
+          visible_to_respondent?: boolean
+        }
+        Update: {
+          category_id?: string | null
+          client_intake_id?: string
+          comment_text?: string
+          comment_type?: Database["public"]["Enums"]["advisor_comment_type"]
+          created_at?: string
+          created_by?: string
+          document_id?: string | null
+          id?: string
+          requirement_id?: string | null
+          visible_to_respondent?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advisor_review_comments_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "due_diligence_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advisor_review_comments_client_intake_id_fkey"
+            columns: ["client_intake_id"]
+            isOneToOne: false
+            referencedRelation: "client_intakes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advisor_review_comments_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "client_requirement_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advisor_review_comments_requirement_id_fkey"
+            columns: ["requirement_id"]
+            isOneToOne: false
+            referencedRelation: "due_diligence_requirements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_intake_categories: {
+        Row: {
+          advisor_notes: string | null
+          advisor_status: string | null
+          category_id: string
+          client_intake_id: string
+          created_at: string
+          document_completion_percentage: number
+          id: string
+          overall_completion_percentage: number
+          response_completion_percentage: number
+          status: Database["public"]["Enums"]["intake_category_status"]
+          updated_at: string
+        }
+        Insert: {
+          advisor_notes?: string | null
+          advisor_status?: string | null
+          category_id: string
+          client_intake_id: string
+          created_at?: string
+          document_completion_percentage?: number
+          id?: string
+          overall_completion_percentage?: number
+          response_completion_percentage?: number
+          status?: Database["public"]["Enums"]["intake_category_status"]
+          updated_at?: string
+        }
+        Update: {
+          advisor_notes?: string | null
+          advisor_status?: string | null
+          category_id?: string
+          client_intake_id?: string
+          created_at?: string
+          document_completion_percentage?: number
+          id?: string
+          overall_completion_percentage?: number
+          response_completion_percentage?: number
+          status?: Database["public"]["Enums"]["intake_category_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_intake_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "due_diligence_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_intake_categories_client_intake_id_fkey"
+            columns: ["client_intake_id"]
+            isOneToOne: false
+            referencedRelation: "client_intakes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_intakes: {
+        Row: {
+          advisor_notes: string | null
+          client_type: Database["public"]["Enums"]["intake_client_type"]
+          company_name: string
+          converted_deal_id: string | null
+          country: string | null
+          created_at: string
+          created_by: string
+          due_date: string | null
+          entity_type: string | null
+          id: string
+          industry: string | null
+          intake_approved_at: string | null
+          intake_code: string
+          primary_contact_email: string | null
+          primary_contact_name: string | null
+          primary_contact_phone: string | null
+          primary_contact_role: string | null
+          registration_number: string | null
+          sector: string | null
+          secure_link_token: string
+          status: Database["public"]["Enums"]["intake_status"]
+          updated_at: string
+        }
+        Insert: {
+          advisor_notes?: string | null
+          client_type: Database["public"]["Enums"]["intake_client_type"]
+          company_name: string
+          converted_deal_id?: string | null
+          country?: string | null
+          created_at?: string
+          created_by: string
+          due_date?: string | null
+          entity_type?: string | null
+          id?: string
+          industry?: string | null
+          intake_approved_at?: string | null
+          intake_code: string
+          primary_contact_email?: string | null
+          primary_contact_name?: string | null
+          primary_contact_phone?: string | null
+          primary_contact_role?: string | null
+          registration_number?: string | null
+          sector?: string | null
+          secure_link_token: string
+          status?: Database["public"]["Enums"]["intake_status"]
+          updated_at?: string
+        }
+        Update: {
+          advisor_notes?: string | null
+          client_type?: Database["public"]["Enums"]["intake_client_type"]
+          company_name?: string
+          converted_deal_id?: string | null
+          country?: string | null
+          created_at?: string
+          created_by?: string
+          due_date?: string | null
+          entity_type?: string | null
+          id?: string
+          industry?: string | null
+          intake_approved_at?: string | null
+          intake_code?: string
+          primary_contact_email?: string | null
+          primary_contact_name?: string | null
+          primary_contact_phone?: string | null
+          primary_contact_role?: string | null
+          registration_number?: string | null
+          sector?: string | null
+          secure_link_token?: string
+          status?: Database["public"]["Enums"]["intake_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      client_requirement_documents: {
+        Row: {
+          category_id: string
+          client_intake_id: string
+          created_at: string
+          file_name: string
+          file_size: number | null
+          file_type: string | null
+          file_url: string
+          id: string
+          requirement_id: string
+          status: Database["public"]["Enums"]["intake_document_status"]
+          updated_at: string
+          upload_comment: string | null
+          uploaded_at: string
+          uploaded_by_email: string | null
+        }
+        Insert: {
+          category_id: string
+          client_intake_id: string
+          created_at?: string
+          file_name: string
+          file_size?: number | null
+          file_type?: string | null
+          file_url: string
+          id?: string
+          requirement_id: string
+          status?: Database["public"]["Enums"]["intake_document_status"]
+          updated_at?: string
+          upload_comment?: string | null
+          uploaded_at?: string
+          uploaded_by_email?: string | null
+        }
+        Update: {
+          category_id?: string
+          client_intake_id?: string
+          created_at?: string
+          file_name?: string
+          file_size?: number | null
+          file_type?: string | null
+          file_url?: string
+          id?: string
+          requirement_id?: string
+          status?: Database["public"]["Enums"]["intake_document_status"]
+          updated_at?: string
+          upload_comment?: string | null
+          uploaded_at?: string
+          uploaded_by_email?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_requirement_documents_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "due_diligence_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_requirement_documents_client_intake_id_fkey"
+            columns: ["client_intake_id"]
+            isOneToOne: false
+            referencedRelation: "client_intakes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_requirement_documents_requirement_id_fkey"
+            columns: ["requirement_id"]
+            isOneToOne: false
+            referencedRelation: "due_diligence_requirements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_requirement_responses: {
+        Row: {
+          applicable_status: string | null
+          category_id: string
+          client_intake_id: string
+          comment: string | null
+          created_at: string
+          id: string
+          requirement_id: string
+          response_value: string | null
+          status: Database["public"]["Enums"]["requirement_status"]
+          submitted_at: string | null
+          updated_at: string
+          yes_no_value: boolean | null
+        }
+        Insert: {
+          applicable_status?: string | null
+          category_id: string
+          client_intake_id: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          requirement_id: string
+          response_value?: string | null
+          status?: Database["public"]["Enums"]["requirement_status"]
+          submitted_at?: string | null
+          updated_at?: string
+          yes_no_value?: boolean | null
+        }
+        Update: {
+          applicable_status?: string | null
+          category_id?: string
+          client_intake_id?: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          requirement_id?: string
+          response_value?: string | null
+          status?: Database["public"]["Enums"]["requirement_status"]
+          submitted_at?: string | null
+          updated_at?: string
+          yes_no_value?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_requirement_responses_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "due_diligence_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_requirement_responses_client_intake_id_fkey"
+            columns: ["client_intake_id"]
+            isOneToOne: false
+            referencedRelation: "client_intakes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_requirement_responses_requirement_id_fkey"
+            columns: ["requirement_id"]
+            isOneToOne: false
+            referencedRelation: "due_diligence_requirements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dd_categories: {
         Row: {
           category_no: number
@@ -317,6 +657,8 @@ export type Database = {
           buyer_legal_email: string | null
           buyer_legal_name: string | null
           buyer_name: string | null
+          client_company_name: string | null
+          client_type: string | null
           confidentiality_level: string | null
           created_at: string
           deal_code: string
@@ -324,6 +666,7 @@ export type Database = {
           deal_value: string | null
           id: string
           industry: string | null
+          intake_approved_at: string | null
           lead_advisor: string | null
           name: string
           passcode: string | null
@@ -332,6 +675,7 @@ export type Database = {
           seller_legal_email: string | null
           seller_legal_name: string | null
           seller_name: string | null
+          source_intake_id: string | null
           status: string
           target_close_date: string | null
           updated_at: string
@@ -342,6 +686,8 @@ export type Database = {
           buyer_legal_email?: string | null
           buyer_legal_name?: string | null
           buyer_name?: string | null
+          client_company_name?: string | null
+          client_type?: string | null
           confidentiality_level?: string | null
           created_at?: string
           deal_code: string
@@ -349,6 +695,7 @@ export type Database = {
           deal_value?: string | null
           id?: string
           industry?: string | null
+          intake_approved_at?: string | null
           lead_advisor?: string | null
           name: string
           passcode?: string | null
@@ -357,6 +704,7 @@ export type Database = {
           seller_legal_email?: string | null
           seller_legal_name?: string | null
           seller_name?: string | null
+          source_intake_id?: string | null
           status?: string
           target_close_date?: string | null
           updated_at?: string
@@ -367,6 +715,8 @@ export type Database = {
           buyer_legal_email?: string | null
           buyer_legal_name?: string | null
           buyer_name?: string | null
+          client_company_name?: string | null
+          client_type?: string | null
           confidentiality_level?: string | null
           created_at?: string
           deal_code?: string
@@ -374,6 +724,7 @@ export type Database = {
           deal_value?: string | null
           id?: string
           industry?: string | null
+          intake_approved_at?: string | null
           lead_advisor?: string | null
           name?: string
           passcode?: string | null
@@ -382,12 +733,98 @@ export type Database = {
           seller_legal_email?: string | null
           seller_legal_name?: string | null
           seller_name?: string | null
+          source_intake_id?: string | null
           status?: string
           target_close_date?: string | null
           updated_at?: string
           user_id?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "deals_source_intake_id_fkey"
+            columns: ["source_intake_id"]
+            isOneToOne: false
+            referencedRelation: "client_intakes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      due_diligence_categories: {
+        Row: {
+          category_code: string
+          category_name: string
+          created_at: string
+          description: string | null
+          display_order: number
+          id: string
+          is_active: boolean
+        }
+        Insert: {
+          category_code: string
+          category_name: string
+          created_at?: string
+          description?: string | null
+          display_order: number
+          id?: string
+          is_active?: boolean
+        }
+        Update: {
+          category_code?: string
+          category_name?: string
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+        }
         Relationships: []
+      }
+      due_diligence_requirements: {
+        Row: {
+          category_id: string
+          created_at: string
+          display_order: number
+          help_text: string | null
+          id: string
+          input_type: Database["public"]["Enums"]["requirement_input_type"]
+          is_active: boolean
+          is_required: boolean
+          requirement_code: string
+          requirement_text: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          display_order: number
+          help_text?: string | null
+          id?: string
+          input_type: Database["public"]["Enums"]["requirement_input_type"]
+          is_active?: boolean
+          is_required?: boolean
+          requirement_code: string
+          requirement_text: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          display_order?: number
+          help_text?: string | null
+          id?: string
+          input_type?: Database["public"]["Enums"]["requirement_input_type"]
+          is_active?: boolean
+          is_required?: boolean
+          requirement_code?: string
+          requirement_text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "due_diligence_requirements_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "due_diligence_categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       expert_access_log: {
         Row: {
@@ -677,6 +1114,82 @@ export type Database = {
           },
         ]
       }
+      intake_access_tokens: {
+        Row: {
+          client_intake_id: string
+          created_at: string
+          expires_at: string
+          id: string
+          ip_address: string | null
+          token_hash: string
+          user_agent: string | null
+        }
+        Insert: {
+          client_intake_id: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          ip_address?: string | null
+          token_hash: string
+          user_agent?: string | null
+        }
+        Update: {
+          client_intake_id?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          ip_address?: string | null
+          token_hash?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "intake_access_tokens_client_intake_id_fkey"
+            columns: ["client_intake_id"]
+            isOneToOne: false
+            referencedRelation: "client_intakes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      intake_activity_log: {
+        Row: {
+          activity_type: string
+          actor_email: string | null
+          actor_type: Database["public"]["Enums"]["activity_actor_type"]
+          client_intake_id: string
+          created_at: string
+          description: string | null
+          id: string
+        }
+        Insert: {
+          activity_type: string
+          actor_email?: string | null
+          actor_type: Database["public"]["Enums"]["activity_actor_type"]
+          client_intake_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+        }
+        Update: {
+          activity_type?: string
+          actor_email?: string | null
+          actor_type?: Database["public"]["Enums"]["activity_actor_type"]
+          client_intake_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "intake_activity_log_client_intake_id_fkey"
+            columns: ["client_intake_id"]
+            isOneToOne: false
+            referencedRelation: "client_intakes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           created_at: string
@@ -761,6 +1274,7 @@ export type Database = {
         Args: { p_deal_id: string }
         Returns: number
       }
+      generate_intake_code: { Args: never; Returns: string }
       regenerate_expert_code: { Args: { p_code_id: string }; Returns: string }
       register_expert_document: {
         Args: {
@@ -775,9 +1289,35 @@ export type Database = {
         }
         Returns: string
       }
+      register_intake_document: {
+        Args: {
+          p_file_name: string
+          p_file_size: number
+          p_file_type: string
+          p_file_url: string
+          p_intake_id: string
+          p_requirement_id: string
+          p_token: string
+          p_upload_comment: string
+          p_uploaded_by_email: string
+        }
+        Returns: string
+      }
       seed_expert_tasks_for_category: {
         Args: { p_category_id: string; p_deal_id: string }
         Returns: undefined
+      }
+      submit_intake_response: {
+        Args: {
+          p_applicable_status: string
+          p_comment: string
+          p_intake_id: string
+          p_requirement_id: string
+          p_response_value: string
+          p_token: string
+          p_yes_no: boolean
+        }
+        Returns: string
       }
       toggle_expert_task_completion: {
         Args: {
@@ -794,6 +1334,10 @@ export type Database = {
       }
       validate_expert_access_token: {
         Args: { p_access_token: string; p_code_id: string }
+        Returns: boolean
+      }
+      validate_intake_access_token: {
+        Args: { p_intake_id: string; p_token: string }
         Returns: boolean
       }
       verify_deal_code: {
@@ -843,9 +1387,60 @@ export type Database = {
           success: boolean
         }[]
       }
+      verify_intake_code: {
+        Args: { p_code: string; p_ip?: string; p_user_agent?: string }
+        Returns: {
+          access_token: string
+          intake_code: string
+          intake_id: string
+          message: string
+          success: boolean
+        }[]
+      }
     }
     Enums: {
-      [_ in never]: never
+      activity_actor_type: "advisor" | "respondent" | "system" | "mia"
+      advisor_comment_type:
+        | "general"
+        | "clarification_request"
+        | "reupload_request"
+        | "approval_note"
+        | "risk_note"
+      intake_category_status:
+        | "not_started"
+        | "in_progress"
+        | "submitted"
+        | "changes_requested"
+        | "approved"
+      intake_client_type: "seller" | "buyer" | "target"
+      intake_document_status:
+        | "missing"
+        | "uploaded"
+        | "changes_requested"
+        | "approved"
+        | "rejected"
+      intake_status:
+        | "draft"
+        | "request_sent"
+        | "awaiting_response"
+        | "in_progress"
+        | "submitted_for_review"
+        | "changes_requested"
+        | "approved"
+        | "converted_to_deal"
+      requirement_input_type:
+        | "written_response"
+        | "yes_no"
+        | "applicable_na"
+        | "document_upload"
+        | "document_upload_with_comment"
+      requirement_status:
+        | "not_started"
+        | "in_progress"
+        | "completed"
+        | "submitted"
+        | "changes_requested"
+        | "approved"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -972,6 +1567,55 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      activity_actor_type: ["advisor", "respondent", "system", "mia"],
+      advisor_comment_type: [
+        "general",
+        "clarification_request",
+        "reupload_request",
+        "approval_note",
+        "risk_note",
+      ],
+      intake_category_status: [
+        "not_started",
+        "in_progress",
+        "submitted",
+        "changes_requested",
+        "approved",
+      ],
+      intake_client_type: ["seller", "buyer", "target"],
+      intake_document_status: [
+        "missing",
+        "uploaded",
+        "changes_requested",
+        "approved",
+        "rejected",
+      ],
+      intake_status: [
+        "draft",
+        "request_sent",
+        "awaiting_response",
+        "in_progress",
+        "submitted_for_review",
+        "changes_requested",
+        "approved",
+        "converted_to_deal",
+      ],
+      requirement_input_type: [
+        "written_response",
+        "yes_no",
+        "applicable_na",
+        "document_upload",
+        "document_upload_with_comment",
+      ],
+      requirement_status: [
+        "not_started",
+        "in_progress",
+        "completed",
+        "submitted",
+        "changes_requested",
+        "approved",
+      ],
+    },
   },
 } as const
