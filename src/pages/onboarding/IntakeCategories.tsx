@@ -90,7 +90,7 @@ export default function IntakeCategories() {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted py-10 px-4">
       <div className="absolute top-4 right-4"><ThemeToggle /></div>
       <div className="max-w-4xl mx-auto">
-        <Button variant="ghost" size="sm" onClick={() => navigate(`/onboarding/new`)} className="mb-4 gap-1">
+        <Button variant="ghost" size="sm" onClick={() => navigate(`/onboarding/${intakeId}/profile`)} className="mb-4 gap-1">
           <ArrowLeft className="h-4 w-4" /> Back
         </Button>
         <Card className="backdrop-blur-xl bg-card/70 border-border/50 shadow-2xl">

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/customClient";
 import { toast } from "sonner";
 import { z } from "zod";
-import { ArrowLeft, ArrowRight, Save } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Loader2 } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 const schema = z.object({
@@ -19,55 +19,140 @@ const schema = z.object({
   entity_type: z.string().trim().min(1, "Entity type is required").max(100),
 });
 
+const EMPTY = {
+  client_type: "seller" as "seller" | "buyer" | "target",
+  company_name: "",
+  registration_number: "",
+  entity_type: "",
+  industry: "",
+  sector: "",
+  country: "",
+  primary_contact_name: "",
+  primary_contact_role: "",
+  primary_contact_email: "",
+  primary_contact_phone: "",
+  advisor_notes: "",
+};
+
+type SaveState = "idle" | "saving" | "saved" | "error";
+
 export default function NewIntake() {
   const navigate = useNavigate();
-  const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({
-    client_type: "seller" as "seller" | "buyer" | "target",
-    company_name: "",
-    registration_number: "",
-    entity_type: "",
-    industry: "",
-    sector: "",
-    country: "",
-    primary_contact_name: "",
-    primary_contact_role: "",
-    primary_contact_email: "",
-    primary_contact_phone: "",
-    advisor_notes: "",
-  });
+  const { intakeId: routeIntakeId } = useParams();
+  const [intakeId, setIntakeId] = useState<string | null>(routeIntakeId ?? null);
+  const [form, setForm] = useState(EMPTY);
+  const [loading, setLoading] = useState(!!routeIntakeId);
+  const [saveState, setSaveState] = useState<SaveState>("idle");
+  const [continuing, setContinuing] = useState(false);
+  const debounceRef = useRef<number | null>(null);
+  const creatingRef = useRef(false);
 
-  const update = (k: keyof typeof form, v: string) => setForm((f) => ({ ...f, [k]: v }));
-
-  const save = async (continueNext: boolean) => {
-    setSaving(true);
-    try {
-      const parsed = schema.safeParse(form);
-      if (!parsed.success) {
-        toast.error(parsed.error.errors[0].message);
-        return;
-      }
-      const { data: userData } = await supabase.auth.getUser();
-      const uid = userData?.user?.id;
-      if (!uid) {
-        toast.error("Please sign in again.");
-        return;
-      }
+  // Load existing intake if editing
+  useEffect(() => {
+    (async () => {
+      if (!routeIntakeId) return;
       const { data, error } = await (supabase as any)
         .from("client_intakes")
-        .insert({ ...form, created_by: uid })
-        .select("id, intake_code")
-        .single();
-      if (error) throw error;
-      toast.success(`Intake ${data.intake_code} saved`);
-      if (continueNext) navigate(`/onboarding/${data.id}/categories`);
-      else navigate("/welcome");
+        .select("*")
+        .eq("id", routeIntakeId)
+        .maybeSingle();
+      if (error || !data) {
+        toast.error("Could not load intake");
+        navigate("/welcome");
+        return;
+      }
+      setForm({
+        client_type: data.client_type ?? "seller",
+        company_name: data.company_name ?? "",
+        registration_number: data.registration_number ?? "",
+        entity_type: data.entity_type ?? "",
+        industry: data.industry ?? "",
+        sector: data.sector ?? "",
+        country: data.country ?? "",
+        primary_contact_name: data.primary_contact_name ?? "",
+        primary_contact_role: data.primary_contact_role ?? "",
+        primary_contact_email: data.primary_contact_email ?? "",
+        primary_contact_phone: data.primary_contact_phone ?? "",
+        advisor_notes: data.advisor_notes ?? "",
+      });
+      setLoading(false);
+    })();
+  }, [routeIntakeId, navigate]);
+
+  const update = (k: keyof typeof form, v: string) => {
+    setForm((f) => ({ ...f, [k]: v }));
+    scheduleAutoSave({ ...form, [k]: v });
+  };
+
+  const scheduleAutoSave = (next: typeof form) => {
+    if (debounceRef.current) window.clearTimeout(debounceRef.current);
+    debounceRef.current = window.setTimeout(() => autoSave(next), 800);
+  };
+
+  const autoSave = async (snapshot: typeof form) => {
+    // Need minimum fields before first persist
+    if (!snapshot.company_name.trim() || !snapshot.entity_type.trim() || !snapshot.primary_contact_email.trim()) {
+      return;
+    }
+    const parsed = schema.safeParse(snapshot);
+    if (!parsed.success) return;
+
+    try {
+      setSaveState("saving");
+      if (!intakeId) {
+        if (creatingRef.current) return;
+        creatingRef.current = true;
+        const { data: userData } = await supabase.auth.getUser();
+        const uid = userData?.user?.id;
+        if (!uid) { creatingRef.current = false; setSaveState("error"); return; }
+        const { data, error } = await (supabase as any)
+          .from("client_intakes")
+          .insert({ ...snapshot, created_by: uid })
+          .select("id")
+          .single();
+        creatingRef.current = false;
+        if (error) throw error;
+        setIntakeId(data.id);
+        // Replace URL so refresh resumes here
+        window.history.replaceState(null, "", `/onboarding/${data.id}/profile`);
+      } else {
+        const { error } = await (supabase as any)
+          .from("client_intakes")
+          .update(snapshot)
+          .eq("id", intakeId);
+        if (error) throw error;
+      }
+      setSaveState("saved");
     } catch (e: any) {
-      toast.error(e.message ?? "Failed to save");
-    } finally {
-      setSaving(false);
+      console.error(e);
+      setSaveState("error");
     }
   };
+
+  const handleContinue = async () => {
+    const parsed = schema.safeParse(form);
+    if (!parsed.success) {
+      toast.error(parsed.error.errors[0].message);
+      return;
+    }
+    setContinuing(true);
+    // Flush any pending autosave
+    if (debounceRef.current) window.clearTimeout(debounceRef.current);
+    await autoSave(form);
+    setContinuing(false);
+    const id = intakeId ?? (await getJustCreatedId());
+    if (id) navigate(`/onboarding/${id}/categories`);
+  };
+
+  const getJustCreatedId = async () => {
+    // Safety fallback if autoSave hasn't set state yet
+    await new Promise((r) => setTimeout(r, 300));
+    return intakeId;
+  };
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading…</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted py-10 px-4">
@@ -78,10 +163,15 @@ export default function NewIntake() {
         </Button>
         <Card className="backdrop-blur-xl bg-card/70 border-border/50 shadow-2xl">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold">Client Intake Profile</CardTitle>
-            <CardDescription>
-              Step 1 of 3 — Create the seller, buyer, or target company profile.
-            </CardDescription>
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <CardTitle className="text-2xl font-bold">Client Intake Profile</CardTitle>
+                <CardDescription>
+                  Step 1 of 3 — Create the seller, buyer, or target company profile.
+                </CardDescription>
+              </div>
+              <SaveIndicator state={saveState} />
+            </div>
           </CardHeader>
           <CardContent className="space-y-5">
             <div className="grid md:grid-cols-2 gap-4">
@@ -116,11 +206,8 @@ export default function NewIntake() {
               <Textarea rows={3} value={form.advisor_notes} onChange={(e) => update("advisor_notes", e.target.value)} />
             </Field>
 
-            <div className="flex flex-col sm:flex-row gap-3 pt-2">
-              <Button variant="outline" className="gap-2" onClick={() => save(false)} disabled={saving}>
-                <Save className="h-4 w-4" /> Save Draft
-              </Button>
-              <Button className="gap-2 sm:ml-auto" onClick={() => save(true)} disabled={saving}>
+            <div className="flex justify-end pt-2">
+              <Button className="gap-2" onClick={handleContinue} disabled={continuing}>
                 Continue to Categories <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
@@ -137,3 +224,14 @@ const Field = ({ label, children }: { label: string; children: React.ReactNode }
     {children}
   </div>
 );
+
+const SaveIndicator = ({ state }: { state: SaveState }) => {
+  if (state === "idle") return null;
+  if (state === "saving") return (
+    <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><Loader2 className="h-3.5 w-3.5 animate-spin" /> Saving…</span>
+  );
+  if (state === "saved") return (
+    <span className="flex items-center gap-1.5 text-xs text-emerald-500"><Check className="h-3.5 w-3.5" /> Saved</span>
+  );
+  return <span className="text-xs text-destructive">Save failed</span>;
+};
