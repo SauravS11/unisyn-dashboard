@@ -250,6 +250,9 @@ export default function IntakeReview() {
                         <span className={missing > 0 ? "text-destructive" : ""}>{missing} missing</span>
                       </div>
                       <div className="mt-3 flex gap-2 flex-wrap">
+                        <Button size="sm" variant="secondary" className="gap-1" onClick={() => openReview(r)}>
+                          <Eye className="h-3.5 w-3.5" /> Review documents
+                        </Button>
                         <Button size="sm" variant="outline" className="gap-1" onClick={() => requestClarification(r.category_id)}>
                           <MessageSquare className="h-3.5 w-3.5" /> Request clarification
                         </Button>
