@@ -26,17 +26,24 @@ export default function CategoryPart1() {
   const [values, setValues] = useState<Record<string, any>>({});
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [order, setOrder] = useState<string[]>([]);
 
   useEffect(() => {
     const session = getIntakeSession();
     if (!session.accessToken || session.intakeId !== intakeId) { navigate("/respond"); return; }
     setIntakeMeta({ intake_code: session.intakeCode ?? undefined });
     (async () => {
-      const { data, error } = await supabase.rpc("get_intake_category_detail", {
-        p_intake_id: intakeId,
-        p_token: session.accessToken,
-        p_category_code: categoryCode,
-      });
+      const [{ data, error }, { data: overview }] = await Promise.all([
+        supabase.rpc("get_intake_category_detail", {
+          p_intake_id: intakeId,
+          p_token: session.accessToken,
+          p_category_code: categoryCode,
+        }),
+        supabase.rpc("get_intake_overview", {
+          p_intake_id: intakeId,
+          p_token: session.accessToken,
+        }),
+      ]);
       if (error) { toast.error(error.message); navigate(`/respond/${intakeId}`); return; }
       const payload = data as any;
       setCategory(payload?.category);
@@ -52,12 +59,18 @@ export default function CategoryPart1() {
         };
       });
       setValues(v);
+      const codes = ((overview as any)?.categories ?? []).map((c: any) => c.category_code);
+      setOrder(codes);
       setLoading(false);
     })();
   }, [intakeId, categoryCode, navigate]);
 
   const update = (id: string, key: string, val: any) =>
     setValues((s) => ({ ...s, [id]: { ...(s[id] ?? {}), [key]: val } }));
+
+  const idx = order.indexOf(categoryCode ?? "");
+  const isLast = idx >= 0 && idx === order.length - 1;
+  const nextCode = !isLast && idx >= 0 ? order[idx + 1] : null;
 
   const saveAll = async (goNext: boolean) => {
     setBusy(true);
@@ -76,7 +89,16 @@ export default function CategoryPart1() {
         });
       }
       toast.success("Saved");
-      if (goNext) navigate(`/respond/${intakeId}/category/${categoryCode}/part-2`);
+      if (goNext) {
+        if (nextCode) {
+          navigate(`/respond/${intakeId}/category/${nextCode}/part-1`);
+        } else if (order.length > 0) {
+          // All Part 1s done → start Part 2 from the first category.
+          navigate(`/respond/${intakeId}/category/${order[0]}/part-2`);
+        } else {
+          navigate(`/respond/${intakeId}`);
+        }
+      }
     } catch (e: any) {
       toast.error(e.message ?? "Failed");
     } finally { setBusy(false); }
