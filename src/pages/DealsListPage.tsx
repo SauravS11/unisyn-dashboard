@@ -15,6 +15,7 @@ import { PageHeaderActions } from "@/components/PageHeaderActions";
 import { NotificationButton } from "@/components/NotificationButton";
 import { toast as sonnerToast } from "sonner";
 import { PasscodeDialog } from "@/components/PasscodeDialog";
+import { PendingIntakesSection } from "@/components/PendingIntakesSection";
 
 interface Deal {
   id: string;
