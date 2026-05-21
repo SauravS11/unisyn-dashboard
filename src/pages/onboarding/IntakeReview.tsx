@@ -4,9 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/customClient";
 import { toast } from "sonner";
-import { ArrowLeft, CheckCircle2, MessageSquare, Rocket } from "lucide-react";
+import { ArrowLeft, CheckCircle2, MessageSquare, Rocket, FileText, ExternalLink, ThumbsUp, ThumbsDown, Eye } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { MiaInsights } from "@/components/MiaInsights";
 
@@ -28,6 +29,48 @@ export default function IntakeReview() {
   const [rows, setRows] = useState<CatRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [reviewCat, setReviewCat] = useState<CatRow | null>(null);
+  const [reviewData, setReviewData] = useState<{ requirements: any[]; responses: any[]; documents: any[] } | null>(null);
+  const [reviewLoading, setReviewLoading] = useState(false);
+
+  const openReview = async (row: CatRow) => {
+    setReviewCat(row);
+    setReviewData(null);
+    setReviewLoading(true);
+    try {
+      const [{ data: reqs }, { data: resps }, { data: docs }] = await Promise.all([
+        (supabase as any).from("due_diligence_requirements")
+          .select("id, requirement_code, requirement_text, input_type, display_order")
+          .eq("category_id", row.category_id).eq("is_active", true).order("display_order"),
+        (supabase as any).from("client_requirement_responses")
+          .select("requirement_id, response_value, yes_no_value, applicable_status, comment, status")
+          .eq("client_intake_id", intakeId).eq("category_id", row.category_id),
+        (supabase as any).from("client_requirement_documents")
+          .select("id, requirement_id, file_name, file_url, file_type, upload_comment, uploaded_by_email, status, uploaded_at")
+          .eq("client_intake_id", intakeId).eq("category_id", row.category_id)
+          .order("uploaded_at", { ascending: false }),
+      ]);
+      setReviewData({ requirements: reqs ?? [], responses: resps ?? [], documents: docs ?? [] });
+    } finally {
+      setReviewLoading(false);
+    }
+  };
+
+  const setDocStatus = async (docId: string, status: "approved" | "rejected") => {
+    const { error } = await (supabase as any).from("client_requirement_documents")
+      .update({ status, updated_at: new Date().toISOString() }).eq("id", docId);
+    if (error) { toast.error(error.message); return; }
+    toast.success(status === "approved" ? "Document approved" : "Document denied");
+    if (reviewCat) openReview(reviewCat);
+    load();
+  };
+
+  const openDoc = async (url: string) => {
+    if (/^https?:\/\//i.test(url)) { window.open(url, "_blank"); return; }
+    const { data, error } = await (supabase as any).storage.from("intake-documents").createSignedUrl(url, 300);
+    if (error || !data?.signedUrl) { toast.error("Unable to open document"); return; }
+    window.open(data.signedUrl, "_blank");
+  };
 
   const load = async () => {
     const [{ data: i }, { data: cats }, { data: reqs }, { data: resps }, { data: docs }] = await Promise.all([
@@ -207,6 +250,9 @@ export default function IntakeReview() {
                         <span className={missing > 0 ? "text-destructive" : ""}>{missing} missing</span>
                       </div>
                       <div className="mt-3 flex gap-2 flex-wrap">
+                        <Button size="sm" variant="secondary" className="gap-1" onClick={() => openReview(r)}>
+                          <Eye className="h-3.5 w-3.5" /> Review documents
+                        </Button>
                         <Button size="sm" variant="outline" className="gap-1" onClick={() => requestClarification(r.category_id)}>
                           <MessageSquare className="h-3.5 w-3.5" /> Request clarification
                         </Button>
@@ -249,6 +295,80 @@ export default function IntakeReview() {
           </div>
         </div>
       </div>
+
+      <Dialog open={!!reviewCat} onOpenChange={(o) => !o && setReviewCat(null)}>
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto backdrop-blur-xl bg-card/95 border-border/50">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <span className="text-destructive font-bold">{reviewCat?.category_code}</span>
+              {reviewCat?.category_name}
+            </DialogTitle>
+            <DialogDescription>Review uploaded documents and respondent answers. Approve or deny each document.</DialogDescription>
+          </DialogHeader>
+
+          {reviewLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
+
+          {reviewData && (
+            <div className="space-y-6">
+              <section>
+                <h4 className="text-sm font-semibold mb-2 flex items-center gap-2"><FileText className="h-4 w-4" /> Documents ({reviewData.documents.length})</h4>
+                {reviewData.documents.length === 0 && <p className="text-xs text-muted-foreground">No documents uploaded yet.</p>}
+                <div className="space-y-2">
+                  {reviewData.documents.map((d: any) => {
+                    const req = reviewData.requirements.find((r: any) => r.id === d.requirement_id);
+                    return (
+                      <div key={d.id} className="rounded-md border border-border/50 bg-background/40 p-3">
+                        <div className="flex items-start justify-between gap-2 flex-wrap">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-medium text-sm truncate">{d.file_name}</span>
+                              <Badge variant={d.status === "approved" ? "default" : d.status === "rejected" ? "destructive" : "secondary"}>
+                                {d.status}
+                              </Badge>
+                            </div>
+                            {req && <p className="text-xs text-muted-foreground mt-0.5">{req.requirement_code} · {req.requirement_text}</p>}
+                            {d.upload_comment && <p className="text-xs italic mt-1">"{d.upload_comment}"</p>}
+                            {d.uploaded_by_email && <p className="text-[10px] text-muted-foreground mt-0.5">by {d.uploaded_by_email}</p>}
+                          </div>
+                          <div className="flex gap-1 shrink-0">
+                            <Button size="sm" variant="outline" className="gap-1" onClick={() => openDoc(d.file_url)}>
+                              <ExternalLink className="h-3.5 w-3.5" /> View
+                            </Button>
+                            <Button size="sm" variant="default" className="gap-1" disabled={d.status === "approved"} onClick={() => setDocStatus(d.id, "approved")}>
+                              <ThumbsUp className="h-3.5 w-3.5" /> Approve
+                            </Button>
+                            <Button size="sm" variant="destructive" className="gap-1" disabled={d.status === "rejected"} onClick={() => setDocStatus(d.id, "rejected")}>
+                              <ThumbsDown className="h-3.5 w-3.5" /> Deny
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+
+              <section>
+                <h4 className="text-sm font-semibold mb-2">Responses ({reviewData.responses.length})</h4>
+                {reviewData.responses.length === 0 && <p className="text-xs text-muted-foreground">No responses submitted yet.</p>}
+                <div className="space-y-2">
+                  {reviewData.responses.map((resp: any) => {
+                    const req = reviewData.requirements.find((r: any) => r.id === resp.requirement_id);
+                    const val = resp.response_value ?? (resp.yes_no_value === null ? null : resp.yes_no_value ? "Yes" : "No") ?? resp.applicable_status;
+                    return (
+                      <div key={resp.requirement_id} className="rounded-md border border-border/50 bg-background/40 p-3 text-sm">
+                        <p className="text-xs text-muted-foreground">{req?.requirement_code} · {req?.requirement_text}</p>
+                        <p className="mt-1">{val ?? <span className="text-muted-foreground italic">No answer</span>}</p>
+                        {resp.comment && <p className="text-xs italic text-muted-foreground mt-1">"{resp.comment}"</p>}
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
