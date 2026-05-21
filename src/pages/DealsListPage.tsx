@@ -213,7 +213,12 @@ const DealsListPage = () => {
               <Plus className="h-5 w-5 mr-2" />
               New Deal
             </Button>
-          </div>
+        </div>
+
+        <div className="mb-8">
+          <PendingIntakesSection />
+        </div>
+
         </div>
 
         {loading ? (
