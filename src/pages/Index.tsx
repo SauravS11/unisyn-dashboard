@@ -89,7 +89,7 @@ const Index = () => {
                   : "text-foreground hover:text-foreground/70"
               }`}
             >
-              Deal Code
+              Client Access
             </button>
           </div>
         </div>
