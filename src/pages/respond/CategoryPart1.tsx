@@ -160,7 +160,7 @@ export default function CategoryPart1() {
                 <Save className="h-4 w-4" /> Save Draft
               </Button>
               <Button className="gap-2 sm:ml-auto" onClick={() => saveAll(true)} disabled={busy}>
-                Continue to Part 2 <ArrowRight className="h-4 w-4" />
+                {nextCode ? `Next: ${nextCode}` : "Continue to Document Uploads"} <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
           </CardContent>
