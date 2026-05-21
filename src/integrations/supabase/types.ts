@@ -1311,6 +1311,10 @@ export type Database = {
         }
         Returns: string
       }
+      seed_deal_from_intake: {
+        Args: { p_deal_id: string; p_intake_id: string }
+        Returns: Json
+      }
       seed_expert_tasks_for_category: {
         Args: { p_category_id: string; p_deal_id: string }
         Returns: undefined

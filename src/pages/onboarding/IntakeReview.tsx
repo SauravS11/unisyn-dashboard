@@ -176,11 +176,16 @@ export default function IntakeReview() {
         industry: intake.industry,
       }).select("id").single();
       if (error) throw error;
+      const { error: seedError } = await (supabase as any).rpc("seed_deal_from_intake", {
+        p_deal_id: deal.id,
+        p_intake_id: intakeId,
+      });
+      if (seedError) throw seedError;
       await (supabase as any).from("client_intakes").update({
         status: "converted_to_deal",
         converted_deal_id: deal.id,
       }).eq("id", intakeId);
-      toast.success("Deal workspace created");
+      toast.success("Deal workspace created with intake progress");
       navigate(`/deals/${deal.id}/dashboard`);
     } catch (e: any) {
       toast.error(e.message ?? "Failed");

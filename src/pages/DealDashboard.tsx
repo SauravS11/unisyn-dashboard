@@ -131,7 +131,7 @@ const DealDashboard = () => {
       const {
         data: dealData,
         error: dealError
-      } = await supabase.from('deals').select('name, target_close_date, buyer_name, buyer_email, seller_name, seller_email, buyer_legal_name, buyer_legal_email, seller_legal_name, seller_legal_email').eq('id', dealId).single();
+      } = await supabase.from('deals').select('name, target_close_date, buyer_name, buyer_email, seller_name, seller_email, buyer_legal_name, buyer_legal_email, seller_legal_name, seller_legal_email, source_intake_id').eq('id', dealId).single();
       if (dealError) throw dealError;
       setDealName(dealData.name);
       setTargetCloseDate(dealData.target_close_date);
@@ -147,7 +147,7 @@ const DealDashboard = () => {
       });
 
       // Fetch categories with their tasks and specialists
-      const {
+      let {
         data: categoriesData,
         error: categoriesError
       } = await supabase.from('deal_categories').select(`
@@ -158,8 +158,23 @@ const DealDashboard = () => {
           `).eq('deal_id', dealId).order('category_order');
       if (categoriesError) throw categoriesError;
 
+      // Auto-seed from source intake if this deal has no categories yet
+      if ((!categoriesData || categoriesData.length === 0) && (dealData as any).source_intake_id) {
+        const { error: seedErr } = await (supabase as any).rpc('seed_deal_from_intake', {
+          p_deal_id: dealId,
+          p_intake_id: (dealData as any).source_intake_id,
+        });
+        if (!seedErr) {
+          const refetch = await supabase.from('deal_categories')
+            .select('id, title, category_code, category_order')
+            .eq('deal_id', dealId).order('category_order');
+          categoriesData = refetch.data ?? [];
+        }
+      }
+
       // Fetch tasks for all categories
-      const categoryIds = categoriesData.map(cat => cat.id);
+      const categoryIds = (categoriesData ?? []).map(cat => cat.id);
+      categoriesData = categoriesData ?? [];
       const {
         data: tasksData,
         error: tasksError
