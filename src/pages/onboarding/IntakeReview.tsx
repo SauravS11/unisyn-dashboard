@@ -34,6 +34,10 @@ export default function IntakeReview() {
   const [reviewData, setReviewData] = useState<{ requirements: any[]; responses: any[]; documents: any[] } | null>(null);
   const [reviewLoading, setReviewLoading] = useState(false);
 
+  const [denyDoc, setDenyDoc] = useState<any | null>(null);
+  const [denyReason, setDenyReason] = useState("");
+  const [denyBusy, setDenyBusy] = useState(false);
+
   const openReview = async (row: CatRow) => {
     setReviewCat(row);
     setReviewData(null);
@@ -47,7 +51,7 @@ export default function IntakeReview() {
           .select("requirement_id, response_value, yes_no_value, applicable_status, comment, status")
           .eq("client_intake_id", intakeId).eq("category_id", row.category_id),
         (supabase as any).from("client_requirement_documents")
-          .select("id, requirement_id, file_name, file_url, file_type, upload_comment, uploaded_by_email, status, uploaded_at")
+          .select("id, requirement_id, file_name, file_url, file_type, upload_comment, uploaded_by_email, status, uploaded_at, version, rejection_reason, replaces_document_id")
           .eq("client_intake_id", intakeId).eq("category_id", row.category_id)
           .order("uploaded_at", { ascending: false }),
       ]);
@@ -57,13 +61,38 @@ export default function IntakeReview() {
     }
   };
 
-  const setDocStatus = async (docId: string, status: "approved" | "rejected") => {
+  const approveDoc = async (docId: string) => {
     const { error } = await (supabase as any).from("client_requirement_documents")
-      .update({ status, updated_at: new Date().toISOString() }).eq("id", docId);
+      .update({ status: "approved", rejection_reason: null, updated_at: new Date().toISOString() }).eq("id", docId);
     if (error) { toast.error(error.message); return; }
-    toast.success(status === "approved" ? "Document approved" : "Document denied");
+    toast.success("Document approved");
     if (reviewCat) openReview(reviewCat);
     load();
+  };
+
+  const confirmDeny = async () => {
+    if (!denyDoc) return;
+    if (!denyReason.trim()) { toast.error("Please add a comment explaining the reason"); return; }
+    setDenyBusy(true);
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      const { error } = await (supabase as any).from("client_requirement_documents")
+        .update({
+          status: "rejected",
+          rejection_reason: denyReason.trim(),
+          rejected_at: new Date().toISOString(),
+          rejected_by: userData?.user?.id ?? null,
+          updated_at: new Date().toISOString(),
+        }).eq("id", denyDoc.id);
+      if (error) throw error;
+      toast.success("Document denied — respondent has been notified");
+      setDenyDoc(null);
+      setDenyReason("");
+      if (reviewCat) openReview(reviewCat);
+      load();
+    } catch (e: any) {
+      toast.error(e.message ?? "Failed");
+    } finally { setDenyBusy(false); }
   };
 
   const openDoc = async (url: string) => {
