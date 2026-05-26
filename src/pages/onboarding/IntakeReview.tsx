@@ -6,12 +6,14 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/customClient";
 import { toast } from "sonner";
 import {
   ArrowLeft, CheckCircle2, MessageSquare, Rocket, FileText,
   ExternalLink, ThumbsUp, ThumbsDown, Eye, RefreshCw, ShieldCheck,
-  AlertCircle, FolderOpen, Mail, XCircle, Sparkles,
+  AlertCircle, FolderOpen, Mail, XCircle, Sparkles, UserPlus, Trash2,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { MiaInsights } from "@/components/MiaInsights";
@@ -43,6 +45,56 @@ export default function IntakeReview() {
   const [denyDoc, setDenyDoc] = useState<any | null>(null);
   const [denyReason, setDenyReason] = useState("");
   const [denyBusy, setDenyBusy] = useState(false);
+
+  const [specialists, setSpecialists] = useState<Record<string, Array<{ id: string; name: string; email: string; role: string | null }>>>({});
+  const [specCat, setSpecCat] = useState<CatRow | null>(null);
+  const [specForm, setSpecForm] = useState({ name: "", email: "", role: "" });
+  const [specBusy, setSpecBusy] = useState(false);
+
+  const loadSpecialists = async () => {
+    const { data } = await (supabase as any).from("intake_specialists")
+      .select("id, category_id, name, email, role")
+      .eq("client_intake_id", intakeId);
+    const grouped: Record<string, any[]> = {};
+    (data ?? []).forEach((s: any) => {
+      grouped[s.category_id] ??= [];
+      grouped[s.category_id].push(s);
+    });
+    setSpecialists(grouped);
+  };
+
+  const addSpecialist = async () => {
+    if (!specCat) return;
+    if (!specForm.name.trim() || !specForm.email.trim()) {
+      toast.error("Name and email are required");
+      return;
+    }
+    setSpecBusy(true);
+    try {
+      const { error } = await (supabase as any).from("intake_specialists").insert({
+        client_intake_id: intakeId,
+        category_id: specCat.category_id,
+        name: specForm.name.trim(),
+        email: specForm.email.trim(),
+        role: specForm.role.trim() || null,
+      });
+      if (error) throw error;
+      toast.success("Specialist added");
+      setSpecForm({ name: "", email: "", role: "" });
+      await loadSpecialists();
+    } catch (e: any) {
+      toast.error(e.message ?? "Failed to add specialist");
+    } finally {
+      setSpecBusy(false);
+    }
+  };
+
+  const removeSpecialist = async (id: string) => {
+    const { error } = await (supabase as any).from("intake_specialists").delete().eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Specialist removed");
+    loadSpecialists();
+  };
 
   const openReview = async (row: CatRow) => {
     setReviewCat(row);
@@ -149,7 +201,7 @@ export default function IntakeReview() {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, [intakeId]);
+  useEffect(() => { load(); loadSpecialists(); }, [intakeId]);
 
   const overall = useMemo(() => {
     if (rows.length === 0) return 0;
