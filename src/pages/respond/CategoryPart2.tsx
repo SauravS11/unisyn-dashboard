@@ -70,7 +70,7 @@ export default function CategoryPart2() {
   const isLast = idx >= 0 && idx === order.length - 1;
   const nextCode = !isLast && idx >= 0 ? order[idx + 1] : null;
 
-  const onFile = async (req: Req, files: FileList | null) => {
+  const onFile = async (req: Req, files: FileList | null, replacesDocumentId: string | null = null) => {
     if (!files || files.length === 0) return;
     setBusy(true);
     try {
@@ -86,9 +86,10 @@ export default function CategoryPart2() {
           fileType: file.type,
           fileSize: file.size,
           uploadComment: comments[req.id] ?? null,
+          replacesDocumentId,
         });
       }
-      toast.success("Uploaded");
+      toast.success(replacesDocumentId ? "New version uploaded — sent for review" : "Uploaded");
       await loadDetail();
     } catch (e: any) {
       toast.error(e.message ?? "Upload failed");
