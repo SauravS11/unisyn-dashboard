@@ -6,8 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/customClient";
 import { setIntakeSession } from "@/lib/intakeClient";
+import { PageShell } from "@/components/ui/page-shell";
+import { GlassIcon } from "@/components/ui/glass-icon";
 import { toast } from "sonner";
-import { Lock, ArrowRight } from "lucide-react";
+import { KeyRound, ArrowRight } from "lucide-react";
 import unisynLogo from "@/assets/unisyn-logo.svg";
 
 export default function AccessRequest() {
@@ -19,9 +21,7 @@ export default function AccessRequest() {
     if (!code.trim()) { toast.error("Enter the deal/intake code"); return; }
     setBusy(true);
     try {
-      const { data, error } = await supabase.rpc("verify_intake_code", {
-        p_code: code.trim(),
-      });
+      const { data, error } = await supabase.rpc("verify_intake_code", { p_code: code.trim() });
       const row = Array.isArray(data) ? data[0] : data;
       if (error || !row?.success) {
         toast.error(row?.message ?? error?.message ?? "Invalid code");
@@ -39,45 +39,43 @@ export default function AccessRequest() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted px-4">
-      <div className="pointer-events-none absolute inset-0 opacity-30">
-        <div className="absolute -top-32 -left-32 w-[480px] h-[480px] bg-primary/15 blur-[120px] rounded-full" />
-        <div className="absolute -bottom-32 -right-32 w-[520px] h-[520px] bg-primary/10 blur-[140px] rounded-full" />
-      </div>
-      <div className="relative w-full max-w-md">
-        <div className="flex justify-center mb-6">
-          <img src={unisynLogo} alt="UniSyn" className="w-48" />
+    <PageShell>
+      <div className="flex items-center justify-center min-h-screen px-4 py-10">
+        <div className="w-full max-w-md">
+          <div className="flex justify-center mb-6">
+            <img src={unisynLogo} alt="UniSyn" className="w-48" />
+          </div>
+          <Card className="glass-surface-strong">
+            <CardHeader className="text-center pb-4">
+              <div className="mx-auto mb-3">
+                <GlassIcon icon={KeyRound} size="xl" />
+              </div>
+              <CardTitle className="font-display text-3xl tracking-tight">Access Your Request</CardTitle>
+              <CardDescription className="text-sm">
+                Enter the secure code provided by your advisor. No sign up needed.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-1.5">
+                <Label className="text-xs uppercase tracking-wider text-muted-foreground">Deal Code</Label>
+                <Input
+                  placeholder="USYN-2026-0001"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.toUpperCase())}
+                  className="font-mono tracking-wider h-12 text-base backdrop-glass bg-card/60"
+                  onKeyDown={(e) => e.key === "Enter" && submit()}
+                />
+              </div>
+              <Button className="w-full h-12 gap-2 rounded-xl shadow-glow-primary text-base font-semibold" onClick={submit} disabled={busy}>
+                {busy ? "Verifying…" : "Access Request"} <ArrowRight className="h-4 w-4" />
+              </Button>
+              <p className="text-xs text-center text-muted-foreground/80 pt-1">
+                Your session is secure and time-limited.
+              </p>
+            </CardContent>
+          </Card>
         </div>
-        <Card className="backdrop-blur-xl bg-card/70 border-border/50 shadow-2xl">
-          <CardHeader className="text-center">
-            <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-2">
-              <Lock className="h-6 w-6 text-primary" />
-            </div>
-            <CardTitle className="text-2xl">Access Your Request</CardTitle>
-            <CardDescription>
-              Enter the secure code provided by your advisor. No sign up or password needed.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-1.5">
-              <Label>Deal Code</Label>
-              <Input
-                placeholder="USYN-2026-0001"
-                value={code}
-                onChange={(e) => setCode(e.target.value.toUpperCase())}
-                className="font-mono tracking-wider"
-                onKeyDown={(e) => e.key === "Enter" && submit()}
-              />
-            </div>
-            <Button className="w-full h-11 gap-2" onClick={submit} disabled={busy}>
-              {busy ? "Verifying…" : "Access Request"} <ArrowRight className="h-4 w-4" />
-            </Button>
-            <p className="text-xs text-center text-muted-foreground pt-2">
-              Your session is secure and time-limited. No account is created.
-            </p>
-          </CardContent>
-        </Card>
       </div>
-    </div>
+    </PageShell>
   );
 }
