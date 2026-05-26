@@ -9,41 +9,45 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { intakeId } = await req.json();
-    if (!intakeId || typeof intakeId !== "string") {
-      return new Response(JSON.stringify({ error: "intakeId required" }), {
+    const { intakeId, checklistData } = await req.json();
+    if ((!intakeId || typeof intakeId !== "string") && !Array.isArray(checklistData)) {
+      return new Response(JSON.stringify({ error: "intakeId or checklistData required" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-    );
+    const summary = Array.isArray(checklistData)
+      ? checklistData
+      : await (async () => {
+          const supabase = createClient(
+            Deno.env.get("SUPABASE_URL")!,
+            Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+          );
 
-    const [{ data: cats }, { data: reqs }, { data: resps }, { data: docs }] = await Promise.all([
-      supabase.from("due_diligence_categories").select("id, category_code, category_name"),
-      supabase.from("due_diligence_requirements").select("id, category_id, requirement_code, requirement_text, input_type, is_required"),
-      supabase.from("client_requirement_responses").select("requirement_id, category_id, response_value, yes_no_value, applicable_status, comment, status").eq("client_intake_id", intakeId),
-      supabase.from("client_requirement_documents").select("requirement_id, category_id, file_name, status, rejection_reason").eq("client_intake_id", intakeId),
-    ]);
+          const [{ data: cats }, { data: reqs }, { data: resps }, { data: docs }] = await Promise.all([
+            supabase.from("due_diligence_categories").select("id, category_code, category_name"),
+            supabase.from("due_diligence_requirements").select("id, category_id, requirement_code, requirement_text, input_type, is_required"),
+            supabase.from("client_requirement_responses").select("requirement_id, category_id, response_value, yes_no_value, applicable_status, comment, status").eq("client_intake_id", intakeId),
+            supabase.from("client_requirement_documents").select("requirement_id, category_id, file_name, status, rejection_reason").eq("client_intake_id", intakeId),
+          ]);
 
-    const catMap: Record<string, any> = {};
-    (cats ?? []).forEach((c: any) => { catMap[c.id] = c; });
+          const catMap: Record<string, any> = {};
+          (cats ?? []).forEach((c: any) => { catMap[c.id] = c; });
 
-    const summary = (reqs ?? []).map((r: any) => {
-      const resp = (resps ?? []).find((x: any) => x.requirement_id === r.id);
-      const reqDocs = (docs ?? []).filter((d: any) => d.requirement_id === r.id);
-      return {
-        category: catMap[r.category_id]?.category_code + " " + (catMap[r.category_id]?.category_name ?? ""),
-        requirement: r.requirement_text,
-        input_type: r.input_type,
-        is_required: r.is_required,
-        response: resp ? { value: resp.response_value, yes_no: resp.yes_no_value, applicable: resp.applicable_status, comment: resp.comment, status: resp.status } : null,
-        documents: reqDocs.map((d: any) => ({ name: d.file_name, status: d.status, rejection_reason: d.rejection_reason })),
-      };
-    });
+          return (reqs ?? []).map((r: any) => {
+            const resp = (resps ?? []).find((x: any) => x.requirement_id === r.id);
+            const reqDocs = (docs ?? []).filter((d: any) => d.requirement_id === r.id);
+            return {
+              category: catMap[r.category_id]?.category_code + " " + (catMap[r.category_id]?.category_name ?? ""),
+              requirement: r.requirement_text,
+              input_type: r.input_type,
+              is_required: r.is_required,
+              response: resp ? { value: resp.response_value, yes_no: resp.yes_no_value, applicable: resp.applicable_status, comment: resp.comment, status: resp.status } : null,
+              documents: reqDocs.map((d: any) => ({ name: d.file_name, status: d.status, rejection_reason: d.rejection_reason })),
+            };
+          });
+        })();
 
     const lovableKey = Deno.env.get("LOVABLE_API_KEY");
     if (!lovableKey) {
