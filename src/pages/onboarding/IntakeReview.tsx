@@ -308,15 +308,28 @@ export default function IntakeReview() {
                         <span className={missing > 0 ? "text-destructive font-medium" : ""}>{missing} missing</span>
                       </div>
                       <div className="mt-3 flex gap-2 flex-wrap">
-                        <Button size="sm" variant="secondary" className="gap-1.5" onClick={() => openReview(r)}>
-                          <Eye className="h-3.5 w-3.5" /> Review documents
-                        </Button>
-                        <Button size="sm" variant="outline" className="gap-1.5" onClick={() => requestClarification(r.category_id)}>
-                          <MessageSquare className="h-3.5 w-3.5" /> Request clarification
-                        </Button>
-                        <Button size="sm" className="gap-1.5 bg-gradient-primary hover:opacity-90 transition-opacity" disabled={busy || r.status === "approved"} onClick={() => approveCategory(r.id)}>
-                          <CheckCircle2 className="h-3.5 w-3.5" /> Approve category
-                        </Button>
+                        <button
+                          onClick={() => openReview(r)}
+                          className="group glass-surface lift-hover flex items-center gap-2 pl-1.5 pr-3 py-1.5 text-xs font-medium hover:border-primary/40"
+                        >
+                          <GlassIcon icon={Eye} size="sm" tone="neutral" className="h-7 w-7 rounded-lg" />
+                          Review documents
+                        </button>
+                        <button
+                          onClick={() => requestClarification(r.category_id)}
+                          className="group glass-surface lift-hover flex items-center gap-2 pl-1.5 pr-3 py-1.5 text-xs font-medium hover:border-primary/40"
+                        >
+                          <GlassIcon icon={MessageSquare} size="sm" tone="neutral" className="h-7 w-7 rounded-lg" />
+                          Request clarification
+                        </button>
+                        <button
+                          disabled={busy || r.status === "approved"}
+                          onClick={() => approveCategory(r.id)}
+                          className="group glass-surface lift-hover flex items-center gap-2 pl-1.5 pr-3 py-1.5 text-xs font-semibold text-primary hover:border-primary/60 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                        >
+                          <GlassIcon icon={CheckCircle2} size="sm" className="h-7 w-7 rounded-lg" />
+                          Approve category
+                        </button>
                       </div>
                     </div>
                   );
