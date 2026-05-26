@@ -351,7 +351,7 @@ export default function IntakeReview() {
                   </Button>
                 )}
                 {intake.status === "approved" && (
-                  <Button className="w-full gap-2 bg-gradient-brand hover:opacity-90 transition-opacity" disabled={busy} onClick={createDeal}>
+                  <Button className="w-full gap-2 bg-gradient-success hover:opacity-90 transition-opacity text-white" disabled={busy} onClick={createDeal}>
                     <Rocket className="h-4 w-4" /> Create Deal Workspace
                   </Button>
                 )}
