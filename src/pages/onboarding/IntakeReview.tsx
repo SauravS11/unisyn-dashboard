@@ -438,7 +438,7 @@ export default function IntakeReview() {
                             <Button size="sm" variant="outline" className="gap-1" onClick={() => openDoc(d.file_url)}>
                               <ExternalLink className="h-3.5 w-3.5" /> View
                             </Button>
-                            <Button size="sm" variant="default" className="gap-1 bg-gradient-primary hover:opacity-90 transition-opacity" disabled={d.status === "approved"} onClick={() => approveDoc(d.id)}>
+                            <Button size="sm" variant="default" className="gap-1 bg-gradient-success hover:opacity-90 transition-opacity text-white" disabled={d.status === "approved"} onClick={() => approveDoc(d.id)}>
                               <ThumbsUp className="h-3.5 w-3.5" /> Approve
                             </Button>
                             <Button size="sm" variant="destructive" className="gap-1" disabled={d.status === "rejected"} onClick={() => { setDenyDoc(d); setDenyReason(""); }}>
