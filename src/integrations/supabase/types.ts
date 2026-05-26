@@ -1312,36 +1312,21 @@ export type Database = {
         }
         Returns: string
       }
-      register_intake_document:
-        | {
-            Args: {
-              p_file_name: string
-              p_file_size: number
-              p_file_type: string
-              p_file_url: string
-              p_intake_id: string
-              p_requirement_id: string
-              p_token: string
-              p_upload_comment: string
-              p_uploaded_by_email: string
-            }
-            Returns: string
-          }
-        | {
-            Args: {
-              p_file_name: string
-              p_file_size: number
-              p_file_type: string
-              p_file_url: string
-              p_intake_id: string
-              p_replaces_document_id?: string
-              p_requirement_id: string
-              p_token: string
-              p_upload_comment: string
-              p_uploaded_by_email: string
-            }
-            Returns: string
-          }
+      register_intake_document: {
+        Args: {
+          p_file_name: string
+          p_file_size: number
+          p_file_type: string
+          p_file_url: string
+          p_intake_id: string
+          p_replaces_document_id?: string
+          p_requirement_id: string
+          p_token: string
+          p_upload_comment: string
+          p_uploaded_by_email: string
+        }
+        Returns: string
+      }
       seed_deal_from_intake: {
         Args: { p_deal_id: string; p_intake_id: string }
         Returns: Json
