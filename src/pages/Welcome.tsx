@@ -160,19 +160,5 @@ const WidgetCard = ({
     </Card>
   );
 };
-    <Card
-      onClick={onClick}
-      className="group cursor-pointer glass-surface lift-hover border-border/40"
-    >
-      <CardContent className="flex items-center justify-between p-4">
-        <div className="flex items-center gap-3 min-w-0">
-          <GlassIcon icon={Icon} size="sm" />
-          <span className="text-sm font-medium text-muted-foreground truncate">{label}</span>
-        </div>
-        <span className="font-display text-3xl tracking-tight tabular-nums">{value}</span>
-      </CardContent>
-    </Card>
-  );
-};
 
 export default Welcome;
