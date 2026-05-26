@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sparkles, AlertCircle, FileSearch, MessageCircleQuestion, ShieldAlert } from "lucide-react";
+import { Sparkles, AlertCircle, ShieldAlert } from "lucide-react";
 
 const items = [
   { icon: AlertCircle, label: "Missing information flags", note: "MIA will surface required-but-empty items here." },
