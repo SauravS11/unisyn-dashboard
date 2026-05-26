@@ -392,7 +392,7 @@ export default function IntakeReview() {
                   {reviewData.documents.map((d: any) => {
                     const req = reviewData.requirements.find((r: any) => r.id === d.requirement_id);
                     return (
-                      <div key={d.id} className="rounded-md border border-border/50 bg-background/40 p-3">
+                      <div key={d.id} className="glass-surface p-3">
                         <div className="flex items-start justify-between gap-2 flex-wrap">
                           <div className="min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
@@ -401,15 +401,23 @@ export default function IntakeReview() {
                                 {d.status}
                               </Badge>
                               {d.version > 1 && (
-                                <Badge variant="outline" className="gap-1 border-primary/40 text-primary">
+                                <Badge variant="outline" className="gap-1 border-primary/40 text-primary bg-primary/5">
                                   <RefreshCw className="h-3 w-3" /> New version (v{d.version})
                                 </Badge>
                               )}
                             </div>
                             {req && <p className="text-xs text-muted-foreground mt-0.5">{req.requirement_code} · {req.requirement_text}</p>}
-                            {d.upload_comment && <p className="text-xs italic mt-1">"{d.upload_comment}"</p>}
+                            {d.upload_comment && (
+                              <div className="flex items-start gap-1.5 text-xs italic mt-1 text-muted-foreground">
+                                <MessageSquare className="h-3 w-3 shrink-0 mt-0.5" />
+                                <span>"{d.upload_comment}"</span>
+                              </div>
+                            )}
                             {d.status === "rejected" && d.rejection_reason && (
-                              <p className="text-xs mt-1 text-destructive">Denied reason: {d.rejection_reason}</p>
+                              <div className="flex items-start gap-1.5 text-xs mt-1 text-destructive">
+                                <XCircle className="h-3 w-3 shrink-0 mt-0.5" />
+                                <span>Denied reason: {d.rejection_reason}</span>
+                              </div>
                             )}
                             {d.uploaded_by_email && <p className="text-[10px] text-muted-foreground mt-0.5">by {d.uploaded_by_email}</p>}
                           </div>
