@@ -4,10 +4,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/customClient";
 import { toast } from "sonner";
-import { ArrowLeft, CheckCircle2, MessageSquare, Rocket, FileText, ExternalLink, ThumbsUp, ThumbsDown, Eye } from "lucide-react";
+import { ArrowLeft, CheckCircle2, MessageSquare, Rocket, FileText, ExternalLink, ThumbsUp, ThumbsDown, Eye, RefreshCw } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { MiaInsights } from "@/components/MiaInsights";
 
