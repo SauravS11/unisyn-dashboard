@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Sparkles, AlertCircle, ShieldAlert, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/customClient";
+import { supabase as cloudSupabase } from "@/integrations/supabase/client";
 
 type Item = { category: string; text: string };
 type State = { loading: boolean; error: string | null; missing: Item[]; risks: Item[] };
@@ -14,7 +15,47 @@ export const MiaInsights = ({ title = "MIA Insights", intakeId }: { title?: stri
     if (!intakeId) return;
     setState((s) => ({ ...s, loading: true, error: null }));
     try {
-      const { data, error } = await (supabase as any).functions.invoke("mia-insights", { body: { intakeId } });
+      const [{ data: cats }, { data: reqs }, { data: resps }, { data: docs }] = await Promise.all([
+        (supabase as any).from("due_diligence_categories").select("id, category_code, category_name"),
+        (supabase as any).from("due_diligence_requirements").select("id, category_id, requirement_code, requirement_text, input_type, is_required"),
+        (supabase as any).from("client_requirement_responses").select("requirement_id, category_id, response_value, yes_no_value, applicable_status, comment, status").eq("client_intake_id", intakeId),
+        (supabase as any).from("client_requirement_documents").select("requirement_id, category_id, file_name, status, rejection_reason").eq("client_intake_id", intakeId),
+      ]);
+
+      const catMap: Record<string, any> = {};
+      (cats ?? []).forEach((c: any) => {
+        catMap[c.id] = c;
+      });
+
+      const checklistData = (reqs ?? []).map((r: any) => {
+        const resp = (resps ?? []).find((x: any) => x.requirement_id === r.id);
+        const reqDocs = (docs ?? []).filter((d: any) => d.requirement_id === r.id);
+
+        return {
+          category: [catMap[r.category_id]?.category_code, catMap[r.category_id]?.category_name].filter(Boolean).join(" "),
+          requirement: r.requirement_text,
+          input_type: r.input_type,
+          is_required: r.is_required,
+          response: resp
+            ? {
+                value: resp.response_value,
+                yes_no: resp.yes_no_value,
+                applicable: resp.applicable_status,
+                comment: resp.comment,
+                status: resp.status,
+              }
+            : null,
+          documents: reqDocs.map((d: any) => ({
+            name: d.file_name,
+            status: d.status,
+            rejection_reason: d.rejection_reason,
+          })),
+        };
+      });
+
+      const { data, error } = await (cloudSupabase as any).functions.invoke("mia-insights", {
+        body: { intakeId, checklistData },
+      });
       if (error) throw error;
       setState({
         loading: false,
