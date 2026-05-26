@@ -3,9 +3,6 @@ import { Sparkles, AlertCircle, ShieldAlert } from "lucide-react";
 
 const items = [
   { icon: AlertCircle, label: "Missing information flags", note: "MIA will surface required-but-empty items here." },
-  { icon: FileSearch, label: "Document summary", note: "Auto-generated overview of submitted documents." },
-  { icon: ShieldAlert, label: "Inconsistency flags", note: "Cross-checks across Part 1 and Part 2 responses." },
-  { icon: MessageCircleQuestion, label: "Suggested advisor questions", note: "Smart follow-up questions to ask the respondent." },
   { icon: ShieldAlert, label: "Risk notes", note: "Highlighted risk areas by category." },
 ];
 
