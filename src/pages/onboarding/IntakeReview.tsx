@@ -368,7 +368,7 @@ export default function IntakeReview() {
                 )}
               </CardContent>
             </Card>
-            <MiaInsights />
+            <MiaInsights intakeId={intakeId} />
           </div>
         </div>
       </div>
