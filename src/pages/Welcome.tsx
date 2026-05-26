@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import unisynLogo from "@/assets/unisyn-logo.svg";
-import { UserPlus, Briefcase, ArrowUpRight, Inbox, FileCheck2, Activity } from "lucide-react";
+import { UserPlus, Briefcase, ArrowUpRight, Inbox, FileCheck2, Activity, type LucideIcon } from "lucide-react";
 import { SignOutButton } from "@/components/SignOutButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { PageShell } from "@/components/ui/page-shell";
@@ -140,13 +140,26 @@ const WidgetCard = ({
   value,
   onClick,
 }: {
-  icon: React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>;
+  icon: LucideIcon;
   label: string;
   value: number;
   onClick?: () => void;
 }) => {
-  const Icon = icon as any;
   return (
+    <Card
+      onClick={onClick}
+      className="group cursor-pointer glass-surface lift-hover border-border/40"
+    >
+      <CardContent className="flex items-center justify-between p-4">
+        <div className="flex items-center gap-3 min-w-0">
+          <GlassIcon icon={icon} size="sm" />
+          <span className="text-sm font-medium text-muted-foreground truncate">{label}</span>
+        </div>
+        <span className="font-display text-3xl tracking-tight tabular-nums">{value}</span>
+      </CardContent>
+    </Card>
+  );
+};
     <Card
       onClick={onClick}
       className="group cursor-pointer glass-surface lift-hover border-border/40"
