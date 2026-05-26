@@ -59,7 +59,7 @@ export async function registerDocument(opts: {
 }) {
   const { accessToken, intakeId } = getIntakeSession();
   if (!accessToken || !intakeId) throw new Error("Session expired");
-  const { data, error } = await supabase.rpc("register_intake_document", {
+  const baseArgs = {
     p_intake_id: intakeId,
     p_token: accessToken,
     p_requirement_id: opts.requirementId,
@@ -69,8 +69,25 @@ export async function registerDocument(opts: {
     p_file_size: opts.fileSize ?? null,
     p_upload_comment: opts.uploadComment ?? null,
     p_uploaded_by_email: opts.uploadedByEmail ?? null,
+  };
+
+  const { data, error } = await supabase.rpc("register_intake_document", {
+    ...baseArgs,
     p_replaces_document_id: opts.replacesDocumentId ?? null,
   });
-  if (error) throw error;
+
+  if (error) {
+    const missingReplaceArg =
+      opts.replacesDocumentId !== undefined &&
+      /p_replaces_document_id/i.test(error.message ?? "") &&
+      /schema cache/i.test(error.message ?? "");
+
+    if (!missingReplaceArg) throw error;
+
+    const fallback = await supabase.rpc("register_intake_document", baseArgs);
+    if (fallback.error) throw fallback.error;
+    return fallback.data;
+  }
+
   return data;
 }
