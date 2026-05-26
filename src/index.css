@@ -59,10 +59,10 @@
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 100%);
     --gradient-brand: linear-gradient(135deg, hsl(0 85% 56%) 0%, hsl(15 90% 60%) 50%, hsl(350 80% 55%) 100%);
-    --gradient-mesh: radial-gradient(at 18% 22%, hsl(0 90% 80% / 0.18) 0px, transparent 50%),
-                     radial-gradient(at 82% 12%, hsl(15 90% 78% / 0.16) 0px, transparent 50%),
-                     radial-gradient(at 70% 78%, hsl(350 85% 80% / 0.14) 0px, transparent 50%),
-                     radial-gradient(at 22% 82%, hsl(0 0% 92%) 0px, transparent 55%);
+    --gradient-mesh: radial-gradient(at 18% 22%, hsl(0 0% 100% / 0.35) 0px, transparent 50%),
+                     radial-gradient(at 82% 12%, hsl(0 0% 96% / 0.30) 0px, transparent 50%),
+                     radial-gradient(at 70% 78%, hsl(0 0% 98% / 0.25) 0px, transparent 50%),
+                     radial-gradient(at 22% 82%, hsl(0 0% 94%) 0px, transparent 55%);
 
     --glass-blur: 28px;
     --radius: 1rem;
@@ -127,9 +127,9 @@
     --shadow-glow-primary: 0 8px 32px -8px hsl(var(--primary) / 0.45);
     --shadow-glow-primary-lg: 0 18px 50px -12px hsl(var(--primary) / 0.6);
 
-    --gradient-mesh: radial-gradient(at 18% 22%, hsl(0 90% 30% / 0.22) 0px, transparent 50%),
-                     radial-gradient(at 82% 12%, hsl(15 90% 32% / 0.18) 0px, transparent 50%),
-                     radial-gradient(at 70% 78%, hsl(350 85% 30% / 0.16) 0px, transparent 50%),
+    --gradient-mesh: radial-gradient(at 18% 22%, hsl(0 0% 20% / 0.30) 0px, transparent 50%),
+                     radial-gradient(at 82% 12%, hsl(0 0% 18% / 0.25) 0px, transparent 50%),
+                     radial-gradient(at 70% 78%, hsl(0 0% 22% / 0.22) 0px, transparent 50%),
                      radial-gradient(at 22% 82%, hsl(0 0% 10%) 0px, transparent 55%);
 
     --sidebar-background: 240 5.9% 10%;
@@ -235,12 +235,12 @@
   .ambient-orbs::before {
     width: 520px; height: 520px;
     top: -160px; left: -120px;
-    background: hsl(var(--primary) / 0.22);
+    background: hsl(0 0% 100% / 0.18);
   }
   .ambient-orbs::after {
     width: 600px; height: 600px;
     bottom: -200px; right: -140px;
-    background: hsl(var(--primary-glow) / 0.18);
+    background: hsl(0 0% 96% / 0.14);
   }
 
   /* Soft hover lift used everywhere */
