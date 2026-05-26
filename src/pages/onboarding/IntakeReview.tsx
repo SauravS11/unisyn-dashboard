@@ -8,9 +8,15 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/customClient";
 import { toast } from "sonner";
-import { ArrowLeft, CheckCircle2, MessageSquare, Rocket, FileText, ExternalLink, ThumbsUp, ThumbsDown, Eye, RefreshCw } from "lucide-react";
+import {
+  ArrowLeft, CheckCircle2, MessageSquare, Rocket, FileText,
+  ExternalLink, ThumbsUp, ThumbsDown, Eye, RefreshCw, ShieldCheck,
+  AlertCircle, FolderOpen, Mail, XCircle, Sparkles,
+} from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { MiaInsights } from "@/components/MiaInsights";
+import { GlassIcon } from "@/components/ui/glass-icon";
+import { PageShell } from "@/components/ui/page-shell";
 
 interface CatRow {
   id: string;
