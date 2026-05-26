@@ -453,10 +453,15 @@ export default function IntakeReview() {
                     const req = reviewData.requirements.find((r: any) => r.id === resp.requirement_id);
                     const val = resp.response_value ?? (resp.yes_no_value === null ? null : resp.yes_no_value ? "Yes" : "No") ?? resp.applicable_status;
                     return (
-                      <div key={resp.requirement_id} className="rounded-md border border-border/50 bg-background/40 p-3 text-sm">
+                      <div key={resp.requirement_id} className="glass-surface p-3 text-sm">
                         <p className="text-xs text-muted-foreground">{req?.requirement_code} · {req?.requirement_text}</p>
                         <p className="mt-1">{val ?? <span className="text-muted-foreground italic">No answer</span>}</p>
-                        {resp.comment && <p className="text-xs italic text-muted-foreground mt-1">"{resp.comment}"</p>}
+                        {resp.comment && (
+                          <div className="flex items-start gap-1.5 text-xs italic text-muted-foreground mt-1">
+                            <MessageSquare className="h-3 w-3 shrink-0 mt-0.5" />
+                            <span>"{resp.comment}"</span>
+                          </div>
+                        )}
                       </div>
                     );
                   })}
