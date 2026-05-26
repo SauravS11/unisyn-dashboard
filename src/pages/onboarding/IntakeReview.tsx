@@ -368,6 +368,13 @@ export default function IntakeReview() {
                           Review documents
                         </button>
                         <button
+                          onClick={() => { setSpecCat(r); setSpecForm({ name: "", email: "", role: "" }); }}
+                          className="group glass-surface lift-hover flex items-center gap-2 pl-1.5 pr-3 py-1.5 text-xs font-medium hover:border-primary/40"
+                        >
+                          <GlassIcon icon={UserPlus} size="sm" tone="neutral" className="h-7 w-7 rounded-lg" />
+                          Specialists{specialists[r.category_id]?.length ? ` (${specialists[r.category_id].length})` : ""}
+                        </button>
+                        <button
                           onClick={() => requestClarification(r.category_id)}
                           className="group glass-surface lift-hover flex items-center gap-2 pl-1.5 pr-3 py-1.5 text-xs font-medium hover:border-primary/40"
                         >
