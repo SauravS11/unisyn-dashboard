@@ -258,7 +258,7 @@ export default function IntakeReview() {
                       <span className="font-mono text-primary font-medium">{intake.intake_code}</span> · {intake.client_type} · Status: {intake.status.replace(/_/g, " ")}
                     </CardDescription>
                   </div>
-                  <Badge variant={intake.status === "approved" ? "default" : "secondary"} className="shrink-0">
+                  <Badge variant={intake.status === "approved" ? "success" : "secondary"} className="shrink-0">
                     {intake.status.replace(/_/g, " ")}
                   </Badge>
                 </div>
@@ -294,7 +294,7 @@ export default function IntakeReview() {
                             </div>
                           </div>
                         </div>
-                        <Badge variant={r.status === "approved" ? "default" : r.status === "changes_requested" ? "destructive" : "secondary"} className="shrink-0">
+                        <Badge variant={r.status === "approved" ? "success" : r.status === "changes_requested" ? "destructive" : "secondary"} className="shrink-0">
                           {r.status.replace(/_/g, " ")}
                         </Badge>
                       </div>
@@ -410,7 +410,7 @@ export default function IntakeReview() {
                           <div className="min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
                               <span className="font-medium text-sm truncate">{d.file_name}</span>
-                              <Badge variant={d.status === "approved" ? "default" : d.status === "rejected" ? "destructive" : "secondary"}>
+                              <Badge variant={d.status === "approved" ? "success" : d.status === "rejected" ? "destructive" : "secondary"}>
                                 {d.status}
                               </Badge>
                               {d.version > 1 && (
