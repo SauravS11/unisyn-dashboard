@@ -425,7 +425,7 @@ export default function IntakeReview() {
                             <Button size="sm" variant="outline" className="gap-1" onClick={() => openDoc(d.file_url)}>
                               <ExternalLink className="h-3.5 w-3.5" /> View
                             </Button>
-                            <Button size="sm" variant="default" className="gap-1" disabled={d.status === "approved"} onClick={() => approveDoc(d.id)}>
+                            <Button size="sm" variant="default" className="gap-1 bg-gradient-primary hover:opacity-90 transition-opacity" disabled={d.status === "approved"} onClick={() => approveDoc(d.id)}>
                               <ThumbsUp className="h-3.5 w-3.5" /> Approve
                             </Button>
                             <Button size="sm" variant="destructive" className="gap-1" disabled={d.status === "rejected"} onClick={() => { setDenyDoc(d); setDenyReason(""); }}>
@@ -440,8 +440,14 @@ export default function IntakeReview() {
               </section>
 
               <section>
-                <h4 className="text-sm font-semibold mb-2">Responses ({reviewData.responses.length})</h4>
-                {reviewData.responses.length === 0 && <p className="text-xs text-muted-foreground">No responses submitted yet.</p>}
+                <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                  <GlassIcon icon={Mail} size="sm" tone="neutral" /> Responses ({reviewData.responses.length})
+                </h4>
+                {reviewData.responses.length === 0 && (
+                  <div className="glass-surface p-4 text-xs text-muted-foreground flex items-center gap-2">
+                    <AlertCircle className="h-4 w-4" /> No responses submitted yet.
+                  </div>
+                )}
                 <div className="space-y-2">
                   {reviewData.responses.map((resp: any) => {
                     const req = reviewData.requirements.find((r: any) => r.id === resp.requirement_id);
