@@ -325,9 +325,9 @@ export default function IntakeReview() {
                         <button
                           disabled={busy || r.status === "approved"}
                           onClick={() => approveCategory(r.id)}
-                          className="group glass-surface lift-hover flex items-center gap-2 pl-1.5 pr-3 py-1.5 text-xs font-semibold text-primary hover:border-primary/60 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                          className="group glass-surface lift-hover flex items-center gap-2 pl-1.5 pr-3 py-1.5 text-xs font-semibold text-success hover:border-success/60 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                         >
-                          <GlassIcon icon={CheckCircle2} size="sm" className="h-7 w-7 rounded-lg" />
+                          <GlassIcon icon={CheckCircle2} size="sm" tone="success" className="h-7 w-7 rounded-lg" />
                           Approve category
                         </button>
                       </div>
@@ -346,7 +346,7 @@ export default function IntakeReview() {
               </CardHeader>
               <CardContent className="space-y-3 pt-0">
                 {intake.status !== "approved" && intake.status !== "converted_to_deal" && (
-                  <Button className="w-full gap-2 bg-gradient-primary hover:opacity-90 transition-opacity" disabled={!allApproved || busy} onClick={approveIntake}>
+                  <Button className="w-full gap-2 bg-gradient-success hover:opacity-90 transition-opacity text-white" disabled={!allApproved || busy} onClick={approveIntake}>
                     <CheckCircle2 className="h-4 w-4" /> Approve Full Intake
                   </Button>
                 )}
@@ -438,7 +438,7 @@ export default function IntakeReview() {
                             <Button size="sm" variant="outline" className="gap-1" onClick={() => openDoc(d.file_url)}>
                               <ExternalLink className="h-3.5 w-3.5" /> View
                             </Button>
-                            <Button size="sm" variant="default" className="gap-1 bg-gradient-primary hover:opacity-90 transition-opacity" disabled={d.status === "approved"} onClick={() => approveDoc(d.id)}>
+                            <Button size="sm" variant="default" className="gap-1 bg-gradient-success hover:opacity-90 transition-opacity text-white" disabled={d.status === "approved"} onClick={() => approveDoc(d.id)}>
                               <ThumbsUp className="h-3.5 w-3.5" /> Approve
                             </Button>
                             <Button size="sm" variant="destructive" className="gap-1" disabled={d.status === "rejected"} onClick={() => { setDenyDoc(d); setDenyReason(""); }}>
