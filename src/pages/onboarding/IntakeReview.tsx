@@ -462,6 +462,6 @@ export default function IntakeReview() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </PageShell>
   );
 }
