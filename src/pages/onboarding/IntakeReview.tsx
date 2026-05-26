@@ -576,6 +576,63 @@ export default function IntakeReview() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={!!specCat} onOpenChange={(o) => { if (!o) { setSpecCat(null); setSpecForm({ name: "", email: "", role: "" }); } }}>
+        <DialogContent className="max-w-lg glass-surface-strong">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-3">
+              <GlassIcon icon={UserPlus} size="sm" />
+              <span className="text-destructive font-bold">{specCat?.category_code}</span>
+              <span className="font-display tracking-tight">Specialists</span>
+            </DialogTitle>
+            <DialogDescription>
+              Assign subject matter specialists to this category. They will be carried into the deal workspace when the intake is converted.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3">
+            {(specialists[specCat?.category_id ?? ""] ?? []).length > 0 && (
+              <div className="space-y-2">
+                {(specialists[specCat?.category_id ?? ""] ?? []).map((s) => (
+                  <div key={s.id} className="glass-surface p-3 flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="font-medium text-sm truncate">{s.name}</div>
+                      <div className="text-xs text-muted-foreground truncate">{s.email}{s.role ? ` · ${s.role}` : ""}</div>
+                    </div>
+                    <Button size="sm" variant="ghost" onClick={() => removeSpecialist(s.id)} className="text-destructive hover:text-destructive">
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="space-y-2 pt-2 border-t border-border/40">
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <Label className="text-xs">Name *</Label>
+                  <Input value={specForm.name} onChange={(e) => setSpecForm({ ...specForm, name: e.target.value })} placeholder="Jane Doe" />
+                </div>
+                <div>
+                  <Label className="text-xs">Email *</Label>
+                  <Input type="email" value={specForm.email} onChange={(e) => setSpecForm({ ...specForm, email: e.target.value })} placeholder="jane@firm.com" />
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs">Role</Label>
+                <Input value={specForm.role} onChange={(e) => setSpecForm({ ...specForm, role: e.target.value })} placeholder="e.g. Legal Advisor" />
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSpecCat(null)} disabled={specBusy}>Close</Button>
+            <Button onClick={addSpecialist} disabled={specBusy || !specForm.name.trim() || !specForm.email.trim()} className="gap-1.5">
+              <UserPlus className="h-3.5 w-3.5" /> Add specialist
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </PageShell>
   );
 }
