@@ -8,7 +8,8 @@ import { supabase } from "@/integrations/supabase/customClient";
 import { getIntakeSession, registerDocument } from "@/lib/intakeClient";
 import { RespondentHeader } from "@/components/RespondentHeader";
 import { toast } from "sonner";
-import { ArrowLeft, CheckCircle2, Save, FileText } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Save, FileText, AlertCircle, RefreshCw, CheckCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface Req {
   id: string;
