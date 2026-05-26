@@ -325,9 +325,9 @@ export default function IntakeReview() {
                         <button
                           disabled={busy || r.status === "approved"}
                           onClick={() => approveCategory(r.id)}
-                          className="group glass-surface lift-hover flex items-center gap-2 pl-1.5 pr-3 py-1.5 text-xs font-semibold text-primary hover:border-primary/60 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                          className="group glass-surface lift-hover flex items-center gap-2 pl-1.5 pr-3 py-1.5 text-xs font-semibold text-success hover:border-success/60 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                         >
-                          <GlassIcon icon={CheckCircle2} size="sm" className="h-7 w-7 rounded-lg" />
+                          <GlassIcon icon={CheckCircle2} size="sm" tone="success" className="h-7 w-7 rounded-lg" />
                           Approve category
                         </button>
                       </div>
