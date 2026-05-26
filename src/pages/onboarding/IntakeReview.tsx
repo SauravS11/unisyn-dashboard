@@ -498,8 +498,8 @@ export default function IntakeReview() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => { setDenyDoc(null); setDenyReason(""); }} disabled={denyBusy}>Cancel</Button>
-            <Button variant="destructive" onClick={confirmDeny} disabled={denyBusy || !denyReason.trim()} className="gap-1">
-              <ThumbsDown className="h-3.5 w-3.5" /> Confirm denial
+            <Button variant="destructive" onClick={confirmDeny} disabled={denyBusy || !denyReason.trim()} className="gap-1.5">
+              <XCircle className="h-3.5 w-3.5" /> Confirm denial
             </Button>
           </DialogFooter>
         </DialogContent>
