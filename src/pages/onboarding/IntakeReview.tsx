@@ -228,44 +228,56 @@ export default function IntakeReview() {
     } finally { setBusy(false); }
   };
 
-  if (loading || !intake) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading…</div>;
+  if (loading || !intake) return (
+    <PageShell>
+      <div className="min-h-screen flex items-center justify-center text-muted-foreground">
+        <div className="flex flex-col items-center gap-3">
+          <GlassIcon icon={FolderOpen} size="lg" />
+          <span>Loading…</span>
+        </div>
+      </div>
+    </PageShell>
+  );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted py-10 px-4">
-      <div className="absolute top-4 right-4"><ThemeToggle /></div>
-      <div className="max-w-6xl mx-auto">
-        <Button variant="ghost" size="sm" onClick={() => navigate("/welcome")} className="mb-4 gap-1">
+    <PageShell>
+      <div className="absolute top-4 right-4 z-50"><ThemeToggle /></div>
+      <div className="max-w-6xl mx-auto py-10 px-4">
+        <Button variant="ghost" size="sm" onClick={() => navigate("/welcome")} className="mb-4 gap-2 text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Back
         </Button>
 
         <div className="grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
-            <Card className="backdrop-blur-xl bg-card/70 border-border/50 shadow-2xl">
+            <Card className="glass-surface-strong">
               <CardHeader>
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <CardTitle className="text-2xl font-bold">{intake.company_name}</CardTitle>
-                    <CardDescription>
-                      <span className="font-mono text-primary">{intake.intake_code}</span> · {intake.client_type} · Status: {intake.status.replace(/_/g, " ")}
+                    <CardTitle className="text-2xl font-bold font-display tracking-tight">{intake.company_name}</CardTitle>
+                    <CardDescription className="mt-1">
+                      <span className="font-mono text-primary font-medium">{intake.intake_code}</span> · {intake.client_type} · Status: {intake.status.replace(/_/g, " ")}
                     </CardDescription>
                   </div>
-                  <Badge variant={intake.status === "approved" ? "default" : "secondary"}>{intake.status.replace(/_/g, " ")}</Badge>
+                  <Badge variant={intake.status === "approved" ? "default" : "secondary"} className="shrink-0">
+                    {intake.status.replace(/_/g, " ")}
+                  </Badge>
                 </div>
               </CardHeader>
               <CardContent className="space-y-2">
                 <div className="flex items-center gap-3">
                   <Progress value={overall} className="h-2 flex-1" />
-                  <span className="text-sm font-semibold tabular-nums">{overall}%</span>
+                  <span className="text-sm font-semibold tabular-nums text-primary">{overall}%</span>
                 </div>
                 <p className="text-xs text-muted-foreground">Overall completion across selected categories</p>
               </CardContent>
             </Card>
 
-            <Card className="backdrop-blur-xl bg-card/70 border-border/50 shadow-2xl">
-              <CardHeader>
-                <CardTitle className="text-lg">Categories</CardTitle>
+            <Card className="glass-surface">
+              <CardHeader className="flex flex-row items-center gap-3 pb-2">
+                <GlassIcon icon={ShieldCheck} size="sm" />
+                <CardTitle className="text-lg font-display tracking-tight">Categories</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-3 pt-0">
                 {rows.length === 0 && <p className="text-sm text-muted-foreground">No categories selected.</p>}
                 {rows.map((r) => {
                   const pct = r.total ? Math.round(((r.responses + r.documents) / r.total) * 100) : 0;
