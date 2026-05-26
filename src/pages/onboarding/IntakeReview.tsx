@@ -283,33 +283,38 @@ export default function IntakeReview() {
                   const pct = r.total ? Math.round(((r.responses + r.documents) / r.total) * 100) : 0;
                   const missing = Math.max(0, r.total - r.responses - r.documents);
                   return (
-                    <div key={r.id} className="rounded-lg border border-border/50 bg-card/40 p-4">
+                    <div key={r.id} className="glass-surface p-4 lift-hover">
                       <div className="flex items-center justify-between gap-3 flex-wrap">
-                        <div className="flex items-baseline gap-2">
-                          <span className="text-xs font-bold text-destructive">{r.category_code}</span>
-                          <h3 className="font-semibold">{r.category_name}</h3>
+                        <div className="flex items-center gap-3">
+                          <GlassIcon icon={FolderOpen} size="sm" tone="neutral" />
+                          <div>
+                            <div className="flex items-baseline gap-2">
+                              <span className="text-xs font-bold text-destructive">{r.category_code}</span>
+                              <h3 className="font-semibold">{r.category_name}</h3>
+                            </div>
+                          </div>
                         </div>
-                        <Badge variant={r.status === "approved" ? "default" : r.status === "changes_requested" ? "destructive" : "secondary"}>
+                        <Badge variant={r.status === "approved" ? "default" : r.status === "changes_requested" ? "destructive" : "secondary"} className="shrink-0">
                           {r.status.replace(/_/g, " ")}
                         </Badge>
                       </div>
                       <div className="mt-3 flex items-center gap-3">
                         <Progress value={pct} className="h-1.5 flex-1" />
-                        <span className="text-xs tabular-nums">{pct}%</span>
+                        <span className="text-xs tabular-nums text-muted-foreground">{pct}%</span>
                       </div>
                       <div className="mt-2 grid grid-cols-3 gap-2 text-xs text-muted-foreground">
                         <span>{r.responses} responses</span>
                         <span>{r.documents} documents</span>
-                        <span className={missing > 0 ? "text-destructive" : ""}>{missing} missing</span>
+                        <span className={missing > 0 ? "text-destructive font-medium" : ""}>{missing} missing</span>
                       </div>
                       <div className="mt-3 flex gap-2 flex-wrap">
-                        <Button size="sm" variant="secondary" className="gap-1" onClick={() => openReview(r)}>
+                        <Button size="sm" variant="secondary" className="gap-1.5" onClick={() => openReview(r)}>
                           <Eye className="h-3.5 w-3.5" /> Review documents
                         </Button>
-                        <Button size="sm" variant="outline" className="gap-1" onClick={() => requestClarification(r.category_id)}>
+                        <Button size="sm" variant="outline" className="gap-1.5" onClick={() => requestClarification(r.category_id)}>
                           <MessageSquare className="h-3.5 w-3.5" /> Request clarification
                         </Button>
-                        <Button size="sm" className="gap-1" disabled={busy || r.status === "approved"} onClick={() => approveCategory(r.id)}>
+                        <Button size="sm" className="gap-1.5 bg-gradient-primary hover:opacity-90 transition-opacity" disabled={busy || r.status === "approved"} onClick={() => approveCategory(r.id)}>
                           <CheckCircle2 className="h-3.5 w-3.5" /> Approve category
                         </Button>
                       </div>
