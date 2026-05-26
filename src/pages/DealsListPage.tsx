@@ -207,7 +207,7 @@ const DealsListPage = () => {
               {viewMode === 'active' ? `Deal Completed (${completedCount})` : 'Active Deals'}
             </Button>
             <Button 
-              onClick={() => navigate("/deals/create")}
+              onClick={() => navigate("/onboarding/new")}
               className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all w-full sm:w-auto touch-manipulation"
             >
               <Plus className="h-5 w-5 mr-2" />
@@ -252,7 +252,7 @@ const DealsListPage = () => {
               </p>
               {viewMode === 'active' && (
                 <Button 
-                  onClick={() => navigate("/deals/create")}
+                  onClick={() => navigate("/onboarding/new")}
                   className="bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
                   <Plus className="h-4 w-4 mr-2" />

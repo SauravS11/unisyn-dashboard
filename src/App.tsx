@@ -8,10 +8,6 @@ import LandingPage from "./pages/LandingPage";
 import Index from "./pages/Index";
 import Welcome from "./pages/Welcome";
 import DealsListPage from "./pages/DealsListPage";
-import CreateDeal from "./pages/CreateDeal";
-import CoreDealTeam from "./pages/CoreDealTeam";
-import SelectCategories from "./pages/SelectCategories";
-import DueDiligenceChecklist from "./pages/DueDiligenceChecklist";
 import DealDashboard from "./pages/DealDashboard";
 import ExternalDealDashboard from "./pages/ExternalDealDashboard";
 import NotFound from "./pages/NotFound";
@@ -39,11 +35,6 @@ const App = () => (
             <Route path="/auth" element={<Index />} />
             <Route path="/welcome" element={<Welcome />} />
             <Route path="/deals" element={<DealsListPage />} />
-            <Route path="/deals/create" element={<CreateDeal />} />
-            <Route path="/deals/:id/edit" element={<CreateDeal />} />
-            <Route path="/deals/:id/team" element={<CoreDealTeam />} />
-            <Route path="/deals/:id/categories" element={<SelectCategories />} />
-            <Route path="/deals/:id/checklist" element={<DueDiligenceChecklist />} />
             <Route path="/deals/:id/dashboard" element={<DealDashboard />} />
             <Route path="/external/deals/:dealId/dashboard" element={<ExternalDealDashboard />} />
 
