@@ -6,12 +6,14 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/customClient";
 import { toast } from "sonner";
 import {
   ArrowLeft, CheckCircle2, MessageSquare, Rocket, FileText,
   ExternalLink, ThumbsUp, ThumbsDown, Eye, RefreshCw, ShieldCheck,
-  AlertCircle, FolderOpen, Mail, XCircle, Sparkles,
+  AlertCircle, FolderOpen, Mail, XCircle, Sparkles, UserPlus, Trash2,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { MiaInsights } from "@/components/MiaInsights";
@@ -43,6 +45,56 @@ export default function IntakeReview() {
   const [denyDoc, setDenyDoc] = useState<any | null>(null);
   const [denyReason, setDenyReason] = useState("");
   const [denyBusy, setDenyBusy] = useState(false);
+
+  const [specialists, setSpecialists] = useState<Record<string, Array<{ id: string; name: string; email: string; role: string | null }>>>({});
+  const [specCat, setSpecCat] = useState<CatRow | null>(null);
+  const [specForm, setSpecForm] = useState({ name: "", email: "", role: "" });
+  const [specBusy, setSpecBusy] = useState(false);
+
+  const loadSpecialists = async () => {
+    const { data } = await (supabase as any).from("intake_specialists")
+      .select("id, category_id, name, email, role")
+      .eq("client_intake_id", intakeId);
+    const grouped: Record<string, any[]> = {};
+    (data ?? []).forEach((s: any) => {
+      grouped[s.category_id] ??= [];
+      grouped[s.category_id].push(s);
+    });
+    setSpecialists(grouped);
+  };
+
+  const addSpecialist = async () => {
+    if (!specCat) return;
+    if (!specForm.name.trim() || !specForm.email.trim()) {
+      toast.error("Name and email are required");
+      return;
+    }
+    setSpecBusy(true);
+    try {
+      const { error } = await (supabase as any).from("intake_specialists").insert({
+        client_intake_id: intakeId,
+        category_id: specCat.category_id,
+        name: specForm.name.trim(),
+        email: specForm.email.trim(),
+        role: specForm.role.trim() || null,
+      });
+      if (error) throw error;
+      toast.success("Specialist added");
+      setSpecForm({ name: "", email: "", role: "" });
+      await loadSpecialists();
+    } catch (e: any) {
+      toast.error(e.message ?? "Failed to add specialist");
+    } finally {
+      setSpecBusy(false);
+    }
+  };
+
+  const removeSpecialist = async (id: string) => {
+    const { error } = await (supabase as any).from("intake_specialists").delete().eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Specialist removed");
+    loadSpecialists();
+  };
 
   const openReview = async (row: CatRow) => {
     setReviewCat(row);
@@ -149,7 +201,7 @@ export default function IntakeReview() {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, [intakeId]);
+  useEffect(() => { load(); loadSpecialists(); }, [intakeId]);
 
   const overall = useMemo(() => {
     if (rows.length === 0) return 0;
@@ -314,6 +366,13 @@ export default function IntakeReview() {
                         >
                           <GlassIcon icon={Eye} size="sm" tone="neutral" className="h-7 w-7 rounded-lg" />
                           Review documents
+                        </button>
+                        <button
+                          onClick={() => { setSpecCat(r); setSpecForm({ name: "", email: "", role: "" }); }}
+                          className="group glass-surface lift-hover flex items-center gap-2 pl-1.5 pr-3 py-1.5 text-xs font-medium hover:border-primary/40"
+                        >
+                          <GlassIcon icon={UserPlus} size="sm" tone="neutral" className="h-7 w-7 rounded-lg" />
+                          Specialists{specialists[r.category_id]?.length ? ` (${specialists[r.category_id].length})` : ""}
                         </button>
                         <button
                           onClick={() => requestClarification(r.category_id)}
@@ -513,6 +572,63 @@ export default function IntakeReview() {
             <Button variant="outline" onClick={() => { setDenyDoc(null); setDenyReason(""); }} disabled={denyBusy}>Cancel</Button>
             <Button variant="destructive" onClick={confirmDeny} disabled={denyBusy || !denyReason.trim()} className="gap-1.5">
               <XCircle className="h-3.5 w-3.5" /> Confirm denial
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!specCat} onOpenChange={(o) => { if (!o) { setSpecCat(null); setSpecForm({ name: "", email: "", role: "" }); } }}>
+        <DialogContent className="max-w-lg glass-surface-strong">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-3">
+              <GlassIcon icon={UserPlus} size="sm" />
+              <span className="text-destructive font-bold">{specCat?.category_code}</span>
+              <span className="font-display tracking-tight">Specialists</span>
+            </DialogTitle>
+            <DialogDescription>
+              Assign subject matter specialists to this category. They will be carried into the deal workspace when the intake is converted.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3">
+            {(specialists[specCat?.category_id ?? ""] ?? []).length > 0 && (
+              <div className="space-y-2">
+                {(specialists[specCat?.category_id ?? ""] ?? []).map((s) => (
+                  <div key={s.id} className="glass-surface p-3 flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="font-medium text-sm truncate">{s.name}</div>
+                      <div className="text-xs text-muted-foreground truncate">{s.email}{s.role ? ` · ${s.role}` : ""}</div>
+                    </div>
+                    <Button size="sm" variant="ghost" onClick={() => removeSpecialist(s.id)} className="text-destructive hover:text-destructive">
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="space-y-2 pt-2 border-t border-border/40">
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <Label className="text-xs">Name *</Label>
+                  <Input value={specForm.name} onChange={(e) => setSpecForm({ ...specForm, name: e.target.value })} placeholder="Jane Doe" />
+                </div>
+                <div>
+                  <Label className="text-xs">Email *</Label>
+                  <Input type="email" value={specForm.email} onChange={(e) => setSpecForm({ ...specForm, email: e.target.value })} placeholder="jane@firm.com" />
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs">Role</Label>
+                <Input value={specForm.role} onChange={(e) => setSpecForm({ ...specForm, role: e.target.value })} placeholder="e.g. Legal Advisor" />
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSpecCat(null)} disabled={specBusy}>Close</Button>
+            <Button onClick={addSpecialist} disabled={specBusy || !specForm.name.trim() || !specForm.email.trim()} className="gap-1.5">
+              <UserPlus className="h-3.5 w-3.5" /> Add specialist
             </Button>
           </DialogFooter>
         </DialogContent>
