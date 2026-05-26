@@ -1205,6 +1205,39 @@ export type Database = {
           },
         ]
       }
+      intake_specialists: {
+        Row: {
+          category_id: string
+          client_intake_id: string
+          created_at: string
+          email: string
+          id: string
+          name: string
+          role: string | null
+          updated_at: string
+        }
+        Insert: {
+          category_id: string
+          client_intake_id: string
+          created_at?: string
+          email: string
+          id?: string
+          name: string
+          role?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string
+          client_intake_id?: string
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          role?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
