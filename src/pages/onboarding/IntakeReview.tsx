@@ -326,26 +326,32 @@ export default function IntakeReview() {
           </div>
 
           <div className="space-y-6">
-            <Card className="backdrop-blur-xl bg-card/70 border-border/50 shadow-2xl">
-              <CardHeader><CardTitle className="text-lg">Next Steps</CardTitle></CardHeader>
-              <CardContent className="space-y-3">
+            <Card className="glass-surface-strong">
+              <CardHeader className="flex flex-row items-center gap-3 pb-2">
+                <GlassIcon icon={Sparkles} size="sm" />
+                <CardTitle className="text-lg font-display tracking-tight">Next Steps</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 pt-0">
                 {intake.status !== "approved" && intake.status !== "converted_to_deal" && (
-                  <Button className="w-full gap-2" disabled={!allApproved || busy} onClick={approveIntake}>
+                  <Button className="w-full gap-2 bg-gradient-primary hover:opacity-90 transition-opacity" disabled={!allApproved || busy} onClick={approveIntake}>
                     <CheckCircle2 className="h-4 w-4" /> Approve Full Intake
                   </Button>
                 )}
                 {intake.status === "approved" && (
-                  <Button className="w-full gap-2" disabled={busy} onClick={createDeal}>
+                  <Button className="w-full gap-2 bg-gradient-brand hover:opacity-90 transition-opacity" disabled={busy} onClick={createDeal}>
                     <Rocket className="h-4 w-4" /> Create Deal Workspace
                   </Button>
                 )}
                 {intake.status === "converted_to_deal" && intake.converted_deal_id && (
                   <Button className="w-full gap-2" variant="outline" onClick={() => navigate(`/deals/${intake.converted_deal_id}/dashboard`)}>
-                    Open Deal Dashboard
+                    <ExternalLink className="h-4 w-4" /> Open Deal Dashboard
                   </Button>
                 )}
                 {!allApproved && intake.status !== "converted_to_deal" && (
-                  <p className="text-xs text-muted-foreground">All categories must be approved before creating a deal.</p>
+                  <div className="flex items-start gap-2 text-xs text-muted-foreground">
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5 text-destructive" />
+                    <span>All categories must be approved before creating a deal.</span>
+                  </div>
                 )}
               </CardContent>
             </Card>
@@ -355,16 +361,21 @@ export default function IntakeReview() {
       </div>
 
       <Dialog open={!!reviewCat} onOpenChange={(o) => !o && setReviewCat(null)}>
-        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto backdrop-blur-xl bg-card/95 border-border/50">
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto glass-surface-strong">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-3">
+              <GlassIcon icon={ShieldCheck} size="sm" />
               <span className="text-destructive font-bold">{reviewCat?.category_code}</span>
-              {reviewCat?.category_name}
+              <span className="font-display tracking-tight">{reviewCat?.category_name}</span>
             </DialogTitle>
             <DialogDescription>Review uploaded documents and respondent answers. Approve or deny each document.</DialogDescription>
           </DialogHeader>
 
-          {reviewLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
+          {reviewLoading && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground py-4">
+              <RefreshCw className="h-4 w-4 animate-spin" /> Loading…
+            </div>
+          )}
 
           {reviewData && (
             <div className="space-y-6">
