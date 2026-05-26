@@ -473,15 +473,21 @@ export default function IntakeReview() {
       </Dialog>
 
       <Dialog open={!!denyDoc} onOpenChange={(o) => { if (!o) { setDenyDoc(null); setDenyReason(""); } }}>
-        <DialogContent className="max-w-md backdrop-blur-xl bg-card/95 border-border/50">
+        <DialogContent className="max-w-md glass-surface-strong">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2"><ThumbsDown className="h-4 w-4 text-destructive" /> Deny document</DialogTitle>
+            <DialogTitle className="flex items-center gap-3">
+              <GlassIcon icon={XCircle} size="sm" tone="neutral" />
+              <span>Deny document</span>
+            </DialogTitle>
             <DialogDescription>
               Add a comment explaining why this document is being denied. The respondent will see your feedback and can re-upload a new version.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2">
-            <p className="text-xs text-muted-foreground truncate">{denyDoc?.file_name}</p>
+            <div className="flex items-center gap-2 glass-surface p-2 rounded-lg">
+              <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+              <p className="text-xs text-muted-foreground truncate">{denyDoc?.file_name}</p>
+            </div>
             <Textarea
               rows={4}
               placeholder="e.g. This is the wrong document — please upload the signed copy dated within the last 12 months."
