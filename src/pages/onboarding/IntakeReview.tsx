@@ -380,8 +380,14 @@ export default function IntakeReview() {
           {reviewData && (
             <div className="space-y-6">
               <section>
-                <h4 className="text-sm font-semibold mb-2 flex items-center gap-2"><FileText className="h-4 w-4" /> Documents ({reviewData.documents.length})</h4>
-                {reviewData.documents.length === 0 && <p className="text-xs text-muted-foreground">No documents uploaded yet.</p>}
+                <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                  <GlassIcon icon={FileText} size="sm" /> Documents ({reviewData.documents.length})
+                </h4>
+                {reviewData.documents.length === 0 && (
+                  <div className="glass-surface p-4 text-xs text-muted-foreground flex items-center gap-2">
+                    <AlertCircle className="h-4 w-4" /> No documents uploaded yet.
+                  </div>
+                )}
                 <div className="space-y-2">
                   {reviewData.documents.map((d: any) => {
                     const req = reviewData.requirements.find((r: any) => r.id === d.requirement_id);
