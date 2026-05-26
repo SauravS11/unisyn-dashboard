@@ -8,9 +8,15 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/customClient";
 import { toast } from "sonner";
-import { ArrowLeft, CheckCircle2, MessageSquare, Rocket, FileText, ExternalLink, ThumbsUp, ThumbsDown, Eye, RefreshCw } from "lucide-react";
+import {
+  ArrowLeft, CheckCircle2, MessageSquare, Rocket, FileText,
+  ExternalLink, ThumbsUp, ThumbsDown, Eye, RefreshCw, ShieldCheck,
+  AlertCircle, FolderOpen, Mail, XCircle, Sparkles,
+} from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { MiaInsights } from "@/components/MiaInsights";
+import { GlassIcon } from "@/components/ui/glass-icon";
+import { PageShell } from "@/components/ui/page-shell";
 
 interface CatRow {
   id: string;
@@ -222,76 +228,93 @@ export default function IntakeReview() {
     } finally { setBusy(false); }
   };
 
-  if (loading || !intake) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading…</div>;
+  if (loading || !intake) return (
+    <PageShell>
+      <div className="min-h-screen flex items-center justify-center text-muted-foreground">
+        <div className="flex flex-col items-center gap-3">
+          <GlassIcon icon={FolderOpen} size="lg" />
+          <span>Loading…</span>
+        </div>
+      </div>
+    </PageShell>
+  );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted py-10 px-4">
-      <div className="absolute top-4 right-4"><ThemeToggle /></div>
-      <div className="max-w-6xl mx-auto">
-        <Button variant="ghost" size="sm" onClick={() => navigate("/welcome")} className="mb-4 gap-1">
+    <PageShell>
+      <div className="absolute top-4 right-4 z-50"><ThemeToggle /></div>
+      <div className="max-w-6xl mx-auto py-10 px-4">
+        <Button variant="ghost" size="sm" onClick={() => navigate("/welcome")} className="mb-4 gap-2 text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Back
         </Button>
 
         <div className="grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
-            <Card className="backdrop-blur-xl bg-card/70 border-border/50 shadow-2xl">
+            <Card className="glass-surface-strong">
               <CardHeader>
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <CardTitle className="text-2xl font-bold">{intake.company_name}</CardTitle>
-                    <CardDescription>
-                      <span className="font-mono text-primary">{intake.intake_code}</span> · {intake.client_type} · Status: {intake.status.replace(/_/g, " ")}
+                    <CardTitle className="text-2xl font-bold font-display tracking-tight">{intake.company_name}</CardTitle>
+                    <CardDescription className="mt-1">
+                      <span className="font-mono text-primary font-medium">{intake.intake_code}</span> · {intake.client_type} · Status: {intake.status.replace(/_/g, " ")}
                     </CardDescription>
                   </div>
-                  <Badge variant={intake.status === "approved" ? "default" : "secondary"}>{intake.status.replace(/_/g, " ")}</Badge>
+                  <Badge variant={intake.status === "approved" ? "default" : "secondary"} className="shrink-0">
+                    {intake.status.replace(/_/g, " ")}
+                  </Badge>
                 </div>
               </CardHeader>
               <CardContent className="space-y-2">
                 <div className="flex items-center gap-3">
                   <Progress value={overall} className="h-2 flex-1" />
-                  <span className="text-sm font-semibold tabular-nums">{overall}%</span>
+                  <span className="text-sm font-semibold tabular-nums text-primary">{overall}%</span>
                 </div>
                 <p className="text-xs text-muted-foreground">Overall completion across selected categories</p>
               </CardContent>
             </Card>
 
-            <Card className="backdrop-blur-xl bg-card/70 border-border/50 shadow-2xl">
-              <CardHeader>
-                <CardTitle className="text-lg">Categories</CardTitle>
+            <Card className="glass-surface">
+              <CardHeader className="flex flex-row items-center gap-3 pb-2">
+                <GlassIcon icon={ShieldCheck} size="sm" />
+                <CardTitle className="text-lg font-display tracking-tight">Categories</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-3 pt-0">
                 {rows.length === 0 && <p className="text-sm text-muted-foreground">No categories selected.</p>}
                 {rows.map((r) => {
                   const pct = r.total ? Math.round(((r.responses + r.documents) / r.total) * 100) : 0;
                   const missing = Math.max(0, r.total - r.responses - r.documents);
                   return (
-                    <div key={r.id} className="rounded-lg border border-border/50 bg-card/40 p-4">
+                    <div key={r.id} className="glass-surface p-4 lift-hover">
                       <div className="flex items-center justify-between gap-3 flex-wrap">
-                        <div className="flex items-baseline gap-2">
-                          <span className="text-xs font-bold text-destructive">{r.category_code}</span>
-                          <h3 className="font-semibold">{r.category_name}</h3>
+                        <div className="flex items-center gap-3">
+                          <GlassIcon icon={FolderOpen} size="sm" tone="neutral" />
+                          <div>
+                            <div className="flex items-baseline gap-2">
+                              <span className="text-xs font-bold text-destructive">{r.category_code}</span>
+                              <h3 className="font-semibold">{r.category_name}</h3>
+                            </div>
+                          </div>
                         </div>
-                        <Badge variant={r.status === "approved" ? "default" : r.status === "changes_requested" ? "destructive" : "secondary"}>
+                        <Badge variant={r.status === "approved" ? "default" : r.status === "changes_requested" ? "destructive" : "secondary"} className="shrink-0">
                           {r.status.replace(/_/g, " ")}
                         </Badge>
                       </div>
                       <div className="mt-3 flex items-center gap-3">
                         <Progress value={pct} className="h-1.5 flex-1" />
-                        <span className="text-xs tabular-nums">{pct}%</span>
+                        <span className="text-xs tabular-nums text-muted-foreground">{pct}%</span>
                       </div>
                       <div className="mt-2 grid grid-cols-3 gap-2 text-xs text-muted-foreground">
                         <span>{r.responses} responses</span>
                         <span>{r.documents} documents</span>
-                        <span className={missing > 0 ? "text-destructive" : ""}>{missing} missing</span>
+                        <span className={missing > 0 ? "text-destructive font-medium" : ""}>{missing} missing</span>
                       </div>
                       <div className="mt-3 flex gap-2 flex-wrap">
-                        <Button size="sm" variant="secondary" className="gap-1" onClick={() => openReview(r)}>
+                        <Button size="sm" variant="secondary" className="gap-1.5" onClick={() => openReview(r)}>
                           <Eye className="h-3.5 w-3.5" /> Review documents
                         </Button>
-                        <Button size="sm" variant="outline" className="gap-1" onClick={() => requestClarification(r.category_id)}>
+                        <Button size="sm" variant="outline" className="gap-1.5" onClick={() => requestClarification(r.category_id)}>
                           <MessageSquare className="h-3.5 w-3.5" /> Request clarification
                         </Button>
-                        <Button size="sm" className="gap-1" disabled={busy || r.status === "approved"} onClick={() => approveCategory(r.id)}>
+                        <Button size="sm" className="gap-1.5 bg-gradient-primary hover:opacity-90 transition-opacity" disabled={busy || r.status === "approved"} onClick={() => approveCategory(r.id)}>
                           <CheckCircle2 className="h-3.5 w-3.5" /> Approve category
                         </Button>
                       </div>
@@ -303,26 +326,32 @@ export default function IntakeReview() {
           </div>
 
           <div className="space-y-6">
-            <Card className="backdrop-blur-xl bg-card/70 border-border/50 shadow-2xl">
-              <CardHeader><CardTitle className="text-lg">Next Steps</CardTitle></CardHeader>
-              <CardContent className="space-y-3">
+            <Card className="glass-surface-strong">
+              <CardHeader className="flex flex-row items-center gap-3 pb-2">
+                <GlassIcon icon={Sparkles} size="sm" />
+                <CardTitle className="text-lg font-display tracking-tight">Next Steps</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 pt-0">
                 {intake.status !== "approved" && intake.status !== "converted_to_deal" && (
-                  <Button className="w-full gap-2" disabled={!allApproved || busy} onClick={approveIntake}>
+                  <Button className="w-full gap-2 bg-gradient-primary hover:opacity-90 transition-opacity" disabled={!allApproved || busy} onClick={approveIntake}>
                     <CheckCircle2 className="h-4 w-4" /> Approve Full Intake
                   </Button>
                 )}
                 {intake.status === "approved" && (
-                  <Button className="w-full gap-2" disabled={busy} onClick={createDeal}>
+                  <Button className="w-full gap-2 bg-gradient-brand hover:opacity-90 transition-opacity" disabled={busy} onClick={createDeal}>
                     <Rocket className="h-4 w-4" /> Create Deal Workspace
                   </Button>
                 )}
                 {intake.status === "converted_to_deal" && intake.converted_deal_id && (
                   <Button className="w-full gap-2" variant="outline" onClick={() => navigate(`/deals/${intake.converted_deal_id}/dashboard`)}>
-                    Open Deal Dashboard
+                    <ExternalLink className="h-4 w-4" /> Open Deal Dashboard
                   </Button>
                 )}
                 {!allApproved && intake.status !== "converted_to_deal" && (
-                  <p className="text-xs text-muted-foreground">All categories must be approved before creating a deal.</p>
+                  <div className="flex items-start gap-2 text-xs text-muted-foreground">
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5 text-destructive" />
+                    <span>All categories must be approved before creating a deal.</span>
+                  </div>
                 )}
               </CardContent>
             </Card>
@@ -332,27 +361,38 @@ export default function IntakeReview() {
       </div>
 
       <Dialog open={!!reviewCat} onOpenChange={(o) => !o && setReviewCat(null)}>
-        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto backdrop-blur-xl bg-card/95 border-border/50">
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto glass-surface-strong">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-3">
+              <GlassIcon icon={ShieldCheck} size="sm" />
               <span className="text-destructive font-bold">{reviewCat?.category_code}</span>
-              {reviewCat?.category_name}
+              <span className="font-display tracking-tight">{reviewCat?.category_name}</span>
             </DialogTitle>
             <DialogDescription>Review uploaded documents and respondent answers. Approve or deny each document.</DialogDescription>
           </DialogHeader>
 
-          {reviewLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
+          {reviewLoading && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground py-4">
+              <RefreshCw className="h-4 w-4 animate-spin" /> Loading…
+            </div>
+          )}
 
           {reviewData && (
             <div className="space-y-6">
               <section>
-                <h4 className="text-sm font-semibold mb-2 flex items-center gap-2"><FileText className="h-4 w-4" /> Documents ({reviewData.documents.length})</h4>
-                {reviewData.documents.length === 0 && <p className="text-xs text-muted-foreground">No documents uploaded yet.</p>}
+                <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                  <GlassIcon icon={FileText} size="sm" /> Documents ({reviewData.documents.length})
+                </h4>
+                {reviewData.documents.length === 0 && (
+                  <div className="glass-surface p-4 text-xs text-muted-foreground flex items-center gap-2">
+                    <AlertCircle className="h-4 w-4" /> No documents uploaded yet.
+                  </div>
+                )}
                 <div className="space-y-2">
                   {reviewData.documents.map((d: any) => {
                     const req = reviewData.requirements.find((r: any) => r.id === d.requirement_id);
                     return (
-                      <div key={d.id} className="rounded-md border border-border/50 bg-background/40 p-3">
+                      <div key={d.id} className="glass-surface p-3">
                         <div className="flex items-start justify-between gap-2 flex-wrap">
                           <div className="min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
@@ -361,15 +401,23 @@ export default function IntakeReview() {
                                 {d.status}
                               </Badge>
                               {d.version > 1 && (
-                                <Badge variant="outline" className="gap-1 border-primary/40 text-primary">
+                                <Badge variant="outline" className="gap-1 border-primary/40 text-primary bg-primary/5">
                                   <RefreshCw className="h-3 w-3" /> New version (v{d.version})
                                 </Badge>
                               )}
                             </div>
                             {req && <p className="text-xs text-muted-foreground mt-0.5">{req.requirement_code} · {req.requirement_text}</p>}
-                            {d.upload_comment && <p className="text-xs italic mt-1">"{d.upload_comment}"</p>}
+                            {d.upload_comment && (
+                              <div className="flex items-start gap-1.5 text-xs italic mt-1 text-muted-foreground">
+                                <MessageSquare className="h-3 w-3 shrink-0 mt-0.5" />
+                                <span>"{d.upload_comment}"</span>
+                              </div>
+                            )}
                             {d.status === "rejected" && d.rejection_reason && (
-                              <p className="text-xs mt-1 text-destructive">Denied reason: {d.rejection_reason}</p>
+                              <div className="flex items-start gap-1.5 text-xs mt-1 text-destructive">
+                                <XCircle className="h-3 w-3 shrink-0 mt-0.5" />
+                                <span>Denied reason: {d.rejection_reason}</span>
+                              </div>
                             )}
                             {d.uploaded_by_email && <p className="text-[10px] text-muted-foreground mt-0.5">by {d.uploaded_by_email}</p>}
                           </div>
@@ -377,7 +425,7 @@ export default function IntakeReview() {
                             <Button size="sm" variant="outline" className="gap-1" onClick={() => openDoc(d.file_url)}>
                               <ExternalLink className="h-3.5 w-3.5" /> View
                             </Button>
-                            <Button size="sm" variant="default" className="gap-1" disabled={d.status === "approved"} onClick={() => approveDoc(d.id)}>
+                            <Button size="sm" variant="default" className="gap-1 bg-gradient-primary hover:opacity-90 transition-opacity" disabled={d.status === "approved"} onClick={() => approveDoc(d.id)}>
                               <ThumbsUp className="h-3.5 w-3.5" /> Approve
                             </Button>
                             <Button size="sm" variant="destructive" className="gap-1" disabled={d.status === "rejected"} onClick={() => { setDenyDoc(d); setDenyReason(""); }}>
@@ -392,17 +440,28 @@ export default function IntakeReview() {
               </section>
 
               <section>
-                <h4 className="text-sm font-semibold mb-2">Responses ({reviewData.responses.length})</h4>
-                {reviewData.responses.length === 0 && <p className="text-xs text-muted-foreground">No responses submitted yet.</p>}
+                <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                  <GlassIcon icon={Mail} size="sm" tone="neutral" /> Responses ({reviewData.responses.length})
+                </h4>
+                {reviewData.responses.length === 0 && (
+                  <div className="glass-surface p-4 text-xs text-muted-foreground flex items-center gap-2">
+                    <AlertCircle className="h-4 w-4" /> No responses submitted yet.
+                  </div>
+                )}
                 <div className="space-y-2">
                   {reviewData.responses.map((resp: any) => {
                     const req = reviewData.requirements.find((r: any) => r.id === resp.requirement_id);
                     const val = resp.response_value ?? (resp.yes_no_value === null ? null : resp.yes_no_value ? "Yes" : "No") ?? resp.applicable_status;
                     return (
-                      <div key={resp.requirement_id} className="rounded-md border border-border/50 bg-background/40 p-3 text-sm">
+                      <div key={resp.requirement_id} className="glass-surface p-3 text-sm">
                         <p className="text-xs text-muted-foreground">{req?.requirement_code} · {req?.requirement_text}</p>
                         <p className="mt-1">{val ?? <span className="text-muted-foreground italic">No answer</span>}</p>
-                        {resp.comment && <p className="text-xs italic text-muted-foreground mt-1">"{resp.comment}"</p>}
+                        {resp.comment && (
+                          <div className="flex items-start gap-1.5 text-xs italic text-muted-foreground mt-1">
+                            <MessageSquare className="h-3 w-3 shrink-0 mt-0.5" />
+                            <span>"{resp.comment}"</span>
+                          </div>
+                        )}
                       </div>
                     );
                   })}
@@ -414,15 +473,21 @@ export default function IntakeReview() {
       </Dialog>
 
       <Dialog open={!!denyDoc} onOpenChange={(o) => { if (!o) { setDenyDoc(null); setDenyReason(""); } }}>
-        <DialogContent className="max-w-md backdrop-blur-xl bg-card/95 border-border/50">
+        <DialogContent className="max-w-md glass-surface-strong">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2"><ThumbsDown className="h-4 w-4 text-destructive" /> Deny document</DialogTitle>
+            <DialogTitle className="flex items-center gap-3">
+              <GlassIcon icon={XCircle} size="sm" tone="neutral" />
+              <span>Deny document</span>
+            </DialogTitle>
             <DialogDescription>
               Add a comment explaining why this document is being denied. The respondent will see your feedback and can re-upload a new version.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2">
-            <p className="text-xs text-muted-foreground truncate">{denyDoc?.file_name}</p>
+            <div className="flex items-center gap-2 glass-surface p-2 rounded-lg">
+              <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+              <p className="text-xs text-muted-foreground truncate">{denyDoc?.file_name}</p>
+            </div>
             <Textarea
               rows={4}
               placeholder="e.g. This is the wrong document — please upload the signed copy dated within the last 12 months."
@@ -433,12 +498,12 @@ export default function IntakeReview() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => { setDenyDoc(null); setDenyReason(""); }} disabled={denyBusy}>Cancel</Button>
-            <Button variant="destructive" onClick={confirmDeny} disabled={denyBusy || !denyReason.trim()} className="gap-1">
-              <ThumbsDown className="h-3.5 w-3.5" /> Confirm denial
+            <Button variant="destructive" onClick={confirmDeny} disabled={denyBusy || !denyReason.trim()} className="gap-1.5">
+              <XCircle className="h-3.5 w-3.5" /> Confirm denial
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </PageShell>
   );
 }
