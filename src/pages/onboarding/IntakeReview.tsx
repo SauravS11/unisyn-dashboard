@@ -410,7 +410,7 @@ export default function IntakeReview() {
                           <div className="min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
                               <span className="font-medium text-sm truncate">{d.file_name}</span>
-                              <Badge variant={d.status === "approved" ? "default" : d.status === "rejected" ? "destructive" : "secondary"}>
+                              <Badge variant={d.status === "approved" ? "success" : d.status === "rejected" ? "destructive" : "secondary"}>
                                 {d.status}
                               </Badge>
                               {d.version > 1 && (
