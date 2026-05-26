@@ -346,7 +346,7 @@ export default function IntakeReview() {
               </CardHeader>
               <CardContent className="space-y-3 pt-0">
                 {intake.status !== "approved" && intake.status !== "converted_to_deal" && (
-                  <Button className="w-full gap-2 bg-gradient-primary hover:opacity-90 transition-opacity" disabled={!allApproved || busy} onClick={approveIntake}>
+                  <Button className="w-full gap-2 bg-gradient-success hover:opacity-90 transition-opacity text-white" disabled={!allApproved || busy} onClick={approveIntake}>
                     <CheckCircle2 className="h-4 w-4" /> Approve Full Intake
                   </Button>
                 )}
