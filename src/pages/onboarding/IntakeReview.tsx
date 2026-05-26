@@ -360,19 +360,27 @@ export default function IntakeReview() {
                               <Badge variant={d.status === "approved" ? "default" : d.status === "rejected" ? "destructive" : "secondary"}>
                                 {d.status}
                               </Badge>
+                              {d.version > 1 && (
+                                <Badge variant="outline" className="gap-1 border-primary/40 text-primary">
+                                  <RefreshCw className="h-3 w-3" /> New version (v{d.version})
+                                </Badge>
+                              )}
                             </div>
                             {req && <p className="text-xs text-muted-foreground mt-0.5">{req.requirement_code} · {req.requirement_text}</p>}
                             {d.upload_comment && <p className="text-xs italic mt-1">"{d.upload_comment}"</p>}
+                            {d.status === "rejected" && d.rejection_reason && (
+                              <p className="text-xs mt-1 text-destructive">Denied reason: {d.rejection_reason}</p>
+                            )}
                             {d.uploaded_by_email && <p className="text-[10px] text-muted-foreground mt-0.5">by {d.uploaded_by_email}</p>}
                           </div>
                           <div className="flex gap-1 shrink-0">
                             <Button size="sm" variant="outline" className="gap-1" onClick={() => openDoc(d.file_url)}>
                               <ExternalLink className="h-3.5 w-3.5" /> View
                             </Button>
-                            <Button size="sm" variant="default" className="gap-1" disabled={d.status === "approved"} onClick={() => setDocStatus(d.id, "approved")}>
+                            <Button size="sm" variant="default" className="gap-1" disabled={d.status === "approved"} onClick={() => approveDoc(d.id)}>
                               <ThumbsUp className="h-3.5 w-3.5" /> Approve
                             </Button>
-                            <Button size="sm" variant="destructive" className="gap-1" disabled={d.status === "rejected"} onClick={() => setDocStatus(d.id, "rejected")}>
+                            <Button size="sm" variant="destructive" className="gap-1" disabled={d.status === "rejected"} onClick={() => { setDenyDoc(d); setDenyReason(""); }}>
                               <ThumbsDown className="h-3.5 w-3.5" /> Deny
                             </Button>
                           </div>
