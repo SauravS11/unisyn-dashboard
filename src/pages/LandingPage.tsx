@@ -397,22 +397,12 @@ const LandingPage = () => {
 
                 {/* Headline with Character Animation Effect */}
                 <motion.h1 
-                  className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground text-center tracking-tight mb-6 bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text"
+                  className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-[5.5rem] text-foreground text-center tracking-tight mb-6 leading-[1.02]"
                   variants={headlineVariants}
                 >
-                  <motion.span
-                    className="inline-block"
-                    animate={{
-                      backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-                    }}
-                    transition={{
-                      duration: 5,
-                      repeat: Infinity,
-                      ease: "linear"
-                    }}
-                  >
-                    One platform. Total deal clarity.
-                  </motion.span>
+                  One platform.
+                  <br />
+                  <span className="text-gradient-brand">Total deal clarity.</span>
                 </motion.h1>
 
                 {/* Supporting Text with fade */}
@@ -569,10 +559,10 @@ const LandingPage = () => {
                           }}
                         />
                         <motion.div 
-                          className="relative w-16 h-16 rounded-2xl bg-gradient-to-b from-glass-highlight to-glass border border-glass-border backdrop-blur-xl flex items-center justify-center shadow-lg group-hover:shadow-[hsl(210_15%_70%/0.25)] transition-all duration-500"
-                          whileHover={{ scale: 1.1 }}
+                          className="glass-tile h-16 w-16 rounded-2xl"
+                          whileHover={{ scale: 1.1, rotate: -3 }}
                         >
-                          <feature.icon className="w-7 h-7 text-primary" />
+                          <feature.icon className="w-7 h-7" strokeWidth={1.75} />
                         </motion.div>
                       </motion.div>
                       <h3 className="font-semibold text-foreground mb-3 text-xl group-hover:text-primary transition-colors duration-300">
