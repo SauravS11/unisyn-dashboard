@@ -35,11 +35,6 @@ const App = () => (
             <Route path="/auth" element={<Index />} />
             <Route path="/welcome" element={<Welcome />} />
             <Route path="/deals" element={<DealsListPage />} />
-            <Route path="/deals/create" element={<CreateDeal />} />
-            <Route path="/deals/:id/edit" element={<CreateDeal />} />
-            <Route path="/deals/:id/team" element={<CoreDealTeam />} />
-            <Route path="/deals/:id/categories" element={<SelectCategories />} />
-            <Route path="/deals/:id/checklist" element={<DueDiligenceChecklist />} />
             <Route path="/deals/:id/dashboard" element={<DealDashboard />} />
             <Route path="/external/deals/:dealId/dashboard" element={<ExternalDealDashboard />} />
 
