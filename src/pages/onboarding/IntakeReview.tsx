@@ -4,10 +4,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/customClient";
 import { toast } from "sonner";
-import { ArrowLeft, CheckCircle2, MessageSquare, Rocket, FileText, ExternalLink, ThumbsUp, ThumbsDown, Eye } from "lucide-react";
+import { ArrowLeft, CheckCircle2, MessageSquare, Rocket, FileText, ExternalLink, ThumbsUp, ThumbsDown, Eye, RefreshCw } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { MiaInsights } from "@/components/MiaInsights";
 
@@ -33,6 +34,10 @@ export default function IntakeReview() {
   const [reviewData, setReviewData] = useState<{ requirements: any[]; responses: any[]; documents: any[] } | null>(null);
   const [reviewLoading, setReviewLoading] = useState(false);
 
+  const [denyDoc, setDenyDoc] = useState<any | null>(null);
+  const [denyReason, setDenyReason] = useState("");
+  const [denyBusy, setDenyBusy] = useState(false);
+
   const openReview = async (row: CatRow) => {
     setReviewCat(row);
     setReviewData(null);
@@ -46,7 +51,7 @@ export default function IntakeReview() {
           .select("requirement_id, response_value, yes_no_value, applicable_status, comment, status")
           .eq("client_intake_id", intakeId).eq("category_id", row.category_id),
         (supabase as any).from("client_requirement_documents")
-          .select("id, requirement_id, file_name, file_url, file_type, upload_comment, uploaded_by_email, status, uploaded_at")
+          .select("id, requirement_id, file_name, file_url, file_type, upload_comment, uploaded_by_email, status, uploaded_at, version, rejection_reason, replaces_document_id")
           .eq("client_intake_id", intakeId).eq("category_id", row.category_id)
           .order("uploaded_at", { ascending: false }),
       ]);
@@ -56,13 +61,38 @@ export default function IntakeReview() {
     }
   };
 
-  const setDocStatus = async (docId: string, status: "approved" | "rejected") => {
+  const approveDoc = async (docId: string) => {
     const { error } = await (supabase as any).from("client_requirement_documents")
-      .update({ status, updated_at: new Date().toISOString() }).eq("id", docId);
+      .update({ status: "approved", rejection_reason: null, updated_at: new Date().toISOString() }).eq("id", docId);
     if (error) { toast.error(error.message); return; }
-    toast.success(status === "approved" ? "Document approved" : "Document denied");
+    toast.success("Document approved");
     if (reviewCat) openReview(reviewCat);
     load();
+  };
+
+  const confirmDeny = async () => {
+    if (!denyDoc) return;
+    if (!denyReason.trim()) { toast.error("Please add a comment explaining the reason"); return; }
+    setDenyBusy(true);
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      const { error } = await (supabase as any).from("client_requirement_documents")
+        .update({
+          status: "rejected",
+          rejection_reason: denyReason.trim(),
+          rejected_at: new Date().toISOString(),
+          rejected_by: userData?.user?.id ?? null,
+          updated_at: new Date().toISOString(),
+        }).eq("id", denyDoc.id);
+      if (error) throw error;
+      toast.success("Document denied — respondent has been notified");
+      setDenyDoc(null);
+      setDenyReason("");
+      if (reviewCat) openReview(reviewCat);
+      load();
+    } catch (e: any) {
+      toast.error(e.message ?? "Failed");
+    } finally { setDenyBusy(false); }
   };
 
   const openDoc = async (url: string) => {
@@ -330,19 +360,27 @@ export default function IntakeReview() {
                               <Badge variant={d.status === "approved" ? "default" : d.status === "rejected" ? "destructive" : "secondary"}>
                                 {d.status}
                               </Badge>
+                              {d.version > 1 && (
+                                <Badge variant="outline" className="gap-1 border-primary/40 text-primary">
+                                  <RefreshCw className="h-3 w-3" /> New version (v{d.version})
+                                </Badge>
+                              )}
                             </div>
                             {req && <p className="text-xs text-muted-foreground mt-0.5">{req.requirement_code} · {req.requirement_text}</p>}
                             {d.upload_comment && <p className="text-xs italic mt-1">"{d.upload_comment}"</p>}
+                            {d.status === "rejected" && d.rejection_reason && (
+                              <p className="text-xs mt-1 text-destructive">Denied reason: {d.rejection_reason}</p>
+                            )}
                             {d.uploaded_by_email && <p className="text-[10px] text-muted-foreground mt-0.5">by {d.uploaded_by_email}</p>}
                           </div>
                           <div className="flex gap-1 shrink-0">
                             <Button size="sm" variant="outline" className="gap-1" onClick={() => openDoc(d.file_url)}>
                               <ExternalLink className="h-3.5 w-3.5" /> View
                             </Button>
-                            <Button size="sm" variant="default" className="gap-1" disabled={d.status === "approved"} onClick={() => setDocStatus(d.id, "approved")}>
+                            <Button size="sm" variant="default" className="gap-1" disabled={d.status === "approved"} onClick={() => approveDoc(d.id)}>
                               <ThumbsUp className="h-3.5 w-3.5" /> Approve
                             </Button>
-                            <Button size="sm" variant="destructive" className="gap-1" disabled={d.status === "rejected"} onClick={() => setDocStatus(d.id, "rejected")}>
+                            <Button size="sm" variant="destructive" className="gap-1" disabled={d.status === "rejected"} onClick={() => { setDenyDoc(d); setDenyReason(""); }}>
                               <ThumbsDown className="h-3.5 w-3.5" /> Deny
                             </Button>
                           </div>
@@ -372,6 +410,33 @@ export default function IntakeReview() {
               </section>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!denyDoc} onOpenChange={(o) => { if (!o) { setDenyDoc(null); setDenyReason(""); } }}>
+        <DialogContent className="max-w-md backdrop-blur-xl bg-card/95 border-border/50">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2"><ThumbsDown className="h-4 w-4 text-destructive" /> Deny document</DialogTitle>
+            <DialogDescription>
+              Add a comment explaining why this document is being denied. The respondent will see your feedback and can re-upload a new version.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <p className="text-xs text-muted-foreground truncate">{denyDoc?.file_name}</p>
+            <Textarea
+              rows={4}
+              placeholder="e.g. This is the wrong document — please upload the signed copy dated within the last 12 months."
+              value={denyReason}
+              onChange={(e) => setDenyReason(e.target.value)}
+              autoFocus
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setDenyDoc(null); setDenyReason(""); }} disabled={denyBusy}>Cancel</Button>
+            <Button variant="destructive" onClick={confirmDeny} disabled={denyBusy || !denyReason.trim()} className="gap-1">
+              <ThumbsDown className="h-3.5 w-3.5" /> Confirm denial
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

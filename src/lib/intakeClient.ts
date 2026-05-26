@@ -55,6 +55,7 @@ export async function registerDocument(opts: {
   fileSize?: number | null;
   uploadComment?: string | null;
   uploadedByEmail?: string | null;
+  replacesDocumentId?: string | null;
 }) {
   const { accessToken, intakeId } = getIntakeSession();
   if (!accessToken || !intakeId) throw new Error("Session expired");
@@ -68,6 +69,7 @@ export async function registerDocument(opts: {
     p_file_size: opts.fileSize ?? null,
     p_upload_comment: opts.uploadComment ?? null,
     p_uploaded_by_email: opts.uploadedByEmail ?? null,
+    p_replaces_document_id: opts.replacesDocumentId ?? null,
   });
   if (error) throw error;
   return data;

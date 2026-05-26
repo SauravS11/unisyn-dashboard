@@ -8,7 +8,8 @@ import { supabase } from "@/integrations/supabase/customClient";
 import { getIntakeSession, registerDocument } from "@/lib/intakeClient";
 import { RespondentHeader } from "@/components/RespondentHeader";
 import { toast } from "sonner";
-import { ArrowLeft, CheckCircle2, Save, FileText } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Save, FileText, AlertCircle, RefreshCw, CheckCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface Req {
   id: string;
@@ -69,7 +70,7 @@ export default function CategoryPart2() {
   const isLast = idx >= 0 && idx === order.length - 1;
   const nextCode = !isLast && idx >= 0 ? order[idx + 1] : null;
 
-  const onFile = async (req: Req, files: FileList | null) => {
+  const onFile = async (req: Req, files: FileList | null, replacesDocumentId: string | null = null) => {
     if (!files || files.length === 0) return;
     setBusy(true);
     try {
@@ -85,9 +86,10 @@ export default function CategoryPart2() {
           fileType: file.type,
           fileSize: file.size,
           uploadComment: comments[req.id] ?? null,
+          replacesDocumentId,
         });
       }
-      toast.success("Uploaded");
+      toast.success(replacesDocumentId ? "New version uploaded — sent for review" : "Uploaded");
       await loadDetail();
     } catch (e: any) {
       toast.error(e.message ?? "Upload failed");
@@ -154,13 +156,61 @@ export default function CategoryPart2() {
                     onChange={(e) => setComments((c) => ({ ...c, [r.id]: e.target.value }))} />
                 )}
                 {uploaded[r.id]?.length > 0 && (
-                  <ul className="space-y-1">
-                    {uploaded[r.id].map((d) => (
-                      <li key={d.id} className="text-xs flex items-center gap-2 text-muted-foreground">
-                        <FileText className="h-3 w-3" /> {d.file_name}
-                        {d.upload_comment && <span className="italic">— {d.upload_comment}</span>}
-                      </li>
-                    ))}
+                  <ul className="space-y-2">
+                    {uploaded[r.id].map((d) => {
+                      const isRejected = d.status === "rejected";
+                      const isApproved = d.status === "approved";
+                      return (
+                        <li
+                          key={d.id}
+                          className={`text-xs rounded-md border p-2 ${
+                            isRejected ? "border-destructive/40 bg-destructive/5"
+                              : isApproved ? "border-green-500/30 bg-green-500/5"
+                              : "border-border/50 bg-background/40"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <FileText className="h-3 w-3 shrink-0" />
+                            <span className="font-medium truncate">{d.file_name}</span>
+                            {d.version > 1 && (
+                              <Badge variant="outline" className="gap-1 h-5 px-1.5">
+                                <RefreshCw className="h-2.5 w-2.5" /> v{d.version}
+                              </Badge>
+                            )}
+                            {isApproved && (
+                              <Badge className="gap-1 h-5 px-1.5 bg-green-600 hover:bg-green-600">
+                                <CheckCircle className="h-2.5 w-2.5" /> Approved
+                              </Badge>
+                            )}
+                            {isRejected && (
+                              <Badge variant="destructive" className="gap-1 h-5 px-1.5">
+                                <AlertCircle className="h-2.5 w-2.5" /> Denied
+                              </Badge>
+                            )}
+                            {!isApproved && !isRejected && (
+                              <Badge variant="secondary" className="h-5 px-1.5">Pending review</Badge>
+                            )}
+                          </div>
+                          {d.upload_comment && <p className="italic mt-1 text-muted-foreground">— {d.upload_comment}</p>}
+                          {isRejected && d.rejection_reason && (
+                            <div className="mt-2 rounded bg-destructive/10 border border-destructive/30 p-2">
+                              <p className="font-semibold text-destructive mb-0.5">Advisor feedback:</p>
+                              <p className="text-foreground">{d.rejection_reason}</p>
+                              <label className="mt-2 flex items-center gap-2 text-xs font-medium cursor-pointer">
+                                <RefreshCw className="h-3 w-3" />
+                                <span className="underline">Re-upload a new version</span>
+                                <input
+                                  type="file"
+                                  className="hidden"
+                                  disabled={busy}
+                                  onChange={(e) => onFile(r, e.target.files, d.id)}
+                                />
+                              </label>
+                            </div>
+                          )}
+                        </li>
+                      );
+                    })}
                   </ul>
                 )}
               </div>
