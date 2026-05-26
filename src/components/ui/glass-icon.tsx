@@ -14,7 +14,7 @@ const sizeMap: Record<Size, { box: string; icon: number }> = {
 interface GlassIconProps extends React.HTMLAttributes<HTMLSpanElement> {
   icon: LucideIcon;
   size?: Size;
-  tone?: "brand" | "neutral";
+  tone?: "brand" | "neutral" | "success";
 }
 
 export const GlassIcon = React.forwardRef<HTMLSpanElement, GlassIconProps>(
@@ -23,7 +23,13 @@ export const GlassIcon = React.forwardRef<HTMLSpanElement, GlassIconProps>(
     return (
       <span
         ref={ref}
-        className={cn("glass-tile shrink-0", tone === "neutral" && "glass-tile-neutral", s.box, className)}
+        className={cn(
+          "glass-tile shrink-0",
+          tone === "neutral" && "glass-tile-neutral",
+          tone === "success" && "glass-tile-success",
+          s.box,
+          className
+        )}
         {...props}
       >
         <Icon size={s.icon} strokeWidth={1.75} />
