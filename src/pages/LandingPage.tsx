@@ -465,6 +465,7 @@ const LandingPage = () => {
                           <ArrowRight className="w-5 h-5" />
                         </motion.span>
                       </span>
+                      {/* placeholder anchor for sibling demo button below */}
                       {/* Shimmer effect */}
                       <motion.div
                         className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12"
@@ -480,6 +481,15 @@ const LandingPage = () => {
                       />
                     </Button>
                   </motion.div>
+                  <motion.button
+                    onClick={() => navigate("/demo")}
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    className="mt-1 inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold border border-primary/30 bg-primary/5 hover:bg-primary/10 text-primary backdrop-blur-md transition-colors"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    Demo Mode · Consumer Fest
+                  </motion.button>
                   <motion.button 
                     onClick={() => navigate("/auth")} 
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-300 group"

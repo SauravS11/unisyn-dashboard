@@ -19,6 +19,7 @@ import AccessRequest from "./pages/respond/AccessRequest";
 import RespondentDashboard from "./pages/respond/RespondentDashboard";
 import CategoryPart1 from "./pages/respond/CategoryPart1";
 import CategoryPart2 from "./pages/respond/CategoryPart2";
+import DemoFlow from "./pages/demo/DemoFlow";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ const App = () => (
         <div className="animate-fade-in">
           <Routes>
             <Route path="/" element={<LandingPage />} />
+            <Route path="/demo" element={<DemoFlow />} />
             <Route path="/auth" element={<Index />} />
             <Route path="/welcome" element={<Welcome />} />
             <Route path="/deals" element={<DealsListPage />} />
