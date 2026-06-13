@@ -465,6 +465,7 @@ const LandingPage = () => {
                           <ArrowRight className="w-5 h-5" />
                         </motion.span>
                       </span>
+                      {/* placeholder anchor for sibling demo button below */}
                       {/* Shimmer effect */}
                       <motion.div
                         className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12"
