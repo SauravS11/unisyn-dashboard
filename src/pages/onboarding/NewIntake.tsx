@@ -206,7 +206,26 @@ export default function NewIntake() {
               <Textarea rows={3} value={form.advisor_notes} onChange={(e) => update("advisor_notes", e.target.value)} />
             </Field>
 
-            <div className="flex justify-end pt-2">
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={async () => {
+                  const parsed = schema.safeParse(form);
+                  if (!parsed.success) {
+                    toast.error(parsed.error.errors[0].message);
+                    return;
+                  }
+                  if (debounceRef.current) window.clearTimeout(debounceRef.current);
+                  await autoSave(form);
+                  toast.success("Saved to Pending Client Intakes");
+                  navigate("/deals");
+                }}
+                disabled={saveState === "saving"}
+              >
+                {saveState === "saving" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                Save to Pending
+              </Button>
               <Button className="gap-2" onClick={handleContinue} disabled={continuing}>
                 Continue to Categories <ArrowRight className="h-4 w-4" />
               </Button>
