@@ -51,7 +51,7 @@ export const SignUpCard = () => {
 
       if (data.user) {
         toast.success("Account created successfully! You can now sign in.");
-        navigate("/welcome");
+        navigate("/workspace");
       }
     } catch (error) {
       console.error("Sign up error:", error);

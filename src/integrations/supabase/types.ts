@@ -82,6 +82,462 @@ export type Database = {
           },
         ]
       }
+      application_access_tokens: {
+        Row: {
+          application_id: string
+          created_at: string
+          expires_at: string
+          id: string
+          ip_address: string | null
+          token_hash: string
+          user_agent: string | null
+        }
+        Insert: {
+          application_id: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          ip_address?: string | null
+          token_hash: string
+          user_agent?: string | null
+        }
+        Update: {
+          application_id?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          ip_address?: string | null
+          token_hash?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_access_tokens_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      application_activity: {
+        Row: {
+          activity_type: string
+          actor_email: string | null
+          actor_type: string
+          application_id: string
+          created_at: string
+          description: string | null
+          id: string
+        }
+        Insert: {
+          activity_type: string
+          actor_email?: string | null
+          actor_type?: string
+          application_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+        }
+        Update: {
+          activity_type?: string
+          actor_email?: string | null
+          actor_type?: string
+          application_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_activity_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      application_clarifications: {
+        Row: {
+          applicant_response: string | null
+          application_id: string
+          created_at: string
+          created_by: string | null
+          due_date: string | null
+          id: string
+          message: string
+          priority: string
+          requested_action: string
+          requirement_id: string | null
+          resolved_at: string | null
+          section_id: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          applicant_response?: string | null
+          application_id: string
+          created_at?: string
+          created_by?: string | null
+          due_date?: string | null
+          id?: string
+          message: string
+          priority?: string
+          requested_action?: string
+          requirement_id?: string | null
+          resolved_at?: string | null
+          section_id?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          applicant_response?: string | null
+          application_id?: string
+          created_at?: string
+          created_by?: string | null
+          due_date?: string | null
+          id?: string
+          message?: string
+          priority?: string
+          requested_action?: string
+          requirement_id?: string | null
+          resolved_at?: string | null
+          section_id?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_clarifications_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "application_clarifications_requirement_id_fkey"
+            columns: ["requirement_id"]
+            isOneToOne: false
+            referencedRelation: "funding_workflow_requirements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "application_clarifications_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "funding_workflow_sections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      application_documents: {
+        Row: {
+          application_id: string
+          created_at: string
+          file_name: string
+          file_size: number | null
+          file_type: string | null
+          file_url: string
+          id: string
+          rejected_at: string | null
+          rejection_reason: string | null
+          replaces_document_id: string | null
+          requirement_id: string
+          section_id: string
+          status: string
+          updated_at: string
+          upload_comment: string | null
+          uploaded_at: string
+          uploaded_by_email: string | null
+          version: number
+        }
+        Insert: {
+          application_id: string
+          created_at?: string
+          file_name: string
+          file_size?: number | null
+          file_type?: string | null
+          file_url: string
+          id?: string
+          rejected_at?: string | null
+          rejection_reason?: string | null
+          replaces_document_id?: string | null
+          requirement_id: string
+          section_id: string
+          status?: string
+          updated_at?: string
+          upload_comment?: string | null
+          uploaded_at?: string
+          uploaded_by_email?: string | null
+          version?: number
+        }
+        Update: {
+          application_id?: string
+          created_at?: string
+          file_name?: string
+          file_size?: number | null
+          file_type?: string | null
+          file_url?: string
+          id?: string
+          rejected_at?: string | null
+          rejection_reason?: string | null
+          replaces_document_id?: string | null
+          requirement_id?: string
+          section_id?: string
+          status?: string
+          updated_at?: string
+          upload_comment?: string | null
+          uploaded_at?: string
+          uploaded_by_email?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_documents_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "application_documents_requirement_id_fkey"
+            columns: ["requirement_id"]
+            isOneToOne: false
+            referencedRelation: "funding_workflow_requirements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "application_documents_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "funding_workflow_sections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      application_responses: {
+        Row: {
+          application_id: string
+          comment: string | null
+          created_at: string
+          id: string
+          requirement_id: string
+          response_value: string | null
+          section_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          application_id: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          requirement_id: string
+          response_value?: string | null
+          section_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          application_id?: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          requirement_id?: string
+          response_value?: string | null
+          section_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_responses_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "application_responses_requirement_id_fkey"
+            columns: ["requirement_id"]
+            isOneToOne: false
+            referencedRelation: "funding_workflow_requirements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "application_responses_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "funding_workflow_sections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      application_sections: {
+        Row: {
+          application_id: string
+          approved_at: string | null
+          completion_percentage: number
+          created_at: string
+          id: string
+          manager_notes: string | null
+          reviewed_at: string | null
+          section_id: string
+          status: string
+          submitted_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          application_id: string
+          approved_at?: string | null
+          completion_percentage?: number
+          created_at?: string
+          id?: string
+          manager_notes?: string | null
+          reviewed_at?: string | null
+          section_id: string
+          status?: string
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          application_id?: string
+          approved_at?: string | null
+          completion_percentage?: number
+          created_at?: string
+          id?: string
+          manager_notes?: string | null
+          reviewed_at?: string | null
+          section_id?: string
+          status?: string
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_sections_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "application_sections_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "funding_workflow_sections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      applications: {
+        Row: {
+          applicant_email: string | null
+          applicant_type: string | null
+          application_code: string
+          approved_at: string | null
+          business_name: string
+          business_stage: string | null
+          city_region: string | null
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          contact_role: string | null
+          country: string | null
+          created_at: string
+          created_by: string
+          custom_message: string | null
+          due_date: string | null
+          funding_workflow_id: string
+          id: string
+          industry: string | null
+          programme_notes: string | null
+          province: string | null
+          registration_number: string | null
+          request_sent_at: string | null
+          secure_link_token: string
+          specific_fields: Json
+          status: string
+          submitted_at: string | null
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          applicant_email?: string | null
+          applicant_type?: string | null
+          application_code: string
+          approved_at?: string | null
+          business_name: string
+          business_stage?: string | null
+          city_region?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          contact_role?: string | null
+          country?: string | null
+          created_at?: string
+          created_by: string
+          custom_message?: string | null
+          due_date?: string | null
+          funding_workflow_id: string
+          id?: string
+          industry?: string | null
+          programme_notes?: string | null
+          province?: string | null
+          registration_number?: string | null
+          request_sent_at?: string | null
+          secure_link_token: string
+          specific_fields?: Json
+          status?: string
+          submitted_at?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          applicant_email?: string | null
+          applicant_type?: string | null
+          application_code?: string
+          approved_at?: string | null
+          business_name?: string
+          business_stage?: string | null
+          city_region?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          contact_role?: string | null
+          country?: string | null
+          created_at?: string
+          created_by?: string
+          custom_message?: string | null
+          due_date?: string | null
+          funding_workflow_id?: string
+          id?: string
+          industry?: string | null
+          programme_notes?: string | null
+          province?: string | null
+          registration_number?: string | null
+          request_sent_at?: string | null
+          secure_link_token?: string
+          specific_fields?: Json
+          status?: string
+          submitted_at?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "applications_funding_workflow_id_fkey"
+            columns: ["funding_workflow_id"]
+            isOneToOne: false
+            referencedRelation: "funding_workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_intake_categories: {
         Row: {
           advisor_notes: string | null
@@ -1129,6 +1585,124 @@ export type Database = {
           },
         ]
       }
+      funding_workflow_requirements: {
+        Row: {
+          created_at: string
+          id: string
+          input_type: string
+          is_required: boolean
+          requirement_code: string
+          requirement_text: string
+          section_id: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          input_type?: string
+          is_required?: boolean
+          requirement_code: string
+          requirement_text: string
+          section_id: string
+          sort_order: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          input_type?: string
+          is_required?: boolean
+          requirement_code?: string
+          requirement_text?: string
+          section_id?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funding_workflow_requirements_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "funding_workflow_sections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      funding_workflow_sections: {
+        Row: {
+          created_at: string
+          funding_workflow_id: string
+          id: string
+          section_code: string
+          section_name: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          funding_workflow_id: string
+          id?: string
+          section_code: string
+          section_name: string
+          sort_order: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          funding_workflow_id?: string
+          id?: string
+          section_code?: string
+          section_name?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funding_workflow_sections_funding_workflow_id_fkey"
+            columns: ["funding_workflow_id"]
+            isOneToOne: false
+            referencedRelation: "funding_workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      funding_workflows: {
+        Row: {
+          code_prefix: string
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          code_prefix: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          code_prefix?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       intake_access_tokens: {
         Row: {
           client_intake_id: string
@@ -1303,6 +1877,33 @@ export type Database = {
           },
         ]
       }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          updated_at: string
+          workflow_type: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          updated_at?: string
+          workflow_type?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          workflow_type?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -1312,6 +1913,7 @@ export type Database = {
       deal_exists: { Args: { deal_id_text: string }; Returns: boolean }
       deal_exists_uuid: { Args: { p_deal_id: string }; Returns: boolean }
       deal_has_passcode: { Args: { deal_id_text: string }; Returns: boolean }
+      generate_application_code: { Args: { p_prefix: string }; Returns: string }
       generate_deal_code: { Args: { deal_name: string }; Returns: string }
       generate_expert_access_code: {
         Args: { p_category_no: number }
@@ -1323,6 +1925,18 @@ export type Database = {
         Returns: number
       }
       generate_intake_code: { Args: never; Returns: string }
+      get_application_overview: {
+        Args: { p_application_id: string; p_token: string }
+        Returns: Json
+      }
+      get_application_section: {
+        Args: {
+          p_application_id: string
+          p_section_code: string
+          p_token: string
+        }
+        Returns: Json
+      }
       get_intake_category_detail: {
         Args: { p_category_code: string; p_intake_id: string; p_token: string }
         Returns: Json
@@ -1332,6 +1946,21 @@ export type Database = {
         Returns: Json
       }
       regenerate_expert_code: { Args: { p_code_id: string }; Returns: string }
+      register_application_document: {
+        Args: {
+          p_application_id: string
+          p_file_name: string
+          p_file_size: number
+          p_file_type: string
+          p_file_url: string
+          p_replaces_document_id?: string
+          p_requirement_id: string
+          p_token: string
+          p_upload_comment: string
+          p_uploaded_by_email: string
+        }
+        Returns: string
+      }
       register_expert_document: {
         Args: {
           p_access_token: string
@@ -1360,6 +1989,29 @@ export type Database = {
         }
         Returns: string
       }
+      resolve_application_clarification: {
+        Args: {
+          p_application_id: string
+          p_clarification_id: string
+          p_response: string
+          p_token: string
+        }
+        Returns: boolean
+      }
+      save_application_response: {
+        Args: {
+          p_application_id: string
+          p_comment?: string
+          p_requirement_id: string
+          p_response_value: string
+          p_token: string
+        }
+        Returns: string
+      }
+      seed_application_sections: {
+        Args: { p_application_id: string }
+        Returns: number
+      }
       seed_deal_from_intake: {
         Args: { p_deal_id: string; p_intake_id: string }
         Returns: Json
@@ -1367,6 +2019,14 @@ export type Database = {
       seed_expert_tasks_for_category: {
         Args: { p_category_id: string; p_deal_id: string }
         Returns: undefined
+      }
+      submit_application_section: {
+        Args: {
+          p_application_id: string
+          p_section_id: string
+          p_token: string
+        }
+        Returns: boolean
       }
       submit_intake_category: {
         Args: { p_category_id: string; p_intake_id: string; p_token: string }
@@ -1393,6 +2053,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      validate_application_token: {
+        Args: { p_application_id: string; p_token: string }
+        Returns: boolean
+      }
       validate_deal_access_token: {
         Args: { p_access_token: string; p_deal_id: string }
         Returns: boolean
@@ -1404,6 +2068,16 @@ export type Database = {
       validate_intake_access_token: {
         Args: { p_intake_id: string; p_token: string }
         Returns: boolean
+      }
+      verify_application_code: {
+        Args: { p_code: string; p_ip?: string; p_user_agent?: string }
+        Returns: {
+          access_token: string
+          application_code: string
+          application_id: string
+          message: string
+          success: boolean
+        }[]
       }
       verify_deal_code: {
         Args: { p_deal_code: string; p_ip_address?: string }

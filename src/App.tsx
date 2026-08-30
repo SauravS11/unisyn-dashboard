@@ -20,6 +20,16 @@ import RespondentDashboard from "./pages/respond/RespondentDashboard";
 import CategoryPart1 from "./pages/respond/CategoryPart1";
 import CategoryPart2 from "./pages/respond/CategoryPart2";
 import DemoFlow from "./pages/demo/DemoFlow";
+import WorkspaceSelect from "./pages/WorkspaceSelect";
+import IncubatorWelcome from "./pages/incubator/IncubatorWelcome";
+import ApplicationsList from "./pages/incubator/ApplicationsList";
+import NewApplication from "./pages/incubator/NewApplication";
+import ChecklistPreview from "./pages/incubator/ChecklistPreview";
+import SendApplicationRequest from "./pages/incubator/SendApplicationRequest";
+import ApplicationReview from "./pages/incubator/ApplicationReview";
+import ApplicationAccess from "./pages/apply/ApplicationAccess";
+import ApplicantHome from "./pages/apply/ApplicantHome";
+import ApplicantSection from "./pages/apply/ApplicantSection";
 
 const queryClient = new QueryClient();
 
@@ -36,7 +46,22 @@ const App = () => (
             <Route path="/demo" element={<DemoFlow />} />
             <Route path="/auth" element={<Index />} />
             <Route path="/welcome" element={<Welcome />} />
+            <Route path="/workspace" element={<WorkspaceSelect />} />
             <Route path="/deals" element={<DealsListPage />} />
+
+            {/* Incubators & Accelerators — programme manager */}
+            <Route path="/incubator" element={<IncubatorWelcome />} />
+            <Route path="/incubator/applications" element={<ApplicationsList />} />
+            <Route path="/incubator/applications/new" element={<NewApplication />} />
+            <Route path="/incubator/applications/:applicationId/profile" element={<NewApplication />} />
+            <Route path="/incubator/applications/:applicationId/checklist" element={<ChecklistPreview />} />
+            <Route path="/incubator/applications/:applicationId/send" element={<SendApplicationRequest />} />
+            <Route path="/incubator/applications/:applicationId/review" element={<ApplicationReview />} />
+
+            {/* Applicant portal (no auth) */}
+            <Route path="/apply" element={<ApplicationAccess />} />
+            <Route path="/apply/:applicationId" element={<ApplicantHome />} />
+            <Route path="/apply/:applicationId/section/:sectionCode" element={<ApplicantSection />} />
             <Route path="/deals/:id/dashboard" element={<DealDashboard />} />
             <Route path="/external/deals/:dealId/dashboard" element={<ExternalDealDashboard />} />
 
