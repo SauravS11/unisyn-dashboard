@@ -46,7 +46,22 @@ const App = () => (
             <Route path="/demo" element={<DemoFlow />} />
             <Route path="/auth" element={<Index />} />
             <Route path="/welcome" element={<Welcome />} />
+            <Route path="/workspace" element={<WorkspaceSelect />} />
             <Route path="/deals" element={<DealsListPage />} />
+
+            {/* Incubators & Accelerators — programme manager */}
+            <Route path="/incubator" element={<IncubatorWelcome />} />
+            <Route path="/incubator/applications" element={<ApplicationsList />} />
+            <Route path="/incubator/applications/new" element={<NewApplication />} />
+            <Route path="/incubator/applications/:applicationId/profile" element={<NewApplication />} />
+            <Route path="/incubator/applications/:applicationId/checklist" element={<ChecklistPreview />} />
+            <Route path="/incubator/applications/:applicationId/send" element={<SendApplicationRequest />} />
+            <Route path="/incubator/applications/:applicationId/review" element={<ApplicationReview />} />
+
+            {/* Applicant portal (no auth) */}
+            <Route path="/apply" element={<ApplicationAccess />} />
+            <Route path="/apply/:applicationId" element={<ApplicantHome />} />
+            <Route path="/apply/:applicationId/section/:sectionCode" element={<ApplicantSection />} />
             <Route path="/deals/:id/dashboard" element={<DealDashboard />} />
             <Route path="/external/deals/:dealId/dashboard" element={<ExternalDealDashboard />} />
 
