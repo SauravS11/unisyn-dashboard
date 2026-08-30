@@ -20,6 +20,16 @@ import RespondentDashboard from "./pages/respond/RespondentDashboard";
 import CategoryPart1 from "./pages/respond/CategoryPart1";
 import CategoryPart2 from "./pages/respond/CategoryPart2";
 import DemoFlow from "./pages/demo/DemoFlow";
+import WorkspaceSelect from "./pages/WorkspaceSelect";
+import IncubatorWelcome from "./pages/incubator/IncubatorWelcome";
+import ApplicationsList from "./pages/incubator/ApplicationsList";
+import NewApplication from "./pages/incubator/NewApplication";
+import ChecklistPreview from "./pages/incubator/ChecklistPreview";
+import SendApplicationRequest from "./pages/incubator/SendApplicationRequest";
+import ApplicationReview from "./pages/incubator/ApplicationReview";
+import ApplicationAccess from "./pages/apply/ApplicationAccess";
+import ApplicantHome from "./pages/apply/ApplicantHome";
+import ApplicantSection from "./pages/apply/ApplicantSection";
 
 const queryClient = new QueryClient();
 
