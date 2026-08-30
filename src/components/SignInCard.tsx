@@ -30,7 +30,7 @@ export const SignInCard = () => {
 
       if (data.user) {
         toast.success("Signed in successfully!");
-        navigate("/welcome");
+        navigate("/workspace");
       }
     } catch (error) {
       console.error("Sign in error:", error);
