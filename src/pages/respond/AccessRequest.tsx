@@ -80,9 +80,10 @@ export default function AccessRequest() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-1.5">
-                <Label className="text-xs uppercase tracking-wider text-muted-foreground">Deal Code</Label>
+                <Label className="text-xs uppercase tracking-wider text-muted-foreground">Access Code</Label>
                 <Input
-                  placeholder="USYN-2026-0001"
+                  placeholder="USYN-2026-0001 or BUSFIN-2026-0001"
+
                   value={code}
                   onChange={(e) => setCode(e.target.value.toUpperCase())}
                   className="font-mono tracking-wider h-12 text-base backdrop-glass bg-card/60"
