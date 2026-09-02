@@ -18,10 +18,28 @@ export default function AccessRequest() {
   const [busy, setBusy] = useState(false);
 
   const submit = async () => {
-    if (!code.trim()) { toast.error("Enter the deal/intake code"); return; }
+    if (!code.trim()) { toast.error("Enter your access code"); return; }
+    const value = code.trim().toUpperCase();
     setBusy(true);
     try {
-      const { data, error } = await supabase.rpc("verify_intake_code", { p_code: code.trim() });
+      // Funding programme (Incubators & Accelerators) application codes
+      const prefix = value.split("-")[0];
+      if (INCUBATOR_PREFIXES.includes(prefix)) {
+        const res = await verifyApplicationCode(value);
+        if (!res?.success || !res.access_token || !res.application_id) {
+          toast.error(res?.message ?? "Invalid application code");
+          return;
+        }
+        setApplicationSession({
+          accessToken: res.access_token,
+          applicationId: res.application_id,
+          applicationCode: res.application_code ?? value,
+        });
+        navigate(`/apply/${res.application_id}`);
+        return;
+      }
+
+      const { data, error } = await supabase.rpc("verify_intake_code", { p_code: value });
       const row = Array.isArray(data) ? data[0] : data;
       if (error || !row?.success) {
         toast.error(row?.message ?? error?.message ?? "Invalid code");
@@ -37,6 +55,7 @@ export default function AccessRequest() {
       toast.error(e.message ?? "Failed");
     } finally { setBusy(false); }
   };
+
 
   return (
     <PageShell>
