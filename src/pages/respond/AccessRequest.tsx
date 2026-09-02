@@ -6,6 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/customClient";
 import { setIntakeSession } from "@/lib/intakeClient";
+import { setApplicationSession, verifyApplicationCode } from "@/lib/incubatorClient";
+
+const INCUBATOR_PREFIXES = ["BUSFIN", "PROPFIN", "PROPJV", "ASSET", "SHORT", "BASADI", "YOUTH"];
+
 import { PageShell } from "@/components/ui/page-shell";
 import { GlassIcon } from "@/components/ui/glass-icon";
 import { toast } from "sonner";
