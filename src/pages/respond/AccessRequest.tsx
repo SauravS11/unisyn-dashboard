@@ -6,6 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/customClient";
 import { setIntakeSession } from "@/lib/intakeClient";
+import { setApplicationSession, verifyApplicationCode } from "@/lib/incubatorClient";
+
+const INCUBATOR_PREFIXES = ["BUSFIN", "PROPFIN", "PROPJV", "ASSET", "SHORT", "BASADI", "YOUTH"];
+
 import { PageShell } from "@/components/ui/page-shell";
 import { GlassIcon } from "@/components/ui/glass-icon";
 import { toast } from "sonner";
@@ -18,10 +22,28 @@ export default function AccessRequest() {
   const [busy, setBusy] = useState(false);
 
   const submit = async () => {
-    if (!code.trim()) { toast.error("Enter the deal/intake code"); return; }
+    if (!code.trim()) { toast.error("Enter your access code"); return; }
+    const value = code.trim().toUpperCase();
     setBusy(true);
     try {
-      const { data, error } = await supabase.rpc("verify_intake_code", { p_code: code.trim() });
+      // Funding programme (Incubators & Accelerators) application codes
+      const prefix = value.split("-")[0];
+      if (INCUBATOR_PREFIXES.includes(prefix)) {
+        const res = await verifyApplicationCode(value);
+        if (!res?.success || !res.access_token || !res.application_id) {
+          toast.error(res?.message ?? "Invalid application code");
+          return;
+        }
+        setApplicationSession({
+          accessToken: res.access_token,
+          applicationId: res.application_id,
+          applicationCode: res.application_code ?? value,
+        });
+        navigate(`/apply/${res.application_id}`);
+        return;
+      }
+
+      const { data, error } = await supabase.rpc("verify_intake_code", { p_code: value });
       const row = Array.isArray(data) ? data[0] : data;
       if (error || !row?.success) {
         toast.error(row?.message ?? error?.message ?? "Invalid code");
@@ -37,6 +59,7 @@ export default function AccessRequest() {
       toast.error(e.message ?? "Failed");
     } finally { setBusy(false); }
   };
+
 
   return (
     <PageShell>
@@ -57,9 +80,10 @@ export default function AccessRequest() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-1.5">
-                <Label className="text-xs uppercase tracking-wider text-muted-foreground">Deal Code</Label>
+                <Label className="text-xs uppercase tracking-wider text-muted-foreground">Access Code</Label>
                 <Input
-                  placeholder="USYN-2026-0001"
+                  placeholder="USYN-2026-0001 or BUSFIN-2026-0001"
+
                   value={code}
                   onChange={(e) => setCode(e.target.value.toUpperCase())}
                   className="font-mono tracking-wider h-12 text-base backdrop-glass bg-card/60"
