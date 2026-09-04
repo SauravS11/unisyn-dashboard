@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/customClient";
 import { setIntakeSession } from "@/lib/intakeClient";
+import { setApplicationSession, verifyApplicationCode } from "@/lib/incubatorClient";
 import { toast } from "sonner";
 import { Key, ArrowRight } from "lucide-react";
 
@@ -23,6 +24,27 @@ export const DealCodeCard = () => {
 
     setIsLoading(true);
     try {
+      // Funding applications have their own verifier, session, dashboard, and
+      // checklist. Check that portal first so incubator codes never enter the
+      // M&A intake flow.
+      const application = await verifyApplicationCode(trimmed);
+      if (application?.success && application.access_token && application.application_id) {
+        setApplicationSession({
+          accessToken: application.access_token,
+          applicationId: application.application_id,
+          applicationCode: application.application_code ?? trimmed.toUpperCase(),
+        });
+        toast.success("Application access granted!");
+        navigate(`/apply/${application.application_id}`);
+        return;
+      }
+
+      if (application?.message && application.message !== "Invalid application code.") {
+        toast.error(application.message);
+        return;
+      }
+
+      // Only codes not recognised by the funding portal fall back to M&A.
       const { data, error } = await supabase.rpc("verify_intake_code", {
         p_code: trimmed,
       });
@@ -56,10 +78,10 @@ export const DealCodeCard = () => {
           <Key className="h-6 w-6 text-primary" />
         </div>
         <CardTitle className="text-xl sm:text-2xl font-bold tracking-tight">
-          Client Access
+          Client &amp; Applicant Access
         </CardTitle>
         <CardDescription className="text-sm sm:text-base">
-          Enter the secure code your advisor shared with you. No sign-up required.
+          Enter the secure code shared by your advisor or programme manager. No sign-up required.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 sm:space-y-6">
@@ -67,7 +89,7 @@ export const DealCodeCard = () => {
           <Label htmlFor="intake-code">Access Code</Label>
           <Input
             id="intake-code"
-            placeholder="USYN-2026-0001"
+            placeholder="USYN-2026-0001 or BUSFIN-2026-0001"
             value={code}
             onChange={(e) => setCode(e.target.value.toUpperCase())}
             onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
