@@ -171,7 +171,7 @@ const ApplicantHome = () => {
             {started ? "Continue with application" : "Start application"} <ChevronRight className="h-4 w-4" />
           </Button>
           <p className="text-xs text-muted-foreground mt-3">
-            Part 1 — Guided Questions · Part 2 — Upload Supporting Documents
+            Part 1 — Guided Questions · Part 2 — Main Documents & Additional Deal Submission Documents
           </p>
         </div>
 
@@ -186,7 +186,7 @@ const ApplicantHome = () => {
                 onClick={() => navigate(`/apply/${data.application.id}/section/${s.section_code}`)}
                 className="w-full glass-surface lift-hover p-5 flex items-center gap-4 text-left"
               >
-                <GlassIcon icon={s.section_code === "G" ? FileText : ClipboardList} size="lg" />
+                <GlassIcon icon={["G", "H"].includes(s.section_code) ? FileText : ClipboardList} size="lg" />
                 <div className="flex-1 min-w-0">
                   <p className="font-display text-lg leading-tight">
                     {s.section_code} — {s.section_name}
