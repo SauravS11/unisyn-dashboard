@@ -8,8 +8,6 @@ import { supabase } from "@/integrations/supabase/customClient";
 import { setIntakeSession } from "@/lib/intakeClient";
 import { setApplicationSession, verifyApplicationCode } from "@/lib/incubatorClient";
 
-const INCUBATOR_PREFIXES = ["BUSFIN", "PROPFIN", "PROPJV", "ASSET", "SHORT", "BASADI", "YOUTH"];
-
 import { PageShell } from "@/components/ui/page-shell";
 import { GlassIcon } from "@/components/ui/glass-icon";
 import { toast } from "sonner";
@@ -26,20 +24,23 @@ export default function AccessRequest() {
     const value = code.trim().toUpperCase();
     setBusy(true);
     try {
-      // Funding programme (Incubators & Accelerators) application codes
-      const prefix = value.split("-")[0];
-      if (INCUBATOR_PREFIXES.includes(prefix)) {
-        const res = await verifyApplicationCode(value);
-        if (!res?.success || !res.access_token || !res.application_id) {
-          toast.error(res?.message ?? "Invalid application code");
-          return;
-        }
+      // Always check the funding portal first. This avoids rejecting valid codes
+      // when a programme prefix is added or changed in the database.
+      const application = await verifyApplicationCode(value);
+      if (application?.success && application.access_token && application.application_id) {
         setApplicationSession({
-          accessToken: res.access_token,
-          applicationId: res.application_id,
-          applicationCode: res.application_code ?? value,
+          accessToken: application.access_token,
+          applicationId: application.application_id,
+          applicationCode: application.application_code ?? value,
         });
-        navigate(`/apply/${res.application_id}`);
+        navigate(`/apply/${application.application_id}`);
+        return;
+      }
+
+      // A recognised funding code can still be unavailable before its request
+      // is sent. Preserve that useful message rather than reporting it invalid.
+      if (application?.message && application.message !== "Invalid application code.") {
+        toast.error(application.message);
         return;
       }
 
