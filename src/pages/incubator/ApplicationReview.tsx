@@ -68,6 +68,11 @@ const ApplicationReview = () => {
       .eq("id", applicationId)
       .maybeSingle();
     if (!a) return;
+    // The applicant request (secure link + application code) must be sent before review starts.
+    if (!a.request_sent_at) {
+      navigate(`/incubator/applications/${applicationId}/send`, { replace: true });
+      return;
+    }
     setApp(a);
     setSections(await fetchWorkflowChecklist(a.funding_workflow_id));
     const [s, r, d, c, act] = await Promise.all([
@@ -82,7 +87,7 @@ const ApplicationReview = () => {
     setDocuments(d.data ?? []);
     setClarifications(c.data ?? []);
     setActivity(act.data ?? []);
-  }, [applicationId]);
+  }, [applicationId, navigate]);
 
   useEffect(() => {
     load();

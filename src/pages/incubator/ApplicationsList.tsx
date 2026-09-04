@@ -18,6 +18,7 @@ interface Row {
   status: string;
   due_date: string | null;
   updated_at: string;
+  request_sent_at: string | null;
   funding_workflows: { name: string; slug: string } | null;
 }
 
@@ -37,7 +38,7 @@ const ApplicationsList = () => {
     (async () => {
       const { data, error } = await supabase
         .from("applications")
-        .select("id, application_code, business_name, status, due_date, updated_at, funding_workflows(name, slug)")
+        .select("id, application_code, business_name, status, due_date, updated_at, request_sent_at, funding_workflows(name, slug)")
         .order("updated_at", { ascending: false });
       if (error) toast.error(error.message);
       setRows((data ?? []) as any);
@@ -45,8 +46,12 @@ const ApplicationsList = () => {
     })();
   }, []);
 
-  const open = (r: Row) =>
-    navigate(r.status === "draft" ? `/incubator/applications/${r.id}/checklist` : `/incubator/applications/${r.id}/review`);
+  const open = (r: Row) => {
+    // Nothing goes to the review dashboard until the applicant request (link + code) has been sent.
+    if (r.status === "draft") return navigate(`/incubator/applications/${r.id}/checklist`);
+    if (!r.request_sent_at) return navigate(`/incubator/applications/${r.id}/send`);
+    navigate(`/incubator/applications/${r.id}/review`);
+  };
 
   const card = (r: Row) => (
     <Card
