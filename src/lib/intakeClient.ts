@@ -1,5 +1,5 @@
 // Helper utilities for the respondent portal (no auth — uses a session-stored token)
-import { supabase } from "@/integrations/supabase/customClient";
+import { portalSupabase as supabase } from "@/integrations/supabase/portalClient";
 
 const KEY_TOKEN = "intake_access_token";
 const KEY_INTAKE_ID = "intake_id";

@@ -23,7 +23,7 @@ import {
 } from "@/lib/incubatorClient";
 import { SECTION_STATUS_LABELS } from "@/lib/fundingWorkflows";
 import { getProgressColors } from "@/lib/progressColors";
-import { supabase } from "@/integrations/supabase/customClient";
+import { portalSupabase as supabase } from "@/integrations/supabase/portalClient";
 import { toast } from "sonner";
 
 const ApplicantHome = () => {

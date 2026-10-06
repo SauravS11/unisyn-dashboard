@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { supabase } from "@/integrations/supabase/customClient";
+import { portalSupabase as supabase } from "@/integrations/supabase/portalClient";
 import { setIntakeSession } from "@/lib/intakeClient";
 import { setApplicationSession, verifyApplicationCode } from "@/lib/incubatorClient";
 import { toast } from "sonner";
