@@ -203,6 +203,20 @@ export default function IntakeReview() {
 
   useEffect(() => { load(); loadSpecialists(); }, [intakeId]);
 
+  // Live updates when the client uploads or answers in another tab
+  useEffect(() => {
+    if (!intakeId) return;
+    const filter = `client_intake_id=eq.${intakeId}`;
+    const channel = supabase
+      .channel(`intake-review-${intakeId}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "client_requirement_documents", filter }, () => load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "client_requirement_responses", filter }, () => load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "client_intake_categories", filter }, () => load())
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [intakeId]);
+
   const overall = useMemo(() => {
     if (rows.length === 0) return 0;
     const sum = rows.reduce((acc, r) => acc + (r.total ? (r.responses + r.documents) / r.total : 0), 0);

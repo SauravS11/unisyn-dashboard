@@ -1,6 +1,6 @@
 // Incubators & Accelerators — data helpers.
 // Separate from the M&A intake helpers in intakeClient.ts.
-import { supabase } from "@/integrations/supabase/customClient";
+import { portalSupabase as supabase } from "@/integrations/supabase/portalClient";
 
 const KEY_TOKEN = "application_access_token";
 const KEY_ID = "application_id";

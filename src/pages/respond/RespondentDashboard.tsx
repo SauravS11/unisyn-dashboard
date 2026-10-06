@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { supabase } from "@/integrations/supabase/customClient";
+import { portalSupabase as supabase } from "@/integrations/supabase/portalClient";
 import { getIntakeSession, clearIntakeSession } from "@/lib/intakeClient";
 import { RespondentHeader } from "@/components/RespondentHeader";
 import { PageShell } from "@/components/ui/page-shell";
