@@ -4,7 +4,9 @@ import { DealCodeCard } from "@/components/DealCodeCard";
 import unisynLogo from "@/assets/unisyn-logo.svg";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { PageShell } from "@/components/ui/page-shell";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/customClient";
 
 type Tab = "signin" | "signup" | "dealcode";
 
@@ -15,8 +17,18 @@ const tabs: { id: Tab; label: string }[] = [
 ];
 
 const Index = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<Tab>("signin");
+  const [signedInEmail, setSignedInEmail] = useState<string | null>(null);
   const activeIndex = tabs.findIndex((t) => t.id === activeTab);
+
+  // Read the stored login once (no live listener) so this tab never jumps
+  // when another tab signs in or out.
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setSignedInEmail(data.session?.user?.email ?? null);
+    });
+  }, []);
 
   return (
     <PageShell>
@@ -37,6 +49,16 @@ const Index = () => {
             Clarity for every <span className="text-gradient-brand">transaction</span>.
           </h2>
         </div>
+
+        {signedInEmail && activeTab !== "dealcode" && (
+          <button
+            onClick={() => navigate("/workspace")}
+            className="mb-5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Signed in as <span className="font-medium text-foreground">{signedInEmail}</span> ·{" "}
+            <span className="text-primary font-medium">Go to workspace</span>
+          </button>
+        )}
 
         {/* Tab Navigation — glass pill */}
         <div className="mb-7 relative w-full max-w-md glass-surface rounded-full p-1.5">

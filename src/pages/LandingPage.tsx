@@ -6,29 +6,13 @@ import { motion, type Variants, type Easing, useMotionValue, useTransform, useSp
 import { AnimatedBackground } from "@/components/AnimatedBackground";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/customClient";
 
 const LandingPage = () => {
   const navigate = useNavigate();
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
-  // Listen for auth state changes (e.g. after Google OAuth redirect)
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user) {
-        navigate("/welcome", { replace: true });
-      }
-    });
-
-    // Also check if already authenticated
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        navigate("/welcome", { replace: true });
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
+  // No auto-redirect and no cross-tab auth listener here: a signed-in tab must
+  // never pull another tab (e.g. one used for Client Access) into the workspace.
   
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
