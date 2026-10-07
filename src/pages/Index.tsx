@@ -50,6 +50,16 @@ const Index = () => {
           </h2>
         </div>
 
+        {signedInEmail && activeTab !== "dealcode" && (
+          <button
+            onClick={() => navigate("/workspace")}
+            className="mb-5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Signed in as <span className="font-medium text-foreground">{signedInEmail}</span> ·{" "}
+            <span className="text-primary font-medium">Go to workspace</span>
+          </button>
+        )}
+
         {/* Tab Navigation — glass pill */}
         <div className="mb-7 relative w-full max-w-md glass-surface rounded-full p-1.5">
           <div className="relative flex">
