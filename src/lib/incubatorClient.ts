@@ -1,6 +1,7 @@
 // Incubators & Accelerators — data helpers.
 // Separate from the M&A intake helpers in intakeClient.ts.
 import { portalSupabase as supabase } from "@/integrations/supabase/portalClient";
+import { fundingDocumentSections, isFundingDocumentSection } from "./fundingChecklist";
 
 const KEY_TOKEN = "application_access_token";
 const KEY_ID = "application_id";
@@ -69,7 +70,7 @@ export async function fetchWorkflowChecklist(workflowId: string): Promise<Workfl
     .eq("funding_workflow_id", workflowId)
     .order("sort_order");
   if (error) throw error;
-  return ((data ?? []) as any[]).map((s) => ({
+  return fundingDocumentSections(((data ?? []) as any[]).map((s) => ({
     id: s.id,
     section_code: s.section_code,
     section_name: s.section_name,
@@ -77,7 +78,7 @@ export async function fetchWorkflowChecklist(workflowId: string): Promise<Workfl
     requirements: (s.funding_workflow_requirements ?? []).sort(
       (a: WorkflowRequirement, b: WorkflowRequirement) => a.sort_order - b.sort_order,
     ),
-  }));
+  })));
 }
 
 /* ---------- applicant portal (token based) ---------- */
@@ -112,10 +113,12 @@ export async function getApplicationOverview() {
     p_token: accessToken,
   });
   if (error) throw error;
-  return data as any;
+  const overview = data as any;
+  return { ...overview, sections: fundingDocumentSections(overview?.sections ?? []) };
 }
 
 export async function getApplicationSection(sectionCode: string) {
+  if (!isFundingDocumentSection(sectionCode)) throw new Error("This checklist contains main and supporting documents only.");
   const { accessToken, applicationId } = session();
   const { data, error } = await supabase.rpc("get_application_section", {
     p_application_id: applicationId,

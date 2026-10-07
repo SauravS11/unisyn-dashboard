@@ -20,6 +20,7 @@ import {
   uploadApplicationDocument,
 } from "@/lib/incubatorClient";
 import { toast } from "sonner";
+import { isFundingDocumentSection } from "@/lib/fundingChecklist";
 
 const ApplicantSection = () => {
   const { applicationId, sectionCode } = useParams();
@@ -30,6 +31,10 @@ const ApplicantSection = () => {
 
   const load = useCallback(async () => {
     if (!sectionCode) return;
+    if (!isFundingDocumentSection(sectionCode)) {
+      navigate(`/apply/${applicationId}`, { replace: true });
+      return;
+    }
     try {
       const d = await getApplicationSection(sectionCode);
       setData(d);
@@ -40,7 +45,7 @@ const ApplicantSection = () => {
       toast.error(e.message ?? "Session expired");
       navigate("/apply");
     }
-  }, [sectionCode, navigate]);
+  }, [sectionCode, applicationId, navigate]);
 
   useEffect(() => {
     const { applicationId: id } = getApplicationSession();
@@ -118,7 +123,7 @@ const ApplicantSection = () => {
         <div className="glass-surface-strong p-6 mb-6">
           <div className="flex flex-wrap items-start justify-between gap-5">
             <div className="flex items-start gap-4">
-              <GlassIcon icon={sectionCode === "G" ? FileText : MessageSquareText} size="xl" />
+              <GlassIcon icon={FileText} size="xl" />
               <div>
                 <h1 className="font-display text-3xl tracking-tight">
                   {data?.section?.section_code} — {data?.section?.section_name}
@@ -177,15 +182,7 @@ const ApplicantSection = () => {
           </div>
         )}
 
-        <Tabs defaultValue={sectionCode === "G" ? "docs" : "questions"}>
-          <TabsList className="glass-surface rounded-full p-1.5 mb-6">
-            <TabsTrigger value="questions" className="rounded-full">
-              Guided Questions ({questions.length})
-            </TabsTrigger>
-            <TabsTrigger value="docs" className="rounded-full">
-              Supporting Documents ({docReqs.length})
-            </TabsTrigger>
-          </TabsList>
+        <Tabs value="docs">
 
           <TabsContent value="questions" className="space-y-4">
             {questions.length === 0 && (

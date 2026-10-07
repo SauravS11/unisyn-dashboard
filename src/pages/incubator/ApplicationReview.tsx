@@ -74,7 +74,8 @@ const ApplicationReview = () => {
       return;
     }
     setApp(a);
-    setSections(await fetchWorkflowChecklist(a.funding_workflow_id));
+    const checklist = await fetchWorkflowChecklist(a.funding_workflow_id);
+    setSections(checklist);
     const [s, r, d, c, act] = await Promise.all([
       supabase.from("application_sections").select("*").eq("application_id", applicationId),
       supabase.from("application_responses").select("*").eq("application_id", applicationId),
@@ -82,7 +83,7 @@ const ApplicationReview = () => {
       supabase.from("application_clarifications").select("*").eq("application_id", applicationId).order("created_at", { ascending: false }),
       supabase.from("application_activity").select("*").eq("application_id", applicationId).order("created_at", { ascending: false }).limit(8),
     ]);
-    setAppSections(s.data ?? []);
+    setAppSections((s.data ?? []).filter((state) => checklist.some((section) => section.id === state.section_id)));
     setResponses(r.data ?? []);
     setDocuments(d.data ?? []);
     setClarifications(c.data ?? []);

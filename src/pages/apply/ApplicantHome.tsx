@@ -171,7 +171,7 @@ const ApplicantHome = () => {
             {started ? "Continue with application" : "Start application"} <ChevronRight className="h-4 w-4" />
           </Button>
           <p className="text-xs text-muted-foreground mt-3">
-            Part 1 — Guided Questions · Part 2 — Main Documents & Additional Deal Submission Documents
+             Main Documents · Additional Deal Submission Documents
           </p>
         </div>
 
