@@ -1,6 +1,6 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
-import { fundingDocumentSections, isFundingDocumentSection } from "./fundingChecklist";
+import { fundingDocumentSections, isFundingDocumentSection } from "../src/lib/fundingChecklist";
 
 describe("Document-only funding checklists", () => {
   test("includes only the matrix's main and supporting document groups", () => {
