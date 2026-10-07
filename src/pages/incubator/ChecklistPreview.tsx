@@ -75,13 +75,13 @@ const ChecklistPreview = () => {
               <AccordionItem key={s.id} value={s.id} className="glass-surface px-5 border">
                 <AccordionTrigger className="hover:no-underline">
                   <div className="flex items-center gap-4 text-left">
-                    <GlassIcon icon={s.section_code === "G" ? FileText : ListChecks} size="md" />
+                    <GlassIcon icon={FileText} size="md" />
                     <div>
                       <p className="font-display text-lg leading-tight">
                         {s.section_code} — {s.section_name}
                       </p>
                       <p className="text-xs text-muted-foreground mt-0.5">
-                        {qs} guided questions · {docs} documents
+                        {docs} documents
                       </p>
                     </div>
                   </div>
