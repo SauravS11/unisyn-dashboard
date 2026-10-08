@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { ArrowLeft, FilePlus2, Rocket, Calendar, Hash } from "lucide-react";
+import { ArrowLeft, FilePlus2, Rocket, Calendar, Hash, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/customClient";
 import { APPLICATION_STATUS_LABELS } from "@/lib/fundingWorkflows";
 import { toast } from "sonner";
