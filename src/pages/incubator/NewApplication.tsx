@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, ArrowRight, Rocket, Save } from "lucide-react";
+import { ArrowLeft, ArrowRight, CloudUpload, Rocket, Save } from "lucide-react";
 import { supabase } from "@/integrations/supabase/customClient";
 import { fetchWorkflows, type FundingWorkflow } from "@/lib/incubatorClient";
 import { COMMON_FIELDS, PROFILE_EXTRA_FIELDS, type FieldConfig } from "@/lib/fundingWorkflows";
@@ -70,15 +70,41 @@ const NewApplication = () => {
   };
 
   const renderField = (f: FieldConfig) => (
-    <div key={f.key} className="space-y-2">
-      <Label htmlFor={f.key} className="text-xs uppercase tracking-wider text-muted-foreground">
+    <div key={f.key} className="space-y-2.5">
+      <Label htmlFor={f.key} className="text-[11px] font-semibold uppercase tracking-wider text-foreground/70">
         {f.label}
       </Label>
       {f.type === "file" ? (
         <div className="space-y-2">
-          <Input
+          <label
+            htmlFor={f.key}
+            className={`flex items-center gap-3 rounded-md border border-dashed bg-card px-4 py-3 cursor-pointer shadow-sm transition-colors hover:border-primary/50 ${
+              uploading === f.key ? "opacity-60 pointer-events-none" : ""
+            }`}
+          >
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary">
+              <CloudUpload className="h-4 w-4 text-muted-foreground" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-sm font-medium">
+                {uploading === f.key
+                  ? "Uploading…"
+                  : values[`${f.key}_name`]
+                    ? values[`${f.key}_name`]
+                    : values[f.key]
+                      ? values[f.key].split("/").pop()
+                      : "Upload a document"}
+              </span>
+              <span className="block text-xs text-muted-foreground">PDF or spreadsheet · max 20MB</span>
+            </span>
+            <span className="shrink-0 text-xs font-medium text-primary">
+              {values[`${f.key}_name`] || values[f.key] ? "Replace" : "Browse"}
+            </span>
+          </label>
+          <input
             id={f.key}
             type="file"
+            className="sr-only"
             accept=".pdf,.xls,.xlsx,.csv,.ods,application/pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv"
             disabled={uploading === f.key}
             onChange={(e) => {
@@ -87,15 +113,6 @@ const NewApplication = () => {
               e.target.value = "";
             }}
           />
-          {uploading === f.key ? (
-            <p className="text-xs text-muted-foreground">Uploading…</p>
-          ) : values[f.key] ? (
-            <p className="text-xs text-muted-foreground">
-              Uploaded: <span className="text-foreground">{values[`${f.key}_name`] || values[f.key].split("/").pop()}</span>
-            </p>
-          ) : (
-            <p className="text-xs text-muted-foreground">PDF or spreadsheet</p>
-          )}
         </div>
       ) : f.type === "textarea" ? (
         <Textarea id={f.key} value={values[f.key] ?? ""} onChange={(e) => set(f.key, e.target.value)} rows={3} />
@@ -211,9 +228,14 @@ const NewApplication = () => {
               {workflow?.name} — capture who is applying.
             </p>
 
-            <div className="glass-surface p-6 mb-6">
-              <h2 className="font-display text-xl mb-5">Applicant Details</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">{[...COMMON_FIELDS, ...PROFILE_EXTRA_FIELDS].map(renderField)}</div>
+            <div className="glass-surface-strong p-6 sm:p-8 mb-8">
+              <h2 className="font-display text-xl mb-1">Applicant Details</h2>
+              <p className="text-sm text-muted-foreground mb-7">
+                Shared across every funding programme — completed once per applicant.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-7">
+                {[...COMMON_FIELDS, ...PROFILE_EXTRA_FIELDS].map(renderField)}
+              </div>
             </div>
 
             <div className="flex flex-wrap gap-3 justify-between">
