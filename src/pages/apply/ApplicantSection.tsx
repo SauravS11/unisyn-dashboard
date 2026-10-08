@@ -310,19 +310,9 @@ const ApplicantSection = () => {
           <Button variant="outline" className="rounded-full" disabled={busy} onClick={saveAll}>
             Save Progress
           </Button>
-          <Button
-            variant={nextSectionCode ? "outline" : "default"}
-            className={nextSectionCode ? "rounded-full gap-2" : "rounded-full gap-2 bg-gradient-success text-success-foreground"}
-            disabled={busy}
-            onClick={() => submit(false)}
-          >
-            <CheckCircle2 className="h-4 w-4" /> Submit Section
+          <Button className="rounded-full gap-2 bg-gradient-success text-success-foreground" disabled={busy} onClick={submit}>
+            <CheckCircle2 className="h-4 w-4" /> Submit &amp; Continue
           </Button>
-          {nextSectionCode && (
-            <Button className="rounded-full gap-2 bg-gradient-success text-success-foreground" disabled={busy} onClick={() => submit(true)}>
-              <CheckCircle2 className="h-4 w-4" /> Submit &amp; Continue to Supporting Documents
-            </Button>
-          )}
         </div>
       </div>
     </PageShell>
