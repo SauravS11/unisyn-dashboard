@@ -91,6 +91,7 @@ export const COMMON_FIELDS: FieldConfig[] = [
 
 // Extra applicant profile fields shared by every funding programme (stored in specific_fields).
 export const PROFILE_EXTRA_FIELDS: FieldConfig[] = [
+  { key: "funding_amount_required", label: "Funding Amount Required (ZAR)", type: "currency" },
   { key: "summarised_balance_sheet", label: "Summarised Balance Sheet", type: "file" },
   { key: "personal_balance_sheet", label: "Personal Balance Sheet", type: "file" },
   {
