@@ -16,9 +16,11 @@ import {
   CheckCircle2,
   CircleAlert,
   ClipboardList,
+  ExternalLink,
   FileText,
   MessageSquareText,
   Radio,
+  Rocket,
   ShieldQuestion,
   Timer,
   Upload,
@@ -211,6 +213,41 @@ const ApplicationReview = () => {
     load();
   };
 
+  const [creatingWorkspace, setCreatingWorkspace] = useState(false);
+  const createWorkspace = async () => {
+    setCreatingWorkspace(true);
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      const { data: deal, error } = await (supabase as any).from("deals").insert({
+        name: app.business_name,
+        user_id: userData?.user?.id,
+        status: "active",
+        target_close_date: app.due_date,
+        source_application_id: applicationId,
+        client_company_name: app.business_name,
+        client_type: "funding",
+        intake_approved_at: app.approved_at,
+        industry: app.industry,
+      }).select("id").single();
+      if (error) throw error;
+      const { error: seedError } = await (supabase as any).rpc("seed_deal_from_application", {
+        p_deal_id: deal.id,
+        p_application_id: applicationId,
+      });
+      if (seedError) throw seedError;
+      await (supabase as any).from("applications").update({
+        status: "converted_to_deal",
+        converted_deal_id: deal.id,
+      }).eq("id", applicationId);
+      toast.success("Deal workspace created with application progress");
+      navigate(`/deals/${deal.id}/dashboard`);
+    } catch (e: any) {
+      toast.error(e.message ?? "Failed to create workspace");
+    } finally {
+      setCreatingWorkspace(false);
+    }
+  };
+
   const openDoc = async (path: string) => {
     const { data, error } = await supabase.storage.from("application-documents").createSignedUrl(path, 300);
     if (error) return toast.error(error.message);
@@ -334,9 +371,21 @@ const ApplicationReview = () => {
           <div className="space-y-6">
             <div className="glass-surface p-5">
               <h3 className="font-display text-xl mb-4">Next Steps</h3>
-              <Button className="w-full rounded-full bg-gradient-success text-success-foreground gap-2 mb-3" onClick={approveApplication}>
-                <CheckCircle2 className="h-4 w-4" /> Approve Full Application
-              </Button>
+              {app?.status !== "approved" && app?.status !== "converted_to_deal" && (
+                <Button className="w-full rounded-full bg-gradient-success text-success-foreground gap-2 mb-3" onClick={approveApplication}>
+                  <CheckCircle2 className="h-4 w-4" /> Approve Full Application
+                </Button>
+              )}
+              {app?.status === "approved" && (
+                <Button className="w-full rounded-full bg-gradient-success text-success-foreground gap-2 mb-3" disabled={creatingWorkspace} onClick={createWorkspace}>
+                  <Rocket className="h-4 w-4" /> {creatingWorkspace ? "Creating…" : "Create Deal Workspace"}
+                </Button>
+              )}
+              {app?.status === "converted_to_deal" && app?.converted_deal_id && (
+                <Button variant="outline" className="w-full rounded-full gap-2 mb-3" onClick={() => navigate(`/deals/${app.converted_deal_id}/dashboard`)}>
+                  <ExternalLink className="h-4 w-4" /> Open Deal Dashboard
+                </Button>
+              )}
               <Button variant="outline" className="w-full rounded-full gap-2" onClick={() => setClarSection(sections[0] ?? null)}>
                 <MessageSquareText className="h-4 w-4" /> Request Clarification
               </Button>
