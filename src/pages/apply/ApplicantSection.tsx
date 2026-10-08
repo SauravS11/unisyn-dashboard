@@ -263,8 +263,31 @@ const ApplicantSection = () => {
                   )}
 
                   <div className="mt-4">
-                    <Input
+                    <label
+                      htmlFor={`doc-${r.id}`}
+                      className={`flex items-center gap-3 rounded-md border border-dashed bg-card px-4 py-3 cursor-pointer shadow-sm transition-colors hover:border-primary/50 ${
+                        busy ? "opacity-60 pointer-events-none" : ""
+                      }`}
+                    >
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary">
+                        <Upload className="h-4 w-4 text-muted-foreground" />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-sm font-medium">
+                          {latest ? latest.file_name : "Upload a document"}
+                        </span>
+                        <span className="block text-xs text-muted-foreground">
+                          {latest ? "Uploading again creates a new version" : "PDF or spreadsheet · max 20MB"}
+                        </span>
+                      </span>
+                      <span className="shrink-0 text-xs font-medium text-primary">
+                        {latest ? "Replace" : "Browse"}
+                      </span>
+                    </label>
+                    <input
+                      id={`doc-${r.id}`}
                       type="file"
+                      className="sr-only"
                       disabled={busy}
                       onChange={(e) => {
                         const file = e.target.files?.[0];
@@ -272,9 +295,6 @@ const ApplicantSection = () => {
                         e.currentTarget.value = "";
                       }}
                     />
-                    <p className="text-[11px] text-muted-foreground mt-2 inline-flex items-center gap-1.5">
-                      <Upload className="h-3 w-3" /> {latest ? "Uploading again creates a new version" : "Upload your document"}
-                    </p>
                   </div>
                 </div>
               );
