@@ -1,7 +1,7 @@
 // Incubators & Accelerators — funding programme configuration.
 // This module is completely separate from the M&A / Deals workflow.
 
-export type FieldType = "text" | "textarea" | "number" | "currency" | "date" | "select";
+export type FieldType = "text" | "textarea" | "number" | "currency" | "date" | "select" | "file";
 
 export interface FieldConfig {
   key: string;
@@ -91,8 +91,8 @@ export const COMMON_FIELDS: FieldConfig[] = [
 
 // Extra applicant profile fields shared by every funding programme (stored in specific_fields).
 export const PROFILE_EXTRA_FIELDS: FieldConfig[] = [
-  { key: "summarised_balance_sheet", label: "Summarised Balance Sheet", type: "textarea" },
-  { key: "personal_balance_sheet", label: "Personal Balance Sheet", type: "textarea" },
+  { key: "summarised_balance_sheet", label: "Summarised Balance Sheet", type: "file" },
+  { key: "personal_balance_sheet", label: "Personal Balance Sheet", type: "file" },
   {
     key: "applicant_credit_check_consent",
     label: "Applicant Approving Credit Check",
