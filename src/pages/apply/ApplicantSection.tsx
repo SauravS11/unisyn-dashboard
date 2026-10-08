@@ -303,7 +303,7 @@ const ApplicantSection = () => {
           </TabsContent>
         </Tabs>
 
-        <div className="flex flex-wrap justify-end gap-3 mt-8">
+        <div className="flex flex-wrap justify-center gap-3 mt-8">
           <Button variant="outline" className="rounded-full" onClick={() => navigate(`/apply/${applicationId}`)}>
             Back to Application
           </Button>
