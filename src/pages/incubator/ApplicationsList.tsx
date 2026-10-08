@@ -73,9 +73,23 @@ const ApplicationsList = () => {
       <CardHeader className="space-y-4">
         <div className="flex items-start justify-between gap-3">
           <GlassIcon icon={Rocket} size="lg" />
-          <Badge variant="outline" className="rounded-full text-[10px] uppercase tracking-wider">
-            {APPLICATION_STATUS_LABELS[r.status] ?? r.status}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="rounded-full text-[10px] uppercase tracking-wider">
+              {APPLICATION_STATUS_LABELS[r.status] ?? r.status}
+            </Badge>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label={`Delete ${r.business_name}`}
+              className="h-8 w-8 rounded-full text-muted-foreground hover:text-destructive"
+              onClick={(e) => {
+                e.stopPropagation();
+                remove(r);
+              }}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
         <div>
           <CardTitle className="font-display text-xl leading-tight">{r.business_name}</CardTitle>
