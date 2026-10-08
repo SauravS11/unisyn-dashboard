@@ -53,6 +53,17 @@ const ApplicationsList = () => {
     navigate(`/incubator/applications/${r.id}/review`);
   };
 
+  const remove = async (r: Row) => {
+    if (!window.confirm(`Delete "${r.business_name}" (${r.application_code})? This removes the application and all its responses and documents.`)) return;
+    const { data, error } = await supabase.rpc("delete_funding_application", { p_application_id: r.id });
+    if (error || data === false) {
+      toast.error(error?.message ?? "Could not delete the application");
+      return;
+    }
+    setRows((prev) => prev.filter((x) => x.id !== r.id));
+    toast.success("Application deleted");
+  };
+
   const card = (r: Row) => (
     <Card
       key={r.id}
