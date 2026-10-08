@@ -47,13 +47,57 @@ const NewApplication = () => {
   const specificFields: FieldConfig[] = PROFILE_EXTRA_FIELDS;
 
   const set = (k: string, v: string) => setValues((p) => ({ ...p, [k]: v }));
+  const [uploading, setUploading] = useState<string | null>(null);
+
+  const uploadFile = async (key: string, file: File) => {
+    const ok = /\.(pdf|xls|xlsx|csv|ods)$/i.test(file.name);
+    if (!ok) return toast.error("Please upload a PDF or spreadsheet");
+    if (file.size > 20 * 1024 * 1024) return toast.error("File must be under 20MB");
+    setUploading(key);
+    try {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u?.user) throw new Error("Please sign in again");
+      const path = `applicant-profile/${u.user.id}/${key}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+      const { error } = await supabase.storage.from("application-documents").upload(path, file);
+      if (error) throw error;
+      setValues((p) => ({ ...p, [key]: path, [`${key}_name`]: file.name }));
+      toast.success(`${file.name} uploaded`);
+    } catch (e: any) {
+      toast.error(e.message ?? "Upload failed");
+    } finally {
+      setUploading(null);
+    }
+  };
 
   const renderField = (f: FieldConfig) => (
     <div key={f.key} className="space-y-2">
       <Label htmlFor={f.key} className="text-xs uppercase tracking-wider text-muted-foreground">
         {f.label}
       </Label>
-      {f.type === "textarea" ? (
+      {f.type === "file" ? (
+        <div className="space-y-2">
+          <Input
+            id={f.key}
+            type="file"
+            accept=".pdf,.xls,.xlsx,.csv,.ods,application/pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv"
+            disabled={uploading === f.key}
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) uploadFile(f.key, file);
+              e.target.value = "";
+            }}
+          />
+          {uploading === f.key ? (
+            <p className="text-xs text-muted-foreground">Uploading…</p>
+          ) : values[f.key] ? (
+            <p className="text-xs text-muted-foreground">
+              Uploaded: <span className="text-foreground">{values[`${f.key}_name`] || values[f.key].split("/").pop()}</span>
+            </p>
+          ) : (
+            <p className="text-xs text-muted-foreground">PDF or spreadsheet</p>
+          )}
+        </div>
+      ) : f.type === "textarea" ? (
         <Textarea id={f.key} value={values[f.key] ?? ""} onChange={(e) => set(f.key, e.target.value)} rows={3} />
       ) : f.type === "select" ? (
         <Select value={values[f.key] ?? ""} onValueChange={(v) => set(f.key, v)}>
@@ -89,6 +133,7 @@ const NewApplication = () => {
       const specific: Record<string, string> = {};
       specificFields.forEach((f) => {
         if (values[f.key]) specific[f.key] = values[f.key];
+        if (f.type === "file" && values[`${f.key}_name`]) specific[`${f.key}_name`] = values[`${f.key}_name`];
       });
       const payload: any = {
         funding_workflow_id: workflowId,
@@ -176,10 +221,10 @@ const NewApplication = () => {
                 Change funding programme
               </Button>
               <div className="flex gap-3">
-                <Button variant="outline" className="rounded-full gap-2" disabled={saving} onClick={() => save(false)}>
+                <Button variant="outline" className="rounded-full gap-2" disabled={saving || !!uploading} onClick={() => save(false)}>
                   <Save className="h-4 w-4" /> Save Draft
                 </Button>
-                <Button className="rounded-full gap-2" disabled={saving} onClick={() => save(true)}>
+                <Button className="rounded-full gap-2" disabled={saving || !!uploading} onClick={() => save(true)}>
                   Continue to Checklist <ArrowRight className="h-4 w-4" />
                 </Button>
               </div>
