@@ -371,9 +371,21 @@ const ApplicationReview = () => {
           <div className="space-y-6">
             <div className="glass-surface p-5">
               <h3 className="font-display text-xl mb-4">Next Steps</h3>
-              <Button className="w-full rounded-full bg-gradient-success text-success-foreground gap-2 mb-3" onClick={approveApplication}>
-                <CheckCircle2 className="h-4 w-4" /> Approve Full Application
-              </Button>
+              {app?.status !== "approved" && app?.status !== "converted_to_deal" && (
+                <Button className="w-full rounded-full bg-gradient-success text-success-foreground gap-2 mb-3" onClick={approveApplication}>
+                  <CheckCircle2 className="h-4 w-4" /> Approve Full Application
+                </Button>
+              )}
+              {app?.status === "approved" && (
+                <Button className="w-full rounded-full bg-gradient-success text-success-foreground gap-2 mb-3" disabled={creatingWorkspace} onClick={createWorkspace}>
+                  <Rocket className="h-4 w-4" /> {creatingWorkspace ? "Creating…" : "Create Deal Workspace"}
+                </Button>
+              )}
+              {app?.status === "converted_to_deal" && app?.converted_deal_id && (
+                <Button variant="outline" className="w-full rounded-full gap-2 mb-3" onClick={() => navigate(`/deals/${app.converted_deal_id}/dashboard`)}>
+                  <ExternalLink className="h-4 w-4" /> Open Deal Dashboard
+                </Button>
+              )}
               <Button variant="outline" className="w-full rounded-full gap-2" onClick={() => setClarSection(sections[0] ?? null)}>
                 <MessageSquareText className="h-4 w-4" /> Request Clarification
               </Button>
