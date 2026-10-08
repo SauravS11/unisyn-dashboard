@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { PageShell } from "@/components/ui/page-shell";
 import { GlassIcon } from "@/components/ui/glass-icon";
@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowLeft, ArrowRight, Rocket, Save } from "lucide-react";
 import { supabase } from "@/integrations/supabase/customClient";
 import { fetchWorkflows, type FundingWorkflow } from "@/lib/incubatorClient";
-import { COMMON_FIELDS, WORKFLOW_FIELDS, type FieldConfig } from "@/lib/fundingWorkflows";
+import { COMMON_FIELDS, PROFILE_EXTRA_FIELDS, type FieldConfig } from "@/lib/fundingWorkflows";
 import { toast } from "sonner";
 
 const COMMON_KEYS = COMMON_FIELDS.map((f) => f.key);
@@ -44,10 +44,7 @@ const NewApplication = () => {
   }, [applicationId]);
 
   const workflow = workflows.find((w) => w.id === workflowId) ?? null;
-  const specificFields: FieldConfig[] = useMemo(
-    () => (workflow ? WORKFLOW_FIELDS[workflow.slug] ?? [] : []),
-    [workflow],
-  );
+  const specificFields: FieldConfig[] = PROFILE_EXTRA_FIELDS;
 
   const set = (k: string, v: string) => setValues((p) => ({ ...p, [k]: v }));
 
@@ -166,20 +163,13 @@ const NewApplication = () => {
             <p className="text-[11px] uppercase tracking-[0.3em] text-muted-foreground mb-3">Step 2 of 4</p>
             <h1 className="font-display text-4xl tracking-tight mb-2">Applicant Profile</h1>
             <p className="text-muted-foreground mb-8">
-              {workflow?.name} — capture who is applying and the key funding details.
+              {workflow?.name} — capture who is applying.
             </p>
 
             <div className="glass-surface p-6 mb-6">
               <h2 className="font-display text-xl mb-5">Applicant Details</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">{COMMON_FIELDS.map(renderField)}</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">{[...COMMON_FIELDS, ...PROFILE_EXTRA_FIELDS].map(renderField)}</div>
             </div>
-
-            {specificFields.length > 0 && (
-              <div className="glass-surface p-6 mb-6">
-                <h2 className="font-display text-xl mb-5">{workflow?.name} Details</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">{specificFields.map(renderField)}</div>
-              </div>
-            )}
 
             <div className="flex flex-wrap gap-3 justify-between">
               <Button variant="outline" className="rounded-full" onClick={() => setStep(1)}>
