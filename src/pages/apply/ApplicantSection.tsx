@@ -85,15 +85,15 @@ const ApplicantSection = () => {
 
   const nextSectionCode = sectionCode?.toUpperCase() === "G" ? "H" : null;
 
-  const submit = async (continueNext = false) => {
+  const submit = async () => {
     const missing = questions.filter((q) => q.is_required && !(answers[q.id] ?? "").trim());
     if (missing.length) return toast.error(`${missing.length} required question(s) still need an answer`);
     setBusy(true);
     try {
       await saveAll();
       await submitSection(data.section.id);
-      toast.success(continueNext ? "Main documents submitted — continuing to supporting documents" : "Section submitted for review");
-      navigate(continueNext && nextSectionCode ? `/apply/${applicationId}/section/${nextSectionCode}` : `/apply/${applicationId}`);
+      toast.success(nextSectionCode ? "Section submitted — continuing to the next section" : "Section submitted for review");
+      navigate(nextSectionCode ? `/apply/${applicationId}/section/${nextSectionCode}` : `/apply/${applicationId}`);
     } catch (e: any) {
       toast.error(e.message ?? "Could not submit the section");
     } finally {
@@ -310,19 +310,9 @@ const ApplicantSection = () => {
           <Button variant="outline" className="rounded-full" disabled={busy} onClick={saveAll}>
             Save Progress
           </Button>
-          <Button
-            variant={nextSectionCode ? "outline" : "default"}
-            className={nextSectionCode ? "rounded-full gap-2" : "rounded-full gap-2 bg-gradient-success text-success-foreground"}
-            disabled={busy}
-            onClick={() => submit(false)}
-          >
-            <CheckCircle2 className="h-4 w-4" /> Submit Section
+          <Button className="rounded-full gap-2 bg-gradient-success text-success-foreground" disabled={busy} onClick={submit}>
+            <CheckCircle2 className="h-4 w-4" /> Submit &amp; Continue
           </Button>
-          {nextSectionCode && (
-            <Button className="rounded-full gap-2 bg-gradient-success text-success-foreground" disabled={busy} onClick={() => submit(true)}>
-              <CheckCircle2 className="h-4 w-4" /> Submit &amp; Continue to Supporting Documents
-            </Button>
-          )}
         </div>
       </div>
     </PageShell>
