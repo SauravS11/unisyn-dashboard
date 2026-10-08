@@ -89,6 +89,18 @@ export const COMMON_FIELDS: FieldConfig[] = [
   { key: "programme_notes", label: "Programme Manager Notes", type: "textarea" },
 ];
 
+// Extra applicant profile fields shared by every funding programme (stored in specific_fields).
+export const PROFILE_EXTRA_FIELDS: FieldConfig[] = [
+  { key: "summarised_balance_sheet", label: "Summarised Balance Sheet", type: "textarea" },
+  { key: "personal_balance_sheet", label: "Personal Balance Sheet", type: "textarea" },
+  {
+    key: "applicant_credit_check_consent",
+    label: "Applicant Approving Credit Check",
+    type: "select",
+    options: ["Yes", "No"],
+  },
+];
+
 const f = (label: string, type: FieldType = "text", options?: string[]): FieldConfig => ({
   key: label.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, ""),
   label,
