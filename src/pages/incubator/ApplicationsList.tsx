@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { ArrowLeft, FilePlus2, Rocket, Calendar, Hash } from "lucide-react";
+import { ArrowLeft, FilePlus2, Rocket, Calendar, Hash, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/customClient";
 import { APPLICATION_STATUS_LABELS } from "@/lib/fundingWorkflows";
 import { toast } from "sonner";
@@ -53,6 +53,17 @@ const ApplicationsList = () => {
     navigate(`/incubator/applications/${r.id}/review`);
   };
 
+  const remove = async (r: Row) => {
+    if (!window.confirm(`Delete "${r.business_name}" (${r.application_code})? This removes the application and all its responses and documents.`)) return;
+    const { data, error } = await supabase.rpc("delete_funding_application", { p_application_id: r.id });
+    if (error || data === false) {
+      toast.error(error?.message ?? "Could not delete the application");
+      return;
+    }
+    setRows((prev) => prev.filter((x) => x.id !== r.id));
+    toast.success("Application deleted");
+  };
+
   const card = (r: Row) => (
     <Card
       key={r.id}
@@ -62,9 +73,23 @@ const ApplicationsList = () => {
       <CardHeader className="space-y-4">
         <div className="flex items-start justify-between gap-3">
           <GlassIcon icon={Rocket} size="lg" />
-          <Badge variant="outline" className="rounded-full text-[10px] uppercase tracking-wider">
-            {APPLICATION_STATUS_LABELS[r.status] ?? r.status}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="rounded-full text-[10px] uppercase tracking-wider">
+              {APPLICATION_STATUS_LABELS[r.status] ?? r.status}
+            </Badge>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label={`Delete ${r.business_name}`}
+              className="h-8 w-8 rounded-full text-muted-foreground hover:text-destructive"
+              onClick={(e) => {
+                e.stopPropagation();
+                remove(r);
+              }}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
         <div>
           <CardTitle className="font-display text-xl leading-tight">{r.business_name}</CardTitle>

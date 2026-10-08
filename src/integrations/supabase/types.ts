@@ -1913,6 +1913,10 @@ export type Database = {
       deal_exists: { Args: { deal_id_text: string }; Returns: boolean }
       deal_exists_uuid: { Args: { p_deal_id: string }; Returns: boolean }
       deal_has_passcode: { Args: { deal_id_text: string }; Returns: boolean }
+      delete_funding_application: {
+        Args: { p_application_id: string }
+        Returns: boolean
+      }
       generate_application_code: { Args: { p_prefix: string }; Returns: string }
       generate_deal_code: { Args: { deal_name: string }; Returns: string }
       generate_expert_access_code: {
