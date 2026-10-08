@@ -144,22 +144,13 @@ const ApplicationReview = () => {
   };
 
   const setSectionStatus = async (sectionId: string, status: string, label: string) => {
-    const { error } = await supabase
-      .from("application_sections")
-      .update({
-        status,
-        ...(status === "approved" ? { approved_at: new Date().toISOString() } : {}),
-        reviewed_at: new Date().toISOString(),
-      })
-      .eq("application_id", applicationId)
-      .eq("section_id", sectionId);
-    if (error) return toast.error(error.message);
-    await supabase.from("application_activity").insert({
-      application_id: applicationId,
-      activity_type: "section_" + status,
-      description: label,
-      actor_type: "manager",
+    const { error } = await (supabase.rpc as any)("manager_set_section_status", {
+      p_application_id: applicationId,
+      p_section_id: sectionId,
+      p_status: status,
+      p_label: label,
     });
+    if (error) return toast.error(error.message);
     toast.success(label);
     load();
   };
@@ -214,12 +205,7 @@ const ApplicationReview = () => {
   };
 
   const approveApplication = async () => {
-    if (stats.clarifications > 0) return toast.error("Resolve all open clarifications first");
-    if (stats.open > 0) return toast.error("All required items must be complete before approval");
-    const { error } = await supabase
-      .from("applications")
-      .update({ status: "approved", approved_at: new Date().toISOString() })
-      .eq("id", applicationId);
+    const { error } = await (supabase.rpc as any)("manager_approve_application", { p_application_id: applicationId });
     if (error) return toast.error(error.message);
     toast.success("Full application approved");
     load();
@@ -355,7 +341,7 @@ const ApplicationReview = () => {
                 <MessageSquareText className="h-4 w-4" /> Request Clarification
               </Button>
               <p className="text-xs text-muted-foreground mt-3">
-                You can approve the application once all required sections are complete and reviewed.
+                You can approve sections or the full application at any time, even if items are still outstanding.
               </p>
             </div>
 
