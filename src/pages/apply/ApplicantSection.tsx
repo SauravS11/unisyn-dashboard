@@ -324,7 +324,6 @@ const ApplicantSection = () => {
             </Button>
           )}
         </div>
-        </div>
       </div>
     </PageShell>
   );
