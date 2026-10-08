@@ -71,7 +71,7 @@ const ApplicantHome = () => {
 
   const exit = () => {
     clearApplicationSession();
-    navigate("/apply");
+    navigate("/auth", { replace: true });
   };
 
   const firstIncomplete = sections.find((s) => sectionCompletion(s) < 100) ?? sections[0];
