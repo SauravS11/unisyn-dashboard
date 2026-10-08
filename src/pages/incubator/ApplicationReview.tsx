@@ -16,9 +16,11 @@ import {
   CheckCircle2,
   CircleAlert,
   ClipboardList,
+  ExternalLink,
   FileText,
   MessageSquareText,
   Radio,
+  Rocket,
   ShieldQuestion,
   Timer,
   Upload,
@@ -209,6 +211,41 @@ const ApplicationReview = () => {
     if (error) return toast.error(error.message);
     toast.success("Full application approved");
     load();
+  };
+
+  const [creatingWorkspace, setCreatingWorkspace] = useState(false);
+  const createWorkspace = async () => {
+    setCreatingWorkspace(true);
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      const { data: deal, error } = await (supabase as any).from("deals").insert({
+        name: app.business_name,
+        user_id: userData?.user?.id,
+        status: "active",
+        target_close_date: app.due_date,
+        source_application_id: applicationId,
+        client_company_name: app.business_name,
+        client_type: "funding",
+        intake_approved_at: app.approved_at,
+        industry: app.industry,
+      }).select("id").single();
+      if (error) throw error;
+      const { error: seedError } = await (supabase as any).rpc("seed_deal_from_application", {
+        p_deal_id: deal.id,
+        p_application_id: applicationId,
+      });
+      if (seedError) throw seedError;
+      await (supabase as any).from("applications").update({
+        status: "converted_to_deal",
+        converted_deal_id: deal.id,
+      }).eq("id", applicationId);
+      toast.success("Deal workspace created with application progress");
+      navigate(`/deals/${deal.id}/dashboard`);
+    } catch (e: any) {
+      toast.error(e.message ?? "Failed to create workspace");
+    } finally {
+      setCreatingWorkspace(false);
+    }
   };
 
   const openDoc = async (path: string) => {
