@@ -1,3 +1,4 @@
+import type React from "react";
 import { useEffect } from "react";
 import { useDraggableTabs } from "@/hooks/useDraggableTabs";
 import { motion } from "framer-motion";
