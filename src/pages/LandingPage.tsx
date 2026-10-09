@@ -391,7 +391,7 @@ const LandingPage = () => {
 
                 {/* Supporting Text with fade */}
                 <motion.p 
-                  className="max-w-xl text-center text-muted-foreground/80 text-base sm:text-lg leading-relaxed mb-10 sm:mb-12"
+                  className="max-w-xl text-center text-muted-foreground text-base sm:text-lg leading-relaxed mb-10 sm:mb-12"
                   variants={itemVariants}
                 >
                   UniSyn is a deal management platform designed for M&A teams, 
@@ -562,7 +562,7 @@ const LandingPage = () => {
                       <h3 className="font-semibold text-foreground mb-3 text-xl group-hover:text-primary transition-colors duration-300">
                         {feature.title}
                       </h3>
-                      <p className="text-base text-muted-foreground/80 leading-relaxed">
+                      <p className="text-base text-muted-foreground leading-relaxed">
                         {feature.description}
                       </p>
                     </div>
@@ -580,7 +580,7 @@ const LandingPage = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.8, duration: 0.8 }}
         >
-          <p className="text-xs sm:text-sm text-muted-foreground/60">
+          <p className="text-xs sm:text-sm text-muted-foreground">
             © 2026 UniSyn Technology. All rights reserved.
           </p>
         </motion.footer>

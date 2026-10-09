@@ -27,7 +27,7 @@
     --secondary-foreground: 0 0% 10%;
 
     --muted: 0 0% 83.5%;
-    --muted-foreground: 0 0% 38%;
+    --muted-foreground: 0 0% 33%;
 
     --accent: 0 85% 56%;
     --accent-foreground: 0 0% 100%;
@@ -46,6 +46,7 @@
 
     --border: 0 0% 78%;
     --input: 0 0% 68%;
+    --field: 0 0% 93.5%;
     --ring: 0 85% 56%;
 
     /* Glass system */
@@ -128,6 +129,7 @@
 
     --border: 0 0% 18%;
     --input: 0 0% 14%;
+    --field: 0 0% 13%;
     --ring: 0 85% 60%;
 
     --glass: 0 0% 14% / 0.55;
