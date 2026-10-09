@@ -9,13 +9,13 @@
 
 @layer base {
   :root {
-    --background: 0 0% 98%;
+    --background: 0 0% 94%;
     --foreground: 0 0% 8%;
 
-    --card: 0 0% 100%;
+    --card: 0 0% 97.5%;
     --card-foreground: 0 0% 8%;
 
-    --popover: 0 0% 100%;
+    --popover: 0 0% 97.5%;
     --popover-foreground: 0 0% 8%;
 
     --primary: 0 85% 56%;
@@ -23,10 +23,10 @@
     --primary-glow: 8 95% 64%;
     --primary-deep: 350 80% 42%;
 
-    --secondary: 0 0% 96%;
+    --secondary: 0 0% 92%;
     --secondary-foreground: 0 0% 10%;
 
-    --muted: 0 0% 96%;
+    --muted: 0 0% 92%;
     --muted-foreground: 0 0% 42%;
 
     --accent: 0 85% 56%;
@@ -44,17 +44,17 @@
     --warning: 32 95% 44%;
     --warning-foreground: 30 60% 12%;
 
-    --border: 0 0% 90%;
+    --border: 0 0% 87%;
     --input: 0 0% 76%;
     --ring: 0 85% 56%;
 
     /* Glass system */
-    --glass: 0 0% 100% / 0.55;
-    --glass-strong: 0 0% 100% / 0.75;
+    --glass: 0 0% 97% / 0.5;
+    --glass-strong: 0 0% 97% / 0.7;
     --glass-border: 0 0% 100% / 0.45;
     --glass-highlight: 0 0% 100% / 0.7;
     --glass-accent: 0 85% 60% / 0.08;
-    --glass-tile: 0 0% 100% / 0.6;
+    --glass-tile: 0 0% 97% / 0.55;
     --glass-tile-border: 0 0% 100% / 0.55;
 
     /* Glow / shadow system */
@@ -76,7 +76,7 @@
     --glass-blur: 28px;
     --radius: 1rem;
 
-    --sidebar-background: 0 0% 98%;
+    --sidebar-background: 0 0% 94%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
     --sidebar-primary-foreground: 0 0% 98%;
