@@ -531,7 +531,9 @@ const DealDashboard = () => {
       setUploadingTaskId(null);
     }
   };
+  const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
   const getCategoryCompletion = (category: Category) => {
+    if (!category.tasks.length) return 0;
     const completed = category.tasks.filter(t => t.checked).length;
     return Math.round(completed / category.tasks.length * 100);
   };
