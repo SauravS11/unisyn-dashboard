@@ -618,157 +618,74 @@ const DealDashboard = () => {
 
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-        {/* Top Summary Section */}
-        <div className="flex flex-col gap-4 sm:gap-6 mb-6 sm:mb-8">
-          {/* First Row - Readiness Score + Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 sm:gap-6">
-            {/* Readiness Score Card */}
-            <Card className={`sm:col-span-2 backdrop-blur-xl bg-card/60 border-2 ${getProgressColors(readinessScore).ring} shadow-2xl`}>
-              <CardContent className="py-4 sm:py-6">
-                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
-                  <div className="relative w-24 h-24 flex-shrink-0">
-                    <svg className="w-full h-full transform -rotate-90">
-                      <circle cx="48" cy="48" r="40" stroke="currentColor" strokeWidth="8" fill="none" className="text-muted" />
-                      <circle cx="48" cy="48" r="40" stroke="currentColor" strokeWidth="8" fill="none" strokeDasharray={`${2 * Math.PI * 40}`} strokeDashoffset={`${2 * Math.PI * 40 * (1 - readinessScore / 100)}`} className={`${getProgressColors(readinessScore).stroke} transition-all duration-500`} strokeLinecap="round" />
-                    </svg>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className={`text-xl sm:text-2xl font-bold ${getProgressColors(readinessScore).text}`}>{readinessScore}%</span>
-                    </div>
-                  </div>
-                  <div className="text-center sm:text-left">
-                    <p className="text-base sm:text-lg font-semibold text-foreground mb-2">{dealName}</p>
-                    <p className="text-sm text-muted-foreground mb-1">Readiness Score · <span className={`font-semibold ${getProgressColors(readinessScore).text}`}>{getProgressColors(readinessScore).label}</span></p>
-                    <p className="text-xs text-muted-foreground">
-                      {completedTasks} of {totalTasks} tasks completed
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Summary Cards */}
-            <Card className={`backdrop-blur-xl bg-card/60 border-2 ${openTasks > 0 ? 'border-orange-500/40' : 'border-green-500/40'} shadow-xl`}>
-              <CardContent className="flex items-center justify-center py-8">
-                <div className="text-center">
-                  <div className={`text-4xl font-bold mb-2 ${openTasks > 0 ? 'text-orange-500' : 'text-green-500'}`}>{openTasks}</div>
-                  <div className="text-sm text-muted-foreground">Open Tasks</div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className={`backdrop-blur-xl bg-card/60 border-2 ${highPriorityTasks > 0 ? 'border-red-500/40' : 'border-green-500/40'} shadow-xl`}>
-              <CardContent className="flex items-center justify-center py-8">
-                <div className="text-center">
-                  <div className={`text-4xl font-bold mb-2 ${highPriorityTasks > 0 ? 'text-red-500' : 'text-green-500'}`}>{highPriorityTasks}</div>
-                  <div className="text-sm text-muted-foreground">High Priority</div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className={`backdrop-blur-xl bg-card/60 border-2 ${specialistsAssigned > 0 ? 'border-blue-500/40' : 'border-orange-500/40'} shadow-xl cursor-pointer hover:shadow-2xl transition-shadow`} onClick={() => setSpecialistsModalOpen(true)}>
-              <CardContent className="flex items-center justify-center py-8">
-                <div className="text-center">
-                  <div className={`text-4xl font-bold mb-2 ${specialistsAssigned > 0 ? 'text-blue-500' : 'text-orange-500'}`}>{specialistsAssigned}</div>
-                  <div className="text-sm text-muted-foreground">Specialists Assigned</div>
-                  <Button variant="link" className="mt-2 text-xs">
-                    View Details
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Second Row - Days Until Close + Core Team + Documents */}
-          <div className="grid md:grid-cols-5 gap-6">
-            {/* Days Until Close Card */}
-            <Card className="md:col-span-2 backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl cursor-pointer hover:shadow-2xl transition-shadow" onClick={() => setCloseDateDialogOpen(true)}>
-              <CardContent className="py-6">
-                <div className="flex items-center justify-center gap-8">
-                  <div className="relative w-24 h-24 flex-shrink-0">
-                    <svg className="w-24 h-24 transform -rotate-90">
-                      <circle cx="48" cy="48" r="40" stroke="currentColor" strokeWidth="8" fill="none" className="text-muted" />
-                      {daysUntilClose !== null && <circle cx="48" cy="48" r="40" stroke="currentColor" strokeWidth="8" fill="none" strokeDasharray={`${2 * Math.PI * 40}`} strokeDashoffset={`${2 * Math.PI * 40 * 0.25}`} className="text-accent transition-all duration-500" strokeLinecap="round" />}
-                    </svg>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      {daysUntilClose !== null ? <span className={`text-2xl font-bold ${daysUntilClose < 0 ? 'text-destructive' : ''}`}>
-                          {daysUntilClose < 0 ? `+${Math.abs(daysUntilClose)}` : daysUntilClose}
-                        </span> : <span className="text-sm font-semibold text-muted-foreground">N/A</span>}
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-sm text-muted-foreground mb-1">
-                      {daysUntilClose !== null && daysUntilClose < 0 ? 'Days Overdue' : 'Days Until Close'}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Target: {targetCloseDate ? new Date(targetCloseDate).toLocaleDateString() : 'Not set'}
-                    </p>
-                    <Button variant="link" className="text-xs p-0 h-auto mt-1">
-                      Change Date
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Close Date Dialog */}
-            <Dialog open={closeDateDialogOpen} onOpenChange={setCloseDateDialogOpen}>
-              <DialogContent className="w-[90vw] sm:w-[70vw] lg:w-[50vw] max-w-none p-0 overflow-hidden backdrop-blur-2xl bg-background/80 border-border/50 shadow-2xl">
-                <div className="flex flex-col">
-                  <div className="flex items-center justify-between p-4 sm:p-5 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent">
-                    <div className="flex flex-col">
-                      <DialogTitle className="font-bold text-lg">Change Target Close Date</DialogTitle>
-                      <DialogDescription className="text-sm text-muted-foreground">
-                        Select a new target close date for this deal
-                      </DialogDescription>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-center p-6 sm:p-8">
-                    <CalendarComponent mode="single" selected={targetCloseDate ? new Date(targetCloseDate) : undefined} onSelect={handleCloseDateChange} disabled={date => date < new Date() || date > new Date("2035-12-31")} initialFocus className="p-3 pointer-events-auto bg-card/60 backdrop-blur-xl rounded-lg border border-border/30" />
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
-
-            <Card className="md:col-span-2 backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl cursor-pointer hover:shadow-2xl transition-shadow" onClick={() => setCoreTeamModalOpen(true)}>
-              <CardContent className="py-6">
-                <div className="flex items-center justify-center gap-8">
-                  <div className="relative w-24 h-24 flex-shrink-0">
-                    <svg className="w-24 h-24 transform -rotate-90">
-                      <circle cx="48" cy="48" r="40" stroke="currentColor" strokeWidth="8" fill="none" className="text-muted" />
-                      <circle cx="48" cy="48" r="40" stroke="currentColor" strokeWidth="8" fill="none" strokeDasharray={`${2 * Math.PI * 40}`} strokeDashoffset={`${2 * Math.PI * 40 * 0.25}`} className="text-accent transition-all duration-500" strokeLinecap="round" />
-                    </svg>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-2xl font-bold">
-                        {coreTeam.length + (dealParties.buyerName ? 1 : 0) + (dealParties.sellerName ? 1 : 0) + (dealParties.buyerLegalName ? 1 : 0) + (dealParties.sellerLegalName ? 1 : 0)}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-sm text-muted-foreground mb-1">Core <span className="text-red-500">Team</span></p>
-                    <Button variant="link" className="text-xs p-0 h-auto">
-                      View Details
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-xl cursor-pointer hover:shadow-2xl transition-shadow" onClick={() => setDocumentsModalOpen(true)}>
-              <CardContent className="flex items-center justify-center py-8">
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-primary mb-2 flex items-center justify-center gap-2">
-                    <FileText className="h-8 w-8" />
-                    {documentsCount}
-                  </div>
-                  <div className="text-sm text-muted-foreground">Documents</div>
-                  <Button variant="link" className="mt-2 text-xs">
-                    View & Upload
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+        {/* Header */}
+        <div className="glass-surface-strong p-6 mb-6">
+          <div className="flex flex-wrap items-start justify-between gap-6">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground mb-2">
+                {fundingWorkspace ? "Funding Workspace" : "Deal Workspace"}
+              </p>
+              <h1 className="font-display text-3xl sm:text-4xl tracking-tight">{dealName}</h1>
+              <div className="flex flex-wrap items-center gap-4 mt-3 text-xs text-muted-foreground">
+                <span>
+                  {categories.length} {fundingWorkspace ? "document sections" : "categories"}
+                </span>
+                <span>
+                  {targetCloseDate
+                    ? `Target close ${new Date(targetCloseDate).toLocaleDateString()}`
+                    : "No target close date"}
+                </span>
+                <Badge variant="outline" className={`rounded-full ${getProgressColors(readinessScore).text}`}>
+                  {getProgressColors(readinessScore).label}
+                </Badge>
+              </div>
+            </div>
+            <div className="min-w-[220px]">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Overall Completion</p>
+              <div className="flex items-center gap-3">
+                <Progress value={readinessScore} className="h-2" />
+                <span className="font-semibold tabular-nums">{readinessScore}%</span>
+              </div>
+              <p className="text-[11px] text-muted-foreground mt-2">
+                {completedTasks} of {totalTasks} items completed
+              </p>
+            </div>
           </div>
         </div>
+
+        {/* Summary cards */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+          {summaryCards.map((c) => (
+            <div
+              key={c.label}
+              onClick={c.onClick}
+              className={`glass-surface p-4 ${c.onClick ? "cursor-pointer lift-hover" : ""}`}
+            >
+              <GlassIcon icon={c.icon} tone="neutral" size="sm" />
+              <p className={`text-2xl font-semibold tabular-nums mt-3 ${c.tone ?? ""}`}>{c.value}</p>
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground mt-1">{c.label}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Close Date Dialog */}
+        <Dialog open={closeDateDialogOpen} onOpenChange={setCloseDateDialogOpen}>
+          <DialogContent className="w-[90vw] sm:w-[70vw] lg:w-[50vw] max-w-none p-0 overflow-hidden glass-surface-strong">
+            <div className="flex flex-col">
+              <div className="flex items-center justify-between p-4 sm:p-5 border-b border-border/50">
+                <div className="flex flex-col">
+                  <DialogTitle className="font-display text-xl">Change Target Close Date</DialogTitle>
+                  <DialogDescription className="text-sm text-muted-foreground">
+                    Select a new target close date for this deal
+                  </DialogDescription>
+                </div>
+              </div>
+              <div className="flex items-center justify-center p-6 sm:p-8">
+                <CalendarComponent mode="single" selected={targetCloseDate ? new Date(targetCloseDate) : undefined} onSelect={handleCloseDateChange} disabled={date => date < new Date() || date > new Date("2035-12-31")} initialFocus className="p-3 pointer-events-auto rounded-lg" />
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Documents Modal */}
         <DocumentsModal open={documentsModalOpen} onOpenChange={open => {
