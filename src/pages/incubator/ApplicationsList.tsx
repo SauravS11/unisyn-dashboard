@@ -8,6 +8,7 @@ import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Plus, Calendar, Clock, Trash2, ChevronRight, Inbox, Hourglass, Briefcase, CheckCircle2, FolderOpen } from "lucide-react";
 import unisynLogo from "@/assets/unisyn-logo.svg";
 import { PageNavigation } from "@/components/PageNavigation";
+import { StatusTabBar } from "@/components/StatusTabBar";
 import { PageHeaderActions } from "@/components/PageHeaderActions";
 import { NotificationButton } from "@/components/NotificationButton";
 import { format } from "date-fns";
@@ -28,10 +29,10 @@ interface Row {
 }
 
 const GROUPS = [
-  { id: "draft", label: "Drafts", title: "Draft", icon: Inbox, statuses: ["draft"], subtitle: "Funding applications you've started but not yet sent" },
-  { id: "live", label: "Awaiting Applicant", title: "Awaiting", icon: Hourglass, statuses: ["request_sent", "in_progress", "clarification_requested"], subtitle: "Applications sent to applicants and awaiting their documents" },
-  { id: "review", label: "In Review", title: "In Review", icon: Briefcase, statuses: ["submitted_for_review", "in_review"], subtitle: "Funding applications submitted for review" },
-  { id: "approved", label: "Approved", title: "Approved", icon: CheckCircle2, statuses: APPROVED_APPLICATION_STATUSES, subtitle: "Approved funding applications and their workspaces" },
+  { id: "draft", label: "Drafts", title: "Draft", icon: Inbox, tone: "red" as const, statuses: ["draft"], subtitle: "Funding applications you've started but not yet sent" },
+  { id: "live", label: "Awaiting Applicant", title: "Awaiting", icon: Hourglass, tone: "yellow" as const, statuses: ["request_sent", "in_progress", "clarification_requested"], subtitle: "Applications sent to applicants and awaiting their documents" },
+  { id: "review", label: "In Review", title: "In Review", icon: Briefcase, tone: "blue" as const, statuses: ["submitted_for_review", "in_review"], subtitle: "Funding applications submitted for review" },
+  { id: "approved", label: "Approved", title: "Approved", icon: CheckCircle2, tone: "green" as const, statuses: APPROVED_APPLICATION_STATUSES, subtitle: "Approved funding applications and their workspaces" },
 ];
 
 const ApplicationsList = () => {
@@ -150,9 +151,14 @@ const ApplicationsList = () => {
             <Plus className="h-5 w-5 mr-2" /> New Application
           </Button>
         </div>
-        <Tabs value={viewMode} onValueChange={setViewMode}>
+        <Tabs value={viewMode}>
           <div className="flex justify-center mb-8">
-            <PageNavigation label="Application status" items={GROUPS.map(g => ({ to: `/incubator/applications?tab=${g.id}`, label: g.label, icon: g.icon, count: rows.filter(r => g.statuses.includes(r.status)).length, isActive: viewMode === g.id }))} />
+            <StatusTabBar
+              label="Application status"
+              tabs={GROUPS.map((g) => ({ id: g.id, label: g.label, icon: g.icon, tone: g.tone, count: rows.filter((r) => g.statuses.includes(r.status)).length }))}
+              activeId={viewMode}
+              onChange={setViewMode}
+            />
           </div>
           {GROUPS.map((g) => {
             const list = rows.filter((r) => g.statuses.includes(r.status));

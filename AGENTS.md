@@ -3,4 +3,4 @@
 - Funding and M&A workflows remain separate so funding checklist changes do not alter M&A requirements or access.
 - Funding workspaces use the shared document-category selector before loading tasks so legacy questions cannot affect dashboard totals; converted applications remain in the approved group so their workspaces stay reachable.
 - Workspace summary navigation uses shared destination links and validated URL tab selection so clicks, refreshes, and browser history preserve the intended list group.
-- Workspace list status controls reuse PageNavigation so their glass styling and sizing stay consistent with the page navigation.
+- Workspace list status tabs use the shared StatusTabBar (spring-animated sliding indicator, per-tab tone colours: red → yellow → blue → green) on both M&A and funding lists; keep its pill sizing consistent with PageNavigation.

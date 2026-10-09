@@ -41,6 +41,8 @@
     --success-deep: 145 80% 32%;
     --info: 217 91% 60%;
     --info-foreground: 221 83% 53%;
+    --warning: 32 95% 44%;
+    --warning-foreground: 30 60% 12%;
 
     --border: 0 0% 90%;
     --input: 0 0% 76%;
@@ -121,6 +123,8 @@
     --success-deep: 145 80% 38%;
     --info: 217 91% 60%;
     --info-foreground: 217 91% 60%;
+    --warning: 38 92% 56%;
+    --warning-foreground: 30 60% 12%;
 
     --border: 0 0% 18%;
     --input: 0 0% 14%;
