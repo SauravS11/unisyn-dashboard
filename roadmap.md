@@ -1,5 +1,5 @@
 # Funding checklist correction
-- [ ] Replace security messages with a large overall progress display on seller/buyer and funding applicant overviews; verify both screens.
+- [x] Replace security messages with a large overall progress display on seller/buyer and funding applicant overviews; verified both screens with sample data.
 - [x] Centre both list headings and status navigation; match the Home/Deals navigation styling and verify both pages.
 - [x] Verify M&A and funding summaries open their matching list tabs and preserve selection on refresh and back navigation.
 - [x] Show only Main and Supporting Documents on funding workspaces, excluding legacy questions from totals.
