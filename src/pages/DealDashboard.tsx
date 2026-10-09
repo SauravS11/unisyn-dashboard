@@ -6,7 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Paperclip, AlertCircle, CheckCircle2, Clock, FileText, Flag, User, Calendar, Upload } from "lucide-react";
+import { Paperclip, AlertCircle, CheckCircle2, Clock, FileText, Flag, User, UserPlus, Calendar, Upload, ClipboardList, CircleAlert, Timer } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
