@@ -8,7 +8,7 @@ import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Plus, Calendar, Clock, Trash2, ChevronRight, Inbox, Hourglass, Briefcase, CheckCircle2, FolderOpen } from "lucide-react";
 import unisynLogo from "@/assets/unisyn-logo.svg";
 import { PageNavigation } from "@/components/PageNavigation";
-import { StatusTabBar } from "@/components/StatusTabBar";
+import { StatusTabBar, STATUS_CARD_TONES, type StatusTabTone } from "@/components/StatusTabBar";
 import { PageHeaderActions } from "@/components/PageHeaderActions";
 import { NotificationButton } from "@/components/NotificationButton";
 import { format } from "date-fns";
@@ -79,11 +79,11 @@ const ApplicationsList = () => {
     toast.success("Application deleted");
   };
 
-  const card = (r: Row) => (
+  const card = (r: Row, tone: StatusTabTone) => (
     <Card
       key={r.id}
       onClick={() => open(r)}
-      className="backdrop-blur-xl bg-card/60 border-2 border-info/40 shadow-lg hover:shadow-xl motion-safe:hover:-translate-y-1 transition-all duration-300 cursor-pointer group touch-manipulation"
+      className={`backdrop-blur-xl bg-card/60 border-2 ${STATUS_CARD_TONES[tone].border} shadow-lg hover:shadow-xl motion-safe:hover:-translate-y-1 transition-all duration-300 cursor-pointer group touch-manipulation`}
     >
       <CardHeader className="pb-3">
         <CardTitle className="text-lg sm:text-xl font-semibold group-hover:text-primary transition-colors flex items-start justify-between gap-2">
