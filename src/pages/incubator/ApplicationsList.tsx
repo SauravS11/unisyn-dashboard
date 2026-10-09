@@ -4,7 +4,7 @@ import { listTab } from "@/lib/workspaceListNavigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Plus, Calendar, Clock, Trash2, ChevronRight, Inbox, Hourglass, Briefcase, CheckCircle2, FolderOpen } from "lucide-react";
 import unisynLogo from "@/assets/unisyn-logo.svg";
 import { PageNavigation } from "@/components/PageNavigation";
@@ -141,31 +141,19 @@ const ApplicationsList = () => {
         </div>
       </div>
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 sm:mb-8">
-          <div>
+        <div className="relative flex flex-col items-center gap-4 mb-6 sm:mb-8">
+          <div className="w-full max-w-2xl text-center">
             <h1 className="text-3xl sm:text-4xl font-bold mb-2">Your <span className="text-primary">{currentGroup.title}</span> Applications</h1>
             <p className="text-sm sm:text-base text-muted-foreground">{currentGroup.subtitle}</p>
           </div>
-          <Button className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all w-full sm:w-auto touch-manipulation" onClick={() => navigate("/incubator/applications/new")}>
+          <Button className="xl:absolute xl:right-0 xl:top-2 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all w-full sm:w-auto touch-manipulation" onClick={() => navigate("/incubator/applications/new")}>
             <Plus className="h-5 w-5 mr-2" /> New Application
           </Button>
         </div>
         <Tabs value={viewMode} onValueChange={setViewMode}>
-          <TabsList className="inline-flex justify-start flex-wrap gap-2 p-1.5 rounded-2xl backdrop-blur-xl bg-card/60 border border-border/50 shadow-lg mb-8 h-auto">
-            {GROUPS.map((g, index) => {
-              const Icon = g.icon;
-              return (
-                <div key={g.id} className="flex items-center">
-                  <TabsTrigger value={g.id} className="group gap-2 px-3 sm:px-4 py-2 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-background/60 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md touch-manipulation">
-                    <Icon className="h-4 w-4" />
-                    <span>{g.label}</span>
-                    <span className="ml-1 text-xs px-1.5 py-0.5 rounded-full bg-muted text-foreground/70 group-data-[state=active]:bg-primary-foreground/20 group-data-[state=active]:text-primary-foreground">{rows.filter((r) => g.statuses.includes(r.status)).length}</span>
-                  </TabsTrigger>
-                  {index < GROUPS.length - 1 && <ChevronRight className="h-4 w-4 mx-1 text-muted-foreground/60 hidden sm:block" />}
-                </div>
-              );
-            })}
-          </TabsList>
+          <div className="flex justify-center mb-8">
+            <PageNavigation label="Application status" items={GROUPS.map(g => ({ to: `/incubator/applications?tab=${g.id}`, label: g.label, icon: g.icon, count: rows.filter(r => g.statuses.includes(r.status)).length, isActive: viewMode === g.id }))} />
+          </div>
           {GROUPS.map((g) => {
             const list = rows.filter((r) => g.statuses.includes(r.status));
             return (

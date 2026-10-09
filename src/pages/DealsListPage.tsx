@@ -66,13 +66,8 @@ const DealsListPage = () => {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [intakes, setIntakes] = useState<Intake[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const viewMode = listTab<ViewMode>(searchParams, ["pending", "awaiting", "active", "completed"], "pending");
-  const setViewMode = (tab: ViewMode) => setSearchParams((previous) => {
-    const next = new URLSearchParams(previous);
-    next.set("tab", tab);
-    return next;
-  });
   const [passcodeDialogOpen, setPasscodeDialogOpen] = useState(false);
   const [selectedDealForPasscode, setSelectedDealForPasscode] = useState<Deal | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -399,16 +394,16 @@ const DealsListPage = () => {
 
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 sm:mb-8">
-          <div>
-            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-2">
+        <div className="relative flex flex-col items-center gap-4 mb-6 sm:mb-8">
+          <div className="w-full max-w-2xl text-center">
+            <h1 className="text-3xl sm:text-4xl font-bold mb-2">
               Your <span className="text-primary">{currentHeading.title.split(" ")[0]}</span> {currentHeading.title.split(" ").slice(1).join(" ")}
             </h1>
             <p className="text-sm sm:text-base text-muted-foreground">{currentHeading.subtitle}</p>
           </div>
           <Button
             onClick={() => navigate("/onboarding/new")}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all w-full sm:w-auto touch-manipulation"
+            className="xl:absolute xl:right-0 xl:top-2 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all w-full sm:w-auto touch-manipulation"
           >
             <Plus className="h-5 w-5 mr-2" />
             New Client Onboarding
@@ -416,38 +411,8 @@ const DealsListPage = () => {
         </div>
 
         {/* Flow tabs: Pending → Awaiting → Active → Completed */}
-        <div className="mb-8">
-          <div className="inline-flex flex-wrap gap-2 p-1.5 rounded-2xl backdrop-blur-xl bg-card/60 border border-border/50 shadow-lg">
-            {tabs.map((t, idx) => {
-              const Icon = t.icon;
-              const isActive = viewMode === t.key;
-              return (
-                <div key={t.key} className="flex items-center">
-                  <button
-                    onClick={() => setViewMode(t.key)}
-                    className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl text-sm font-medium transition-all touch-manipulation ${
-                      isActive
-                        ? "bg-primary text-primary-foreground shadow-md"
-                        : "text-muted-foreground hover:text-foreground hover:bg-background/60"
-                    }`}
-                  >
-                    <Icon className="h-4 w-4" />
-                    <span>{t.label}</span>
-                    <span
-                      className={`ml-1 text-xs px-1.5 py-0.5 rounded-full ${
-                        isActive ? "bg-primary-foreground/20 text-primary-foreground" : "bg-muted text-foreground/70"
-                      }`}
-                    >
-                      {t.count}
-                    </span>
-                  </button>
-                  {idx < tabs.length - 1 && (
-                    <ChevronRight className="h-4 w-4 mx-1 text-muted-foreground/60 hidden sm:block" />
-                  )}
-                </div>
-              );
-            })}
-          </div>
+        <div className="flex justify-center mb-8">
+          <PageNavigation label="Deal status" items={tabs.map(t => ({ to: `/deals?tab=${t.key}`, label: t.label, icon: t.icon, count: t.count, isActive: viewMode === t.key }))} />
         </div>
 
         {renderContent()}
