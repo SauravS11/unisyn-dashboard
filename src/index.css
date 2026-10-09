@@ -39,6 +39,8 @@
     --success-foreground: 0 0% 100%;
     --success-glow: 145 70% 52%;
     --success-deep: 145 80% 32%;
+    --info: 217 91% 60%;
+    --info-foreground: 221 83% 53%;
 
     --border: 0 0% 90%;
     --input: 0 0% 76%;
@@ -117,6 +119,8 @@
     --success-foreground: 0 0% 100%;
     --success-glow: 145 70% 58%;
     --success-deep: 145 80% 38%;
+    --info: 217 91% 60%;
+    --info-foreground: 217 91% 60%;
 
     --border: 0 0% 18%;
     --input: 0 0% 14%;
