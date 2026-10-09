@@ -452,7 +452,7 @@ const LandingPage = () => {
                       {/* placeholder anchor for sibling demo button below */}
                       {/* Shimmer effect */}
                       <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12"
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12"
                         animate={{
                           x: ["-200%", "200%"],
                         }}
