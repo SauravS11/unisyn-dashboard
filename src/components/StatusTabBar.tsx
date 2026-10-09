@@ -69,6 +69,8 @@ export const STATUS_CARD_TONES: Record<StatusTabTone, { border: string; badge: s
     badge: "bg-success/15 text-success border-success/30 hover:bg-success/15",
   },
 };
+
+interface StatusTabBarProps {
   tabs: StatusTab[];
   activeId: string;
   onChange: (id: string) => void;
