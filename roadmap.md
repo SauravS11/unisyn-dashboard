@@ -1,5 +1,5 @@
 # Funding checklist correction
-- [ ] Centre both list headings and status navigation; match the Home/Deals navigation styling and verify both pages.
+- [x] Centre both list headings and status navigation; match the Home/Deals navigation styling and verify both pages.
 - [x] Verify M&A and funding summaries open their matching list tabs and preserve selection on refresh and back navigation.
 - [x] Show only Main and Supporting Documents on funding workspaces, excluding legacy questions from totals.
 - [x] Keep converted funding applications visible and reopen their existing workspaces after exit.
