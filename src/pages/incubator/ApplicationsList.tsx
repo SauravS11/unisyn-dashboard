@@ -108,7 +108,7 @@ const ApplicationsList = () => {
       </CardHeader>
       <CardContent className="space-y-2 sm:space-y-3">
         <div className="flex items-center gap-2 flex-wrap">
-          <Badge className="bg-info/15 text-info-foreground border-info/30 hover:bg-info/15">
+          <Badge className={STATUS_CARD_TONES[tone].badge}>
             {APPLICATION_STATUS_LABELS[r.status] ?? r.status}
           </Badge>
           <span className="text-xs font-mono text-primary">{r.application_code}</span>
@@ -174,7 +174,7 @@ const ApplicationsList = () => {
                      <h3 className="text-xl font-semibold mb-2">No {g.label.toLowerCase()} applications</h3>
                    </div>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">{list.map(card)}</div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">{list.map((r) => card(r, g.tone))}</div>
                 )}
               </TabsContent>
             );
