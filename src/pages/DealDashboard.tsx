@@ -1224,89 +1224,142 @@ const DealDashboard = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Category Panels - Split into two cards */}
-        <div className="grid md:grid-cols-2 gap-4 sm:gap-6 items-start">
-          {/* First Half - Categories 1-7 */}
-          <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl overflow-hidden">
-            <CardHeader className="border-b border-border/50 px-3 sm:px-6">
-              <CardTitle className="text-base sm:text-xl font-bold">
-                {fundingWorkspace ? "Main Documents" : <>Due Diligence <span className="text-primary">Categories (1-7):</span></>}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6">
-              <div className="space-y-3 sm:space-y-4">
-                {(fundingWorkspace ? categories.filter(category => category.id === "G") : categories.slice(0, 7)).map(category => {
-                const completion = getCategoryCompletion(category);
-                const openTasksCount = getOpenTasksCount(category);
-                const completedTasksCount = category.tasks.filter(t => t.checked).length;
-                const colors = getProgressColors(completion);
-                return <Card key={category.id} className={`backdrop-blur-xl bg-background/40 border-2 ${colors.ring} cursor-pointer hover:bg-background/60 transition-all hover:shadow-lg overflow-hidden`} onClick={() => {
-                  setSelectedCategory(category);
-                  setCategoryModalOpen(true);
-                }}>
-                      <CardContent className="p-2.5 sm:p-4">
-                        <div className="flex items-center gap-2 sm:gap-3">
-                          <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full ${colors.bg} flex items-center justify-center flex-shrink-0`}>
-                            <span className={`font-bold text-xs sm:text-base ${colors.text}`}>{category.id}</span>
-                          </div>
-                          <div className="flex-1 min-w-0 overflow-hidden">
-                            <div className="font-semibold text-xs sm:text-sm truncate">{category.title}</div>
-                            <div className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
-                              {completedTasksCount}/{category.tasks.length} done · <span className={colors.text}>{colors.label}</span>
-                            </div>
-                          </div>
-                          <div className="flex-shrink-0 text-right pl-1">
-                            <div className={`text-xs sm:text-sm font-semibold whitespace-nowrap ${colors.text}`}>{completion}%</div>
-                            <Progress value={completion} indicatorClassName={colors.bar} className="w-10 sm:w-20 h-1.5 sm:h-2 mt-0.5" />
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>;
-              })}
-              </div>
-            </CardContent>
-          </Card>
+        {/* Sections + right rail */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-4">
+            <h2 className="font-display text-2xl">
+              {fundingWorkspace ? "Document Sections" : "Due Diligence Categories"}
+            </h2>
+            {categories.map((category) => {
+              const completion = getCategoryCompletion(category);
+              const openTasksCount = getOpenTasksCount(category);
+              const completedTasksCount = category.tasks.filter(t => t.checked).length;
+              const colors = getProgressColors(completion);
+              return (
+                <div key={category.id} className="glass-surface p-5">
+                  <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div className="flex items-start gap-4">
+                      <span className="glass-tile h-14 w-14 rounded-2xl flex items-center justify-center flex-shrink-0">
+                        <span className={`font-display text-xl ${colors.text}`}>{category.id}</span>
+                      </span>
+                      <div>
+                        <p className="font-display text-lg leading-tight">
+                          {category.id} — {category.title}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {completedTasksCount}/{category.tasks.length} items completed · {openTasksCount} outstanding
+                        </p>
+                      </div>
+                    </div>
+                    <Badge variant="outline" className={`rounded-full ${colors.text}`}>
+                      {colors.label}
+                    </Badge>
+                  </div>
 
-          {/* Second Half - Categories 8-14 */}
-          <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl overflow-hidden">
-            <CardHeader className="border-b border-border/50 px-3 sm:px-6">
-              <CardTitle className="text-base sm:text-xl font-bold">
-                {fundingWorkspace ? "Supporting Documents" : <>Due Diligence <span className="text-primary">Categories (8-14):</span></>}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6">
-              <div className="space-y-3 sm:space-y-4">
-                {(fundingWorkspace ? categories.filter(category => category.id === "H") : categories.slice(7)).map(category => {
-                const completion = getCategoryCompletion(category);
-                const openTasksCount = getOpenTasksCount(category);
-                const completedTasksCount = category.tasks.filter(t => t.checked).length;
-                const colors = getProgressColors(completion);
-                return <Card key={category.id} className={`backdrop-blur-xl bg-background/40 border-2 ${colors.ring} cursor-pointer hover:bg-background/60 transition-all hover:shadow-lg overflow-hidden`} onClick={() => {
-                  setSelectedCategory(category);
-                  setCategoryModalOpen(true);
-                }}>
-                      <CardContent className="p-2.5 sm:p-4">
-                        <div className="flex items-center gap-2 sm:gap-3">
-                          <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full ${colors.bg} flex items-center justify-center flex-shrink-0`}>
-                            <span className={`font-bold text-xs sm:text-base ${colors.text}`}>{category.id}</span>
-                          </div>
-                          <div className="flex-1 min-w-0 overflow-hidden">
-                            <div className="font-semibold text-xs sm:text-sm truncate">{category.title}</div>
-                            <div className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
-                              {completedTasksCount}/{category.tasks.length} done · <span className={colors.text}>{colors.label}</span>
-                            </div>
-                          </div>
-                          <div className="flex-shrink-0 text-right pl-1">
-                            <div className={`text-xs sm:text-sm font-semibold whitespace-nowrap ${colors.text}`}>{completion}%</div>
-                            <Progress value={completion} indicatorClassName={colors.bar} className="w-10 sm:w-20 h-1.5 sm:h-2 mt-0.5" />
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>;
-              })}
-              </div>
-            </CardContent>
-          </Card>
+                  <div className="flex items-center gap-3 mt-4">
+                    <Progress value={completion} className="h-1.5" />
+                    <span className={`text-xs font-semibold tabular-nums ${colors.text}`}>{completion}%</span>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="rounded-full gap-2"
+                      onClick={() => {
+                        setSelectedCategory(category);
+                        setCategoryModalOpen(true);
+                      }}
+                    >
+                      <ClipboardList className="h-4 w-4" /> View & Tick Items
+                    </Button>
+                    <Button variant="outline" size="sm" className="rounded-full gap-2" onClick={() => setDocumentsModalOpen(true)}>
+                      <Upload className="h-4 w-4" /> Upload Document
+                    </Button>
+                    <Button variant="outline" size="sm" className="rounded-full gap-2" onClick={() => setSpecialistsModalOpen(true)}>
+                      <User className="h-4 w-4" /> Specialists
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Right rail */}
+          <div className="space-y-6">
+            <div className="glass-surface p-5">
+              <h3 className="font-display text-xl mb-4">Next Steps</h3>
+              <Button variant="outline" className="w-full rounded-full gap-2 mb-3" onClick={() => setDocumentsModalOpen(true)}>
+                <FileText className="h-4 w-4" /> View & Upload Documents
+              </Button>
+              <Button variant="outline" className="w-full rounded-full gap-2 mb-3" onClick={() => setCoreTeamModalOpen(true)}>
+                <User className="h-4 w-4" /> Core Deal Team
+              </Button>
+              <Button variant="outline" className="w-full rounded-full gap-2 mb-3" onClick={() => setSpecialistsModalOpen(true)}>
+                <UserPlus className="h-4 w-4" /> Assign Specialists
+              </Button>
+              <Button variant="outline" className="w-full rounded-full gap-2" onClick={() => setCloseDateDialogOpen(true)}>
+                <Calendar className="h-4 w-4" /> Change Target Close Date
+              </Button>
+              <p className="text-xs text-muted-foreground mt-3">
+                Tick items inside a section to move completion forward. The workspace moves to Completed automatically at 100%.
+              </p>
+            </div>
+
+            <div className="glass-surface p-5">
+              <h3 className="font-display text-xl mb-4">Outstanding Items</h3>
+              {outstandingCategories.length === 0 ? (
+                <p className="text-sm text-muted-foreground">Nothing outstanding.</p>
+              ) : (
+                <ul className="space-y-3">
+                  {outstandingCategories.map((c) => (
+                    <li key={c.id} className="text-sm">
+                      <button
+                        className="text-left hover:text-primary transition-colors"
+                        onClick={() => {
+                          setSelectedCategory(c);
+                          setCategoryModalOpen(true);
+                        }}
+                      >
+                        <p className="font-medium">
+                          {c.id} — {c.title}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {getOpenTasksCount(c)} items outstanding
+                        </p>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <div className="glass-surface p-5">
+              <h3 className="font-display text-xl mb-4">High Priority Flags</h3>
+              {highPriorityList.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No high-priority items outstanding.</p>
+              ) : (
+                <ul className="space-y-3">
+                  {highPriorityList.map(({ category, task }) => (
+                    <li key={task.id} className="text-sm">
+                      <button
+                        className="text-left hover:text-primary transition-colors"
+                        onClick={() => {
+                          setSelectedCategory(category);
+                          setCategoryModalOpen(true);
+                        }}
+                      >
+                        <p>{task.title}</p>
+                        <p className="text-[11px] text-muted-foreground">
+                          {category.id} · {task.code}
+                        </p>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
