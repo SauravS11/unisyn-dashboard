@@ -603,11 +603,11 @@ const DealDashboard = () => {
           <PageHeaderActions />
           <img src={unisynLogo} alt="UniSyn Technology" className="w-36 sm:w-44 h-auto" />
           <PageNavigation items={[{
-          to: "/welcome",
+          to: fundingWorkspace ? "/incubator" : "/welcome",
           label: "Home"
         }, {
-          to: "/deals",
-          label: "Deals"
+          to: fundingWorkspace ? "/incubator/applications" : "/deals",
+          label: fundingWorkspace ? "Applications" : "Deals"
         }, {
           to: `/deals/${dealId}/dashboard`,
           label: dealName,

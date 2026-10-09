@@ -1,7 +1,7 @@
 # Funding checklist correction
-- [ ] Show only Main and Supporting Documents on funding workspaces, excluding legacy questions from totals.
-- [ ] Keep converted funding applications visible and reopen their existing workspaces after exit.
-- [ ] Verify funding dashboard and application visibility rules with regression tests.
+- [x] Show only Main and Supporting Documents on funding workspaces, excluding legacy questions from totals.
+- [x] Keep converted funding applications visible and reopen their existing workspaces after exit.
+- [x] Verify funding dashboard and application visibility rules with regression tests.
 - [x] Restrict funding applicant and manager checklists to the two document groups in the supplied matrix.
 - [x] Verify all seven live programme document lists against the matrix, preserving existing uploads and M&A.
 - [x] Live document lists already match the matrix (87 documents); no database row correction needed. Legacy questionnaire records remain for history, excluded from current checklists and totals.
