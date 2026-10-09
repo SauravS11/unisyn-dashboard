@@ -225,9 +225,9 @@ const DealsListPage = () => {
     },
     completed: {
       title: "Completed Deals",
-      subtitle: "Deals you've marked as complete",
+      subtitle: "Deals automatically move here once they reach 100%",
       emptyTitle: "No completed deals",
-      emptyBody: "Mark deals as complete to see them here.",
+      emptyBody: "Deals appear here automatically when every task is done.",
     },
   };
 
@@ -256,10 +256,6 @@ const DealsListPage = () => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="z-50 bg-card border-border">
-                  <DropdownMenuItem onClick={(e) => handleDealComplete(deal.id, deal.name, e)}>
-                    <CheckCircle2 className="h-4 w-4 mr-2" />
-                    Deal Complete
-                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={(e) => handleOpenPasscodeDialog(deal, e)}>
                     <Key className="h-4 w-4 mr-2" />
                     {deal.passcode ? "Edit Passcode" : "Add Passcode"}

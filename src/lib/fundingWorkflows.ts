@@ -224,7 +224,7 @@ export const WORKFLOW_FIELDS: Record<string, FieldConfig[]> = {
   ],
 };
 
-export const APPROVED_APPLICATION_STATUSES = ["approved", "converted_to_deal"];
+export const APPROVED_APPLICATION_STATUSES = ["approved", "converted_to_deal", "completed"];
 
 export const APPLICATION_STATUS_LABELS: Record<string, string> = {
   draft: "Draft",
@@ -235,6 +235,7 @@ export const APPLICATION_STATUS_LABELS: Record<string, string> = {
   in_review: "Application in Review",
   approved: "Approved",
   converted_to_deal: "Workspace Created",
+  completed: "Deal Completed",
 };
 
 export const SECTION_STATUS_LABELS: Record<string, string> = {
