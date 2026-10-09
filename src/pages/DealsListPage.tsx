@@ -81,7 +81,11 @@ const DealsListPage = () => {
       }
 
       const [dealsRes, intakesRes] = await Promise.all([
-        supabase.from("deals").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+        // M&A list excludes funding workspaces (they live on the Incubator side).
+        (supabase as any).from("deals").select("*").eq("user_id", user.id)
+          .or("client_type.is.null,client_type.neq.funding")
+          .is("source_application_id", null)
+          .order("created_at", { ascending: false }),
         (supabase as any)
           .from("client_intakes")
           .select("id, intake_code, company_name, client_type, status, due_date, created_at, updated_at")
