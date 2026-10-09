@@ -1205,7 +1205,7 @@ const DealDashboard = () => {
                           {category.id} — {category.title}
                         </p>
                         <p className="text-xs text-muted-foreground mt-1">
-                          {completedTasksCount}/{category.tasks.length} items completed · {openTasksCount} outstanding
+                          {completedTasksCount}/{category.tasks.length} complete · {plural(openTasksCount, "item")} outstanding
                         </p>
                       </div>
                     </div>
