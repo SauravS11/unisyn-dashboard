@@ -1315,6 +1315,6 @@ const DealDashboard = () => {
       name: allTasks.find(t => t.id === selectedTaskForAssignment)!.assignedName,
       email: allTasks.find(t => t.id === selectedTaskForAssignment)!.assignedEmail
     } : undefined : undefined} />
-    </div>;
+    </PageShell>;
 };
 export default DealDashboard;
