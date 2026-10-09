@@ -47,7 +47,28 @@ const TONE_STYLES: Record<
   },
 };
 
-interface StatusTabBarProps {
+/**
+ * Card accents matching the tab tones, so list cards adopt the colour of the
+ * status tab they appear under (shared by the M&A and funding lists).
+ */
+export const STATUS_CARD_TONES: Record<StatusTabTone, { border: string; badge: string }> = {
+  red: {
+    border: "border-primary/40 hover:border-primary/60",
+    badge: "bg-primary/15 text-primary border-primary/30 hover:bg-primary/15",
+  },
+  yellow: {
+    border: "border-warning/40 hover:border-warning/60",
+    badge: "bg-warning/15 text-warning border-warning/30 hover:bg-warning/15",
+  },
+  blue: {
+    border: "border-info/40 hover:border-info/60",
+    badge: "bg-info/15 text-info-foreground border-info/30 hover:bg-info/15",
+  },
+  green: {
+    border: "border-success/40 hover:border-success/60",
+    badge: "bg-success/15 text-success border-success/30 hover:bg-success/15",
+  },
+};
   tabs: StatusTab[];
   activeId: string;
   onChange: (id: string) => void;

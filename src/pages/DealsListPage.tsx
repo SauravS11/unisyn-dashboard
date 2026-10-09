@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import unisynLogo from "@/assets/unisyn-logo.svg";
 import { format } from "date-fns";
 import { PageNavigation } from "@/components/PageNavigation";
-import { StatusTabBar, type StatusTabTone } from "@/components/StatusTabBar";
+import { StatusTabBar, STATUS_CARD_TONES, type StatusTabTone } from "@/components/StatusTabBar";
 import { PageHeaderActions } from "@/components/PageHeaderActions";
 import { NotificationButton } from "@/components/NotificationButton";
 import { toast as sonnerToast } from "sonner";
@@ -233,18 +233,17 @@ const DealsListPage = () => {
 
   const currentHeading = headings[viewMode];
 
-  const renderDealCard = (deal: Deal) => {
-    const statusStyles =
-      deal.status === "completed"
-        ? { ring: "border-green-500/40", badge: "bg-green-500/15 text-green-600 dark:text-green-500 border-green-500/30", label: "Completed" }
-        : deal.status === "in_progress"
-        ? { ring: "border-orange-500/40", badge: "bg-orange-500/15 text-orange-600 dark:text-orange-500 border-orange-500/30", label: "In Progress" }
-        : { ring: "border-blue-500/40", badge: "bg-blue-500/15 text-blue-600 dark:text-blue-500 border-blue-500/30", label: "Active" };
+  const renderDealCard = (deal: Deal, tone: StatusTabTone) => {
+    const statusStyles = {
+      ...STATUS_CARD_TONES[tone],
+      label:
+        deal.status === "completed" ? "Completed" : deal.status === "in_progress" ? "In Progress" : "Active",
+    };
 
     return (
       <Card
         key={deal.id}
-        className={`backdrop-blur-xl bg-card/60 border-2 ${statusStyles.ring} shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group touch-manipulation`}
+        className={`backdrop-blur-xl bg-card/60 border-2 ${statusStyles.border} shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group touch-manipulation`}
         onClick={() => handleDealClick(deal)}
       >
         <CardHeader className="pb-3">
@@ -291,16 +290,13 @@ const DealsListPage = () => {
     );
   };
 
-  const renderIntakeCard = (intake: Intake, tone: "pending" | "awaiting") => {
-    const styles =
-      tone === "pending"
-        ? { ring: "border-blue-500/40", badge: "bg-blue-500/15 text-blue-600 dark:text-blue-500 border-blue-500/30" }
-        : { ring: "border-amber-500/40", badge: "bg-amber-500/15 text-amber-600 dark:text-amber-500 border-amber-500/30" };
+  const renderIntakeCard = (intake: Intake, tone: StatusTabTone) => {
+    const styles = STATUS_CARD_TONES[tone];
 
     return (
       <Card
         key={intake.id}
-        className={`backdrop-blur-xl bg-card/60 border-2 ${styles.ring} shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group touch-manipulation`}
+        className={`backdrop-blur-xl bg-card/60 border-2 ${styles.border} shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group touch-manipulation`}
         onClick={() => handleIntakeClick(intake)}
       >
         <CardHeader className="pb-3">
@@ -349,10 +345,10 @@ const DealsListPage = () => {
     }
 
     let items: React.ReactNode[] = [];
-    if (viewMode === "pending") items = pendingIntakes.map((i) => renderIntakeCard(i, "pending"));
-    else if (viewMode === "awaiting") items = awaitingIntakes.map((i) => renderIntakeCard(i, "awaiting"));
-    else if (viewMode === "active") items = activeDeals.map(renderDealCard);
-    else items = completedDeals.map(renderDealCard);
+    if (viewMode === "pending") items = pendingIntakes.map((i) => renderIntakeCard(i, "red"));
+    else if (viewMode === "awaiting") items = awaitingIntakes.map((i) => renderIntakeCard(i, "yellow"));
+    else if (viewMode === "active") items = activeDeals.map((d) => renderDealCard(d, "blue"));
+    else items = completedDeals.map((d) => renderDealCard(d, "green"));
 
     if (items.length === 0) {
       return (
