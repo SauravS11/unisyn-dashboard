@@ -9,7 +9,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 90%;
+    --background: 0 0% 88.5%;
     --foreground: 0 0% 8%;
 
     --card: 0 0% 93.5%;
@@ -71,12 +71,12 @@
     --gradient-mesh: radial-gradient(at 18% 22%, hsl(0 0% 100% / 0.18) 0px, transparent 50%),
                      radial-gradient(at 82% 12%, hsl(0 0% 96% / 0.16) 0px, transparent 50%),
                      radial-gradient(at 70% 78%, hsl(0 0% 98% / 0.12) 0px, transparent 50%),
-                     radial-gradient(at 22% 82%, hsl(0 0% 90%) 0px, transparent 55%);
+                     radial-gradient(at 22% 82%, hsl(0 0% 88.5%) 0px, transparent 55%);
 
     --glass-blur: 28px;
     --radius: 1rem;
 
-    --sidebar-background: 0 0% 90%;
+    --sidebar-background: 0 0% 88.5%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
     --sidebar-primary-foreground: 0 0% 98%;
