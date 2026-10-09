@@ -33,7 +33,7 @@ export const PageNavigation = ({ items, label = "Page navigation" }: PageNavigat
       ref={containerRef as React.RefObject<HTMLElement>}
       {...containerProps}
       aria-label={label}
-      className="relative flex max-w-full flex-wrap justify-center items-center gap-2 bg-background/60 backdrop-blur-xl border-2 border-border/50 rounded-3xl sm:rounded-full px-6 py-3 shadow-2xl select-none touch-pan-y"
+      className="relative flex max-w-full flex-wrap justify-center items-center gap-3 bg-background/60 backdrop-blur-xl border-2 border-border/50 rounded-3xl sm:rounded-full px-4 py-3 sm:px-5 sm:py-3.5 shadow-2xl select-none touch-pan-y"
     >
       {bar && (
         <motion.div
@@ -55,13 +55,13 @@ export const PageNavigation = ({ items, label = "Page navigation" }: PageNavigat
               draggable={false}
               aria-current={item.to === activeTo ? "page" : undefined}
               className={cn(
-                "relative z-10 flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors duration-300",
+                "relative z-10 flex items-center gap-2.5 px-6 py-3 sm:px-7 sm:py-3.5 rounded-full text-base sm:text-lg font-semibold tracking-tight transition-colors duration-300",
                 isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
               )}
             >
-              {item.icon && <item.icon className="h-4 w-4 shrink-0" />}
+              {item.icon && <item.icon className="h-5 w-5 sm:h-6 sm:w-6 shrink-0" />}
               <span>{item.label}</span>
-              {item.count !== undefined && <span className="text-xs tabular-nums">{item.count}</span>}
+              {item.count !== undefined && <span className="text-sm sm:text-base tabular-nums font-bold">{item.count}</span>}
             </Link>
           </div>
         );
