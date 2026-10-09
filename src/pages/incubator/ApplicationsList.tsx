@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ArrowLeft, FilePlus2, Rocket, Calendar, Hash, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/customClient";
-import { APPLICATION_STATUS_LABELS } from "@/lib/fundingWorkflows";
+import { APPLICATION_STATUS_LABELS, APPROVED_APPLICATION_STATUSES } from "@/lib/fundingWorkflows";
 import { toast } from "sonner";
 
 interface Row {
@@ -26,7 +26,7 @@ const GROUPS: { id: string; label: string; statuses: string[] }[] = [
   { id: "draft", label: "Drafts", statuses: ["draft"] },
   { id: "live", label: "Awaiting Applicant", statuses: ["request_sent", "in_progress", "clarification_requested"] },
   { id: "review", label: "In Review", statuses: ["submitted_for_review", "in_review"] },
-  { id: "approved", label: "Approved", statuses: ["approved"] },
+  { id: "approved", label: "Approved", statuses: APPROVED_APPLICATION_STATUSES },
 ];
 
 const ApplicationsList = () => {
@@ -47,6 +47,7 @@ const ApplicationsList = () => {
   }, []);
 
   const open = (r: Row) => {
+    if (APPROVED_APPLICATION_STATUSES.includes(r.status)) return navigate(`/incubator/applications/${r.id}/review`);
     // Nothing goes to the review dashboard until the applicant request (link + code) has been sent.
     if (r.status === "draft") return navigate(`/incubator/applications/${r.id}/checklist`);
     if (!r.request_sent_at) return navigate(`/incubator/applications/${r.id}/send`);
