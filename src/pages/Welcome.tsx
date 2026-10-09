@@ -39,8 +39,11 @@ const Welcome = () => {
 
   return (
     <PageShell>
-      <div className="absolute top-4 left-4 md:top-6 md:left-6 z-20">
+      <div className="absolute top-4 left-4 md:top-6 md:left-6 z-20 flex items-center gap-2">
         <SignOutButton />
+        <Button variant="ghost" size="sm" className="rounded-full" onClick={() => navigate("/workspace")}>
+          Switch workspace
+        </Button>
       </div>
       <div className="absolute top-4 right-4 md:top-6 md:right-6 z-20">
         <ThemeToggle />
