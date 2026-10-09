@@ -102,7 +102,7 @@ export const StatusTabBar = ({ tabs, activeId, onChange, label = "Status" }: Sta
       {...containerProps}
       role="tablist"
       aria-label={label}
-      className="relative inline-flex max-w-full items-center gap-1 overflow-x-auto bg-background/60 backdrop-blur-xl border-2 border-border/50 rounded-3xl sm:rounded-full px-2 py-2 shadow-2xl select-none touch-pan-y [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="relative inline-flex max-w-full items-center gap-2 overflow-x-auto bg-background/60 backdrop-blur-xl border-2 border-border/50 rounded-3xl sm:rounded-full px-3 py-3 sm:px-4 sm:py-3.5 shadow-2xl select-none touch-pan-y [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
       {bar && (
         <motion.div
@@ -135,14 +135,14 @@ export const StatusTabBar = ({ tabs, activeId, onChange, label = "Status" }: Sta
             aria-selected={isActive}
             onClick={() => onChange(tab.id)}
             className={cn(
-              "relative z-10 flex shrink-0 items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors duration-300 touch-manipulation",
+              "relative z-10 flex shrink-0 items-center gap-2.5 px-5 py-3 sm:px-7 sm:py-3.5 rounded-full text-base sm:text-lg font-semibold tracking-tight transition-colors duration-300 touch-manipulation",
               isActive ? tabTone.text : "text-muted-foreground hover:text-foreground"
             )}
           >
-            <tab.icon className="h-4 w-4 shrink-0" />
+            <tab.icon className="h-5 w-5 sm:h-6 sm:w-6 shrink-0" />
             <span className="whitespace-nowrap">{tab.label}</span>
             {tab.count !== undefined && (
-              <span className={cn("text-xs tabular-nums", isActive ? tabTone.count : "")}>{tab.count}</span>
+              <span className={cn("text-sm sm:text-base tabular-nums font-bold", isActive ? tabTone.count : "")}>{tab.count}</span>
             )}
           </button>
         );
