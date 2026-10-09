@@ -914,16 +914,16 @@ const DealDashboard = () => {
                       <Input placeholder="Name" value={newSpecialist.name} onChange={e => setNewSpecialist(prev => ({
                     ...prev,
                     name: e.target.value
-                  }))} className="bg-background/50" />
+                  }))} className="bg-field" />
                       <Input placeholder="Email" type="email" value={newSpecialist.email} onChange={e => setNewSpecialist(prev => ({
                     ...prev,
                     email: e.target.value
-                  }))} className="bg-background/50" />
+                  }))} className="bg-field" />
                       <Select value={newSpecialist.role} onValueChange={value => setNewSpecialist(prev => ({
                     ...prev,
                     role: value
                   }))}>
-                        <SelectTrigger className="bg-background/50">
+                        <SelectTrigger className="bg-field">
                           <SelectValue placeholder="Select role" />
                         </SelectTrigger>
                         <SelectContent className="bg-card border-border/50 max-h-[300px]">
@@ -1023,7 +1023,7 @@ const DealDashboard = () => {
                     ...prev,
                     categoryId: value
                   }))}>
-                        <SelectTrigger className="bg-background/50">
+                        <SelectTrigger className="bg-field">
                           <SelectValue placeholder="Select category" />
                         </SelectTrigger>
                         <SelectContent className="bg-card border-border/50 max-h-60">

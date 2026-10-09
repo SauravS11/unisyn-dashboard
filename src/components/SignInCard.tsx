@@ -62,7 +62,7 @@ export const SignInCard = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="bg-background/50 border-border/50"
+                className="bg-field border-input"
               />
             </div>
             <div className="space-y-2">
@@ -74,7 +74,7 @@ export const SignInCard = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="bg-background/50 border-border/50"
+                className="bg-field border-input"
               />
             </div>
             <div className="flex justify-end">

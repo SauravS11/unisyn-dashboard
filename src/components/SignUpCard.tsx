@@ -82,7 +82,7 @@ export const SignUpCard = () => {
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               required
-              className="bg-background/50 border-border/50"
+              className="bg-field border-input"
             />
           </div>
           <div className="space-y-2">
@@ -94,7 +94,7 @@ export const SignUpCard = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="bg-background/50 border-border/50"
+              className="bg-field border-input"
             />
           </div>
           <div className="space-y-2">
@@ -106,7 +106,7 @@ export const SignUpCard = () => {
               value={firmName}
               onChange={(e) => setFirmName(e.target.value)}
               required
-              className="bg-background/50 border-border/50"
+              className="bg-field border-input"
             />
           </div>
           <div className="space-y-2">
@@ -118,7 +118,7 @@ export const SignUpCard = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="bg-background/50 border-border/50"
+              className="bg-field border-input"
             />
           </div>
           <div className="space-y-2">
@@ -130,7 +130,7 @@ export const SignUpCard = () => {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
-              className="bg-background/50 border-border/50"
+              className="bg-field border-input"
             />
           </div>
             <Button 
