@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import unisynLogo from "@/assets/unisyn-logo.svg";
 import { format } from "date-fns";
 import { PageNavigation } from "@/components/PageNavigation";
+import { StatusTabBar, type StatusTabTone } from "@/components/StatusTabBar";
 import { PageHeaderActions } from "@/components/PageHeaderActions";
 import { NotificationButton } from "@/components/NotificationButton";
 import { toast as sonnerToast } from "sonner";
@@ -66,8 +67,13 @@ const DealsListPage = () => {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [intakes, setIntakes] = useState<Intake[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const viewMode = listTab<ViewMode>(searchParams, ["pending", "awaiting", "active", "completed"], "pending");
+  const setViewMode = (tab: string) => setSearchParams((previous) => {
+    const next = new URLSearchParams(previous);
+    next.set("tab", tab);
+    return next;
+  });
   const [passcodeDialogOpen, setPasscodeDialogOpen] = useState(false);
   const [selectedDealForPasscode, setSelectedDealForPasscode] = useState<Deal | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -191,11 +197,11 @@ const DealsListPage = () => {
     }
   };
 
-  const tabs: { key: ViewMode; label: string; icon: typeof Inbox; count: number }[] = [
-    { key: "pending", label: "Pending", icon: Inbox, count: counts.pending },
-    { key: "awaiting", label: "Awaiting", icon: Hourglass, count: counts.awaiting },
-    { key: "active", label: "Active", icon: Briefcase, count: counts.active },
-    { key: "completed", label: "Completed", icon: CheckCircle2, count: counts.completed },
+  const tabs: { key: ViewMode; label: string; icon: typeof Inbox; count: number; tone: StatusTabTone }[] = [
+    { key: "pending", label: "Pending", icon: Inbox, count: counts.pending, tone: "red" },
+    { key: "awaiting", label: "Awaiting", icon: Hourglass, count: counts.awaiting, tone: "yellow" },
+    { key: "active", label: "Active", icon: Briefcase, count: counts.active, tone: "blue" },
+    { key: "completed", label: "Completed", icon: CheckCircle2, count: counts.completed, tone: "green" },
   ];
 
   const headings: Record<ViewMode, { title: string; subtitle: string; emptyTitle: string; emptyBody: string }> = {
@@ -412,7 +418,7 @@ const DealsListPage = () => {
 
         {/* Flow tabs: Pending → Awaiting → Active → Completed */}
         <div className="flex justify-center mb-8">
-          <PageNavigation label="Deal status" items={tabs.map(t => ({ to: `/deals?tab=${t.key}`, label: t.label, icon: t.icon, count: t.count, isActive: viewMode === t.key }))} />
+          <StatusTabBar label="Deal status" tabs={tabs} activeId={viewMode} onChange={setViewMode} />
         </div>
 
         {renderContent()}
