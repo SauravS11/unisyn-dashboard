@@ -148,22 +148,22 @@ const LandingPage = () => {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-100 via-blue-50/50 to-indigo-100/40">
+    <div className="min-h-screen relative overflow-hidden bg-background">
       {/* Rich layered background gradients */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_100%_60%_at_50%_-30%,hsl(220_60%_92%),transparent)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_100%_100%,hsl(250_50%_92%),transparent)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_40%_at_0%_70%,hsl(180_45%_92%),transparent)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_35%_at_30%_20%,hsl(200_55%_94%),transparent)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_100%_60%_at_50%_-30%,hsl(220_35%_86%),transparent)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_100%_100%,hsl(250_30%_86%),transparent)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_40%_at_0%_70%,hsl(180_25%_86%),transparent)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_35%_at_30%_20%,hsl(200_30%_88%),transparent)]" />
       
       {/* Mesh gradient overlay for depth */}
       <div 
         className="absolute inset-0 opacity-60"
         style={{
           backgroundImage: `
-            radial-gradient(at 20% 30%, hsla(220, 60%, 85%, 0.4) 0px, transparent 50%),
-            radial-gradient(at 80% 20%, hsla(250, 50%, 88%, 0.35) 0px, transparent 50%),
-            radial-gradient(at 70% 70%, hsla(180, 45%, 85%, 0.3) 0px, transparent 50%),
-            radial-gradient(at 30% 80%, hsla(200, 55%, 87%, 0.35) 0px, transparent 50%)
+            radial-gradient(at 20% 30%, hsla(220, 35%, 80%, 0.4) 0px, transparent 50%),
+            radial-gradient(at 80% 20%, hsla(250, 30%, 82%, 0.35) 0px, transparent 50%),
+            radial-gradient(at 70% 70%, hsla(180, 25%, 80%, 0.3) 0px, transparent 50%),
+            radial-gradient(at 30% 80%, hsla(200, 30%, 82%, 0.35) 0px, transparent 50%)
           `
         }}
       />
@@ -182,7 +182,7 @@ const LandingPage = () => {
       <motion.div 
         className="absolute w-[800px] h-[800px] pointer-events-none"
         style={{
-          background: "radial-gradient(circle, hsl(220 55% 85% / 0.2) 0%, hsl(250 45% 88% / 0.1) 40%, transparent 65%)",
+          background: "radial-gradient(circle, hsl(220 35% 80% / 0.2) 0%, hsl(250 30% 82% / 0.1) 40%, transparent 65%)",
           left: mousePosition.x - 400,
           top: mousePosition.y - 400,
         }}
@@ -199,7 +199,7 @@ const LandingPage = () => {
       {/* Central radial gradient overlay */}
       <div className="absolute inset-0 pointer-events-none">
         <motion.div 
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1400px] h-[1400px] bg-[radial-gradient(circle,hsl(220_50%_90%/0.3)_0%,hsl(250_40%_92%/0.15)_40%,transparent_70%)]"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1400px] h-[1400px] bg-[radial-gradient(circle,hsl(220_30%_85%/0.3)_0%,hsl(250_25%_87%/0.15)_40%,transparent_70%)]"
           animate={{
             scale: [1, 1.1, 1],
             opacity: [0.8, 1, 0.8],
@@ -215,7 +215,7 @@ const LandingPage = () => {
       {/* Ambient depth layers */}
       <div className="absolute inset-0 pointer-events-none">
         <motion.div 
-          className="absolute top-[5%] left-[15%] w-[600px] h-[600px] bg-[hsl(220_55%_82%/0.2)] rounded-full blur-[100px]"
+          className="absolute top-[5%] left-[15%] w-[600px] h-[600px] bg-[hsl(220_35%_78%/0.2)] rounded-full blur-[100px]"
           animate={{
             x: [-25, 25, -25],
             y: [-15, 15, -15],
@@ -227,7 +227,7 @@ const LandingPage = () => {
           }}
         />
         <motion.div 
-          className="absolute top-[50%] right-[5%] w-[550px] h-[550px] bg-[hsl(250_45%_85%/0.18)] rounded-full blur-[90px]"
+          className="absolute top-[50%] right-[5%] w-[550px] h-[550px] bg-[hsl(250_30%_80%/0.18)] rounded-full blur-[90px]"
           animate={{
             x: [20, -20, 20],
             y: [12, -12, 12],
@@ -239,7 +239,7 @@ const LandingPage = () => {
           }}
         />
         <motion.div 
-          className="absolute top-[30%] left-[50%] w-[450px] h-[450px] bg-[hsl(180_40%_88%/0.15)] rounded-full blur-[80px]"
+          className="absolute top-[30%] left-[50%] w-[450px] h-[450px] bg-[hsl(180_25%_83%/0.15)] rounded-full blur-[80px]"
           animate={{
             x: [-12, 12, -12],
             y: [18, -18, 18],
@@ -251,7 +251,7 @@ const LandingPage = () => {
           }}
         />
         <motion.div 
-          className="absolute bottom-[10%] left-[10%] w-[400px] h-[400px] bg-[hsl(270_35%_85%/0.12)] rounded-full blur-[85px]"
+          className="absolute bottom-[10%] left-[10%] w-[400px] h-[400px] bg-[hsl(270_25%_80%/0.12)] rounded-full blur-[85px]"
           animate={{
             y: [-8, 8, -8],
             x: [5, -5, 5],
@@ -263,7 +263,7 @@ const LandingPage = () => {
           }}
         />
         <motion.div 
-          className="absolute top-[70%] left-[60%] w-[350px] h-[350px] bg-[hsl(200_50%_85%/0.14)] rounded-full blur-[75px]"
+          className="absolute top-[70%] left-[60%] w-[350px] h-[350px] bg-[hsl(200_35%_80%/0.14)] rounded-full blur-[75px]"
           animate={{
             y: [10, -10, 10],
             scale: [1, 1.1, 1],
