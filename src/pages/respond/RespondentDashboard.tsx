@@ -6,9 +6,11 @@ import { portalSupabase as supabase } from "@/integrations/supabase/portalClient
 import { getIntakeSession, clearIntakeSession } from "@/lib/intakeClient";
 import { RespondentHeader } from "@/components/RespondentHeader";
 import { PageShell } from "@/components/ui/page-shell";
-import { ArrowRight, CalendarDays, CheckCircle2, ClipboardList, FileStack } from "lucide-react";
+import { ChevronRight, ClipboardList, FileText, ShieldCheck } from "lucide-react";
+import { GlassIcon } from "@/components/ui/glass-icon";
+import { Badge } from "@/components/ui/badge";
+import { getProgressColors } from "@/lib/progressColors";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
 
 interface CategoryRow {
   category_id: string;
@@ -88,6 +90,9 @@ export default function RespondentDashboard() {
       ? "Continue to documents"
       : "Review & finish";
 
+  const totalAll = cats.reduce((a, c) => a + c.part1_total + c.part2_total, 0);
+  const totalDone = cats.reduce((a, c) => a + c.part1_done + c.part2_done, 0);
+
   const startFlow = () => {
     if (!ctaTarget) return;
     navigate(`/respond/${intakeId}/category/${ctaTarget.code}/part-${ctaTarget.part}`);
@@ -105,133 +110,98 @@ export default function RespondentDashboard() {
     <PageShell>
       <RespondentHeader intakeCode={intake?.intake_code} companyName={intake?.company_name} completion={overall} />
 
-      {/* Thin metric ribbon */}
-      <div className="border-b border-border/40 bg-card/30 backdrop-blur-xl">
-        <div className="max-w-6xl mx-auto px-6 py-3 grid grid-cols-2 sm:grid-cols-4 gap-4 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-          <Ribbon label="Completion" value={`${overall}%`} />
-          <Ribbon label="Categories" value={String(cats.length)} />
-          <Ribbon label="Approved" value={String(cats.filter((c) => c.status === "approved").length)} />
-          <Ribbon label="Due" value={intake?.due_date ? new Date(intake.due_date).toLocaleDateString(undefined, { day: "numeric", month: "short" }) : "—"} icon={CalendarDays} />
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+        {/* metrics */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          {[
+            { label: "Requirements Completed", value: `${totalDone} of ${totalAll}` },
+            { label: "Categories", value: cats.length },
+            { label: "Approved", value: cats.filter((c) => c.status === "approved").length },
+            {
+              label: "Due Date",
+              value: intake?.due_date ? new Date(intake.due_date).toLocaleDateString() : "—",
+            },
+          ].map((m) => (
+            <div key={m.label} className="glass-surface p-4">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{m.label}</p>
+              <p className="font-semibold mt-1 text-sm sm:text-base">{m.value}</p>
+            </div>
+          ))}
         </div>
-      </div>
 
-      <main className="max-w-6xl mx-auto px-6 py-16 grid lg:grid-cols-[1.05fr_1fr] gap-16">
-        {/* LEFT — Editorial hero */}
-        <section className="space-y-10">
-          <div className="space-y-6">
-            <p className="text-[11px] uppercase tracking-[0.32em] text-destructive font-semibold">Pre-Due Diligence</p>
-            <h1 className="font-serif text-5xl sm:text-6xl lg:text-7xl leading-[0.95] tracking-tight">
-              {intake?.company_name ?? "Your"}<span className="italic text-destructive/90">.</span>
-              <span className="block text-muted-foreground/70 italic text-3xl sm:text-4xl mt-3">
-                a guided intake in two acts.
-              </span>
-            </h1>
-            <p className="text-base text-foreground/70 leading-relaxed max-w-lg">
-              You'll move through {cats.length} {cats.length === 1 ? "category" : "categories"} — first answering written
-              questions, then attaching the supporting documents. Progress autosaves.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <Button size="lg" onClick={startFlow}
-              className="gap-2 h-14 px-7 text-base font-semibold rounded-full shadow-glow-primary-lg">
-              {ctaLabel} <ArrowRight className="h-5 w-5" />
-            </Button>
-            <div className="text-xs text-muted-foreground space-y-0.5">
-              <p><span className={part1AllDone ? "text-destructive font-semibold" : ""}>Act I</span> · responses</p>
-              <p><span className={part2AllDone ? "text-destructive font-semibold" : ""}>Act II</span> · documents</p>
+        <div className="mb-10 max-w-2xl">
+          <p className="text-[11px] uppercase tracking-[0.3em] text-muted-foreground mb-3">Welcome to your pre-due diligence</p>
+          <h1 className="font-display text-4xl sm:text-5xl tracking-tight leading-tight">
+            Let’s complete the <span className="text-gradient-brand">{intake?.company_name ?? "deal"}</span> intake.
+          </h1>
+          <p className="text-muted-foreground mt-4">
+            A simple, guided process: answer the written questions for each category, then upload the supporting documents.
+          </p>
+          <div className="glass-surface p-5 mt-6 flex items-start gap-4">
+            <GlassIcon icon={ShieldCheck} size="lg" tone="success" />
+            <div>
+              <p className="font-semibold">Secure. Private. No sign-up required.</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Your progress saves as you go — return anytime using your deal code.
+              </p>
             </div>
           </div>
+          <Button className="rounded-full mt-6 gap-2" size="lg" onClick={startFlow} disabled={!ctaTarget}>
+            {totalDone > 0 ? ctaLabel : "Start the process"} <ChevronRight className="h-4 w-4" />
+          </Button>
+          <p className="text-xs text-muted-foreground mt-3">Part 1 · Written responses &nbsp;·&nbsp; Part 2 · Documents</p>
+        </div>
 
-          {/* Two horizontal progress bars under the CTA */}
-          <div className="space-y-4 pt-2 max-w-md">
-            <ActBar
-              icon={ClipboardList}
-              title="Act I — Responses"
-              done={cats.reduce((a, c) => a + c.part1_done, 0)}
-              total={cats.reduce((a, c) => a + c.part1_total, 0)}
-              complete={part1AllDone}
-            />
-            <ActBar
-              icon={FileStack}
-              title="Act II — Documents"
-              done={cats.reduce((a, c) => a + c.part2_done, 0)}
-              total={cats.reduce((a, c) => a + c.part2_total, 0)}
-              complete={part2AllDone}
-            />
+        <h2 className="font-display text-2xl mb-4">Categories</h2>
+        {cats.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Your advisor hasn't assigned any categories yet.</p>
+        ) : (
+          <div className="space-y-3">
+            {cats.map((c) => {
+              const total = c.part1_total + c.part2_total;
+              const done = c.part1_done + c.part2_done;
+              const pct = total ? Math.round((done / total) * 100) : 0;
+              const colors = getProgressColors(pct);
+              const part = c.part1_total > 0 && c.part1_done < c.part1_total ? 1 : c.part2_total > 0 && c.part2_done < c.part2_total ? 2 : 1;
+              return (
+                <button
+                  key={c.code}
+                  onClick={() => navigate(`/respond/${intakeId}/category/${c.code}/part-${part}`)}
+                  className="w-full glass-surface lift-hover p-5 flex items-center gap-4 text-left"
+                >
+                  <GlassIcon icon={c.part1_total === 0 ? FileText : ClipboardList} size="lg" />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-display text-lg leading-tight">{c.code} — {c.name}</p>
+                    <div className="flex items-center gap-3 mt-2">
+                      <Progress value={pct} className="h-1.5 max-w-xs" />
+                      <span className={`text-xs font-semibold tabular-nums ${colors.text}`}>{pct}%</span>
+                    </div>
+                  </div>
+                  <Badge variant="outline" className="rounded-full shrink-0">
+                    {STATUS_LABELS[c.status] ?? c.status}
+                  </Badge>
+                  <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0" />
+                </button>
+              );
+            })}
           </div>
-        </section>
+        )}
 
-        {/* RIGHT — Magazine index */}
-        <aside className="lg:border-l lg:border-border/40 lg:pl-12">
-          <div className="flex items-baseline justify-between mb-6">
-            <h2 className="font-serif text-2xl italic">Index</h2>
-            <span className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-              {cats.length} categories
-            </span>
-          </div>
-          {cats.length === 0 ? (
-            <p className="text-sm text-muted-foreground italic">
-              Your advisor hasn't assigned any categories yet.
-            </p>
-          ) : (
-            <ol className="divide-y divide-border/40">
-              {cats.map((c, i) => {
-                const total = c.part1_total + c.part2_total;
-                const done = c.part1_done + c.part2_done;
-                const pct = total ? Math.round((done / total) * 100) : 0;
-                return (
-                  <motion.li
-                    key={c.code}
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.03 }}
-                  >
-                    <button
-                      onClick={() => navigate(`/respond/${intakeId}/category/${c.code}/part-1`)}
-                      className="group w-full flex items-center gap-5 py-4 text-left hover:bg-card/40 -mx-3 px-3 rounded-md transition-colors"
-                    >
-                      <span className="font-serif text-3xl text-destructive/90 tabular-nums w-10 italic">{c.code}</span>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm truncate group-hover:text-foreground">{c.name}</p>
-                        <div className="mt-1.5 h-px bg-border/40 relative">
-                          <div className="absolute inset-y-0 left-0 bg-destructive" style={{ width: `${pct}%` }} />
-                        </div>
-                      </div>
-                      <span className="text-[11px] uppercase tracking-wider text-muted-foreground tabular-nums w-10 text-right">
-                        {pct === 100 ? <CheckCircle2 className="h-4 w-4 text-destructive ml-auto" /> : `${pct}%`}
-                      </span>
-                    </button>
-                  </motion.li>
-                );
-              })}
-            </ol>
-          )}
-        </aside>
-      </main>
+        <div className="glass-surface p-4 mt-8 flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
+          <span>You can save your progress at any time. Your responses are securely saved as you go.</span>
+          <span>Need help? Contact your advisor.</span>
+        </div>
+      </div>
     </PageShell>
   );
 }
 
-const Ribbon = ({ label, value, icon: Icon }: { label: string; value: string; icon?: any }) => (
-  <div className="flex items-center gap-2">
-    {Icon && <Icon className="h-3 w-3 text-destructive" />}
-    <span>{label}</span>
-    <span className="text-foreground font-semibold tracking-normal normal-case text-sm ml-auto sm:ml-0">{value}</span>
-  </div>
-);
-
-const ActBar = ({ icon: Icon, title, done, total, complete }: { icon: any; title: string; done: number; total: number; complete: boolean }) => {
-  const pct = total ? Math.round((done / total) * 100) : 0;
-  return (
-    <div>
-      <div className="flex items-center gap-2 mb-1.5">
-        <Icon className="h-3.5 w-3.5 text-destructive" />
-        <p className="text-[11px] uppercase tracking-[0.2em] font-semibold">{title}</p>
-        {complete && <CheckCircle2 className="h-3.5 w-3.5 text-destructive ml-auto" />}
-        <span className="text-xs text-muted-foreground tabular-nums ml-auto">{done}/{total}</span>
-      </div>
-      <Progress value={pct} className="h-1" />
-    </div>
-  );
+const STATUS_LABELS: Record<string, string> = {
+  not_started: "Not Started",
+  in_progress: "In Progress",
+  submitted: "Submitted",
+  under_review: "Under Review",
+  approved: "Approved",
+  rejected: "Needs Update",
+  denied: "Needs Update",
 };
