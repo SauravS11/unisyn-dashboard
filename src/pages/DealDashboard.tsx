@@ -581,21 +581,60 @@ const DealDashboard = () => {
         return null;
     }
   };
-  return <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-background via-background to-muted">
+  // Summary tiles + right-rail lists (funder-style layout)
+  const highPriorityList = categories
+    .flatMap((cat) => cat.tasks.filter((t) => t.priority === "high" && !t.checked).map((task) => ({ category: cat, task })))
+    .slice(0, 6);
+  const outstandingCategories = categories.filter((cat) => getOpenTasksCount(cat) > 0);
+  const summaryCards: Array<{
+    icon: any;
+    label: string;
+    value: string | number;
+    tone?: string;
+    onClick?: () => void;
+  }> = [
+    {
+      icon: ClipboardList,
+      label: fundingWorkspace ? "Workspace Completion" : "Deal Completion",
+      value: `${readinessScore}%`,
+      tone: getProgressColors(readinessScore).text,
+    },
+    {
+      icon: CircleAlert,
+      label: "Open Items",
+      value: openTasks,
+      tone: openTasks > 0 ? "text-amber-600 dark:text-amber-500" : "text-green-600 dark:text-green-500",
+    },
+    {
+      icon: Flag,
+      label: "High Priority",
+      value: highPriorityTasks,
+      tone: highPriorityTasks > 0 ? "text-red-700 dark:text-red-500" : "text-green-600 dark:text-green-500",
+    },
+    {
+      icon: User,
+      label: "Specialists Assigned",
+      value: specialistsAssigned,
+      onClick: () => setSpecialistsModalOpen(true),
+    },
+    {
+      icon: FileText,
+      label: "Documents",
+      value: documentsCount,
+      onClick: () => setDocumentsModalOpen(true),
+    },
+    {
+      icon: Timer,
+      label: daysUntilClose !== null && daysUntilClose < 0 ? "Days Overdue" : "Days Until Close",
+      value: daysUntilClose === null ? "—" : Math.abs(daysUntilClose),
+      tone: daysUntilClose !== null && daysUntilClose < 0 ? "text-red-700 dark:text-red-500" : undefined,
+      onClick: () => setCloseDateDialogOpen(true),
+    },
+  ];
+
+  return <PageShell>
       {/* Hidden file input for task document uploads */}
       <input ref={taskFileInputRef} type="file" className="hidden" onChange={handleTaskFileUpload} accept="*" />
-      
-      {/* Geometric Background Pattern */}
-      <div className="absolute inset-0 opacity-30">
-        <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-border/20" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#grid)" />
-        </svg>
-      </div>
 
       {/* Header */}
       <div className="relative z-10 border-b border-border/50 bg-background/80 backdrop-blur-xl">
