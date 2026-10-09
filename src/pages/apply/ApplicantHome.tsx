@@ -5,13 +5,13 @@ import { GlassIcon } from "@/components/ui/glass-icon";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { ApplicantProgress } from "@/components/ApplicantProgress";
 import {
   ChevronRight,
   CircleHelp,
   ClipboardList,
   FileText,
   Radio,
-  ShieldCheck,
   X,
 } from "lucide-react";
 import unisynLogo from "@/assets/unisyn-logo.svg";
@@ -91,10 +91,6 @@ const ApplicantHome = () => {
             <span className="hidden md:inline-flex items-center gap-1.5 text-xs text-green-600">
               <Radio className="h-3.5 w-3.5" /> Live sync active
             </span>
-            <div className="hidden md:flex items-center gap-2 w-40">
-              <Progress value={overall} className="h-1.5" />
-              <span className="text-xs font-semibold tabular-nums">{overall}%</span>
-            </div>
             <Button variant="ghost" size="sm" className="rounded-full gap-1.5">
               <CircleHelp className="h-4 w-4" /> Help
             </Button>
@@ -154,15 +150,7 @@ const ApplicantHome = () => {
           <p className="text-muted-foreground mt-4">
             A simple, guided process to help you provide the information needed to assess your funding request.
           </p>
-          <div className="glass-surface p-5 mt-6 flex items-start gap-4">
-            <GlassIcon icon={ShieldCheck} size="lg" tone="success" />
-            <div>
-              <p className="font-semibold">Secure. Private. No sign-up required.</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                You can save your progress and return anytime using your application code and secure link.
-              </p>
-            </div>
-          </div>
+          <ApplicantProgress completion={overall} done={totals.done} total={totals.total} />
           <Button
             className="rounded-full mt-6 gap-2"
             size="lg"
