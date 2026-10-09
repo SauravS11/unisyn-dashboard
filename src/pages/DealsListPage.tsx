@@ -197,11 +197,11 @@ const DealsListPage = () => {
     }
   };
 
-  const tabs: { key: ViewMode; label: string; icon: typeof Inbox; count: number; tone: StatusTabTone }[] = [
-    { key: "pending", label: "Pending", icon: Inbox, count: counts.pending, tone: "red" },
-    { key: "awaiting", label: "Awaiting", icon: Hourglass, count: counts.awaiting, tone: "yellow" },
-    { key: "active", label: "Active", icon: Briefcase, count: counts.active, tone: "blue" },
-    { key: "completed", label: "Completed", icon: CheckCircle2, count: counts.completed, tone: "green" },
+  const tabs: { id: ViewMode; label: string; icon: typeof Inbox; count: number; tone: StatusTabTone }[] = [
+    { id: "pending", label: "Pending", icon: Inbox, count: counts.pending, tone: "red" },
+    { id: "awaiting", label: "Awaiting", icon: Hourglass, count: counts.awaiting, tone: "yellow" },
+    { id: "active", label: "Active", icon: Briefcase, count: counts.active, tone: "blue" },
+    { id: "completed", label: "Completed", icon: CheckCircle2, count: counts.completed, tone: "green" },
   ];
 
   const headings: Record<ViewMode, { title: string; subtitle: string; emptyTitle: string; emptyBody: string }> = {
