@@ -66,13 +66,8 @@ const DealsListPage = () => {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [intakes, setIntakes] = useState<Intake[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const viewMode = listTab<ViewMode>(searchParams, ["pending", "awaiting", "active", "completed"], "pending");
-  const setViewMode = (tab: ViewMode) => setSearchParams((previous) => {
-    const next = new URLSearchParams(previous);
-    next.set("tab", tab);
-    return next;
-  });
   const [passcodeDialogOpen, setPasscodeDialogOpen] = useState(false);
   const [selectedDealForPasscode, setSelectedDealForPasscode] = useState<Deal | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
