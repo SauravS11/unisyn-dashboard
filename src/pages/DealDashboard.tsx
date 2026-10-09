@@ -1,12 +1,12 @@
 import { useEffect, useState, useRef } from "react";
 import * as React from "react";
 import { useParams } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Paperclip, AlertCircle, CheckCircle2, Clock, FileText, Flag, User, Calendar, Upload } from "lucide-react";
+import { Paperclip, AlertCircle, CheckCircle2, Clock, FileText, Flag, User, UserPlus, Calendar, Upload, ClipboardList, CircleAlert, Timer } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
@@ -24,6 +24,8 @@ import { specialistSchema, validateInput } from "@/lib/validation";
 import { handleError, logDebug } from "@/lib/errorHandler";
 import { getProgressColors } from "@/lib/progressColors";
 import { isFundingWorkspace, workspaceCategories } from "@/lib/fundingChecklist";
+import { PageShell } from "@/components/ui/page-shell";
+import { GlassIcon } from "@/components/ui/glass-icon";
 
 interface Task {
   id: string;
@@ -529,7 +531,9 @@ const DealDashboard = () => {
       setUploadingTaskId(null);
     }
   };
+  const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
   const getCategoryCompletion = (category: Category) => {
+    if (!category.tasks.length) return 0;
     const completed = category.tasks.filter(t => t.checked).length;
     return Math.round(completed / category.tasks.length * 100);
   };
@@ -581,21 +585,60 @@ const DealDashboard = () => {
         return null;
     }
   };
-  return <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-background via-background to-muted">
+  // Summary tiles + right-rail lists (funder-style layout)
+  const highPriorityList = categories
+    .flatMap((cat) => cat.tasks.filter((t) => t.priority === "high" && !t.checked).map((task) => ({ category: cat, task })))
+    .slice(0, 6);
+  const outstandingCategories = categories.filter((cat) => getOpenTasksCount(cat) > 0);
+  const summaryCards: Array<{
+    icon: any;
+    label: string;
+    value: string | number;
+    tone?: string;
+    onClick?: () => void;
+  }> = [
+    {
+      icon: ClipboardList,
+      label: fundingWorkspace ? "Workspace Completion" : "Deal Completion",
+      value: `${readinessScore}%`,
+      tone: getProgressColors(readinessScore).text,
+    },
+    {
+      icon: CircleAlert,
+      label: "Open Items",
+      value: openTasks,
+      tone: openTasks > 0 ? "text-amber-600 dark:text-amber-500" : "text-green-600 dark:text-green-500",
+    },
+    {
+      icon: Flag,
+      label: "High Priority",
+      value: highPriorityTasks,
+      tone: highPriorityTasks > 0 ? "text-red-700 dark:text-red-500" : "text-green-600 dark:text-green-500",
+    },
+    {
+      icon: User,
+      label: "Specialists Assigned",
+      value: specialistsAssigned,
+      onClick: () => setSpecialistsModalOpen(true),
+    },
+    {
+      icon: FileText,
+      label: "Documents",
+      value: documentsCount,
+      onClick: () => setDocumentsModalOpen(true),
+    },
+    {
+      icon: Timer,
+      label: daysUntilClose !== null && daysUntilClose < 0 ? "Days Overdue" : "Days Until Close",
+      value: daysUntilClose === null ? "—" : Math.abs(daysUntilClose),
+      tone: daysUntilClose !== null && daysUntilClose < 0 ? "text-red-700 dark:text-red-500" : undefined,
+      onClick: () => setCloseDateDialogOpen(true),
+    },
+  ];
+
+  return <PageShell>
       {/* Hidden file input for task document uploads */}
       <input ref={taskFileInputRef} type="file" className="hidden" onChange={handleTaskFileUpload} accept="*" />
-      
-      {/* Geometric Background Pattern */}
-      <div className="absolute inset-0 opacity-30">
-        <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-border/20" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#grid)" />
-        </svg>
-      </div>
 
       {/* Header */}
       <div className="relative z-10 border-b border-border/50 bg-background/80 backdrop-blur-xl">
@@ -618,157 +661,74 @@ const DealDashboard = () => {
 
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-        {/* Top Summary Section */}
-        <div className="flex flex-col gap-4 sm:gap-6 mb-6 sm:mb-8">
-          {/* First Row - Readiness Score + Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 sm:gap-6">
-            {/* Readiness Score Card */}
-            <Card className={`sm:col-span-2 backdrop-blur-xl bg-card/60 border-2 ${getProgressColors(readinessScore).ring} shadow-2xl`}>
-              <CardContent className="py-4 sm:py-6">
-                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
-                  <div className="relative w-24 h-24 flex-shrink-0">
-                    <svg className="w-full h-full transform -rotate-90">
-                      <circle cx="48" cy="48" r="40" stroke="currentColor" strokeWidth="8" fill="none" className="text-muted" />
-                      <circle cx="48" cy="48" r="40" stroke="currentColor" strokeWidth="8" fill="none" strokeDasharray={`${2 * Math.PI * 40}`} strokeDashoffset={`${2 * Math.PI * 40 * (1 - readinessScore / 100)}`} className={`${getProgressColors(readinessScore).stroke} transition-all duration-500`} strokeLinecap="round" />
-                    </svg>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className={`text-xl sm:text-2xl font-bold ${getProgressColors(readinessScore).text}`}>{readinessScore}%</span>
-                    </div>
-                  </div>
-                  <div className="text-center sm:text-left">
-                    <p className="text-base sm:text-lg font-semibold text-foreground mb-2">{dealName}</p>
-                    <p className="text-sm text-muted-foreground mb-1">Readiness Score · <span className={`font-semibold ${getProgressColors(readinessScore).text}`}>{getProgressColors(readinessScore).label}</span></p>
-                    <p className="text-xs text-muted-foreground">
-                      {completedTasks} of {totalTasks} tasks completed
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Summary Cards */}
-            <Card className={`backdrop-blur-xl bg-card/60 border-2 ${openTasks > 0 ? 'border-orange-500/40' : 'border-green-500/40'} shadow-xl`}>
-              <CardContent className="flex items-center justify-center py-8">
-                <div className="text-center">
-                  <div className={`text-4xl font-bold mb-2 ${openTasks > 0 ? 'text-orange-500' : 'text-green-500'}`}>{openTasks}</div>
-                  <div className="text-sm text-muted-foreground">Open Tasks</div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className={`backdrop-blur-xl bg-card/60 border-2 ${highPriorityTasks > 0 ? 'border-red-500/40' : 'border-green-500/40'} shadow-xl`}>
-              <CardContent className="flex items-center justify-center py-8">
-                <div className="text-center">
-                  <div className={`text-4xl font-bold mb-2 ${highPriorityTasks > 0 ? 'text-red-500' : 'text-green-500'}`}>{highPriorityTasks}</div>
-                  <div className="text-sm text-muted-foreground">High Priority</div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className={`backdrop-blur-xl bg-card/60 border-2 ${specialistsAssigned > 0 ? 'border-blue-500/40' : 'border-orange-500/40'} shadow-xl cursor-pointer hover:shadow-2xl transition-shadow`} onClick={() => setSpecialistsModalOpen(true)}>
-              <CardContent className="flex items-center justify-center py-8">
-                <div className="text-center">
-                  <div className={`text-4xl font-bold mb-2 ${specialistsAssigned > 0 ? 'text-blue-500' : 'text-orange-500'}`}>{specialistsAssigned}</div>
-                  <div className="text-sm text-muted-foreground">Specialists Assigned</div>
-                  <Button variant="link" className="mt-2 text-xs">
-                    View Details
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Second Row - Days Until Close + Core Team + Documents */}
-          <div className="grid md:grid-cols-5 gap-6">
-            {/* Days Until Close Card */}
-            <Card className="md:col-span-2 backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl cursor-pointer hover:shadow-2xl transition-shadow" onClick={() => setCloseDateDialogOpen(true)}>
-              <CardContent className="py-6">
-                <div className="flex items-center justify-center gap-8">
-                  <div className="relative w-24 h-24 flex-shrink-0">
-                    <svg className="w-24 h-24 transform -rotate-90">
-                      <circle cx="48" cy="48" r="40" stroke="currentColor" strokeWidth="8" fill="none" className="text-muted" />
-                      {daysUntilClose !== null && <circle cx="48" cy="48" r="40" stroke="currentColor" strokeWidth="8" fill="none" strokeDasharray={`${2 * Math.PI * 40}`} strokeDashoffset={`${2 * Math.PI * 40 * 0.25}`} className="text-accent transition-all duration-500" strokeLinecap="round" />}
-                    </svg>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      {daysUntilClose !== null ? <span className={`text-2xl font-bold ${daysUntilClose < 0 ? 'text-destructive' : ''}`}>
-                          {daysUntilClose < 0 ? `+${Math.abs(daysUntilClose)}` : daysUntilClose}
-                        </span> : <span className="text-sm font-semibold text-muted-foreground">N/A</span>}
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-sm text-muted-foreground mb-1">
-                      {daysUntilClose !== null && daysUntilClose < 0 ? 'Days Overdue' : 'Days Until Close'}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Target: {targetCloseDate ? new Date(targetCloseDate).toLocaleDateString() : 'Not set'}
-                    </p>
-                    <Button variant="link" className="text-xs p-0 h-auto mt-1">
-                      Change Date
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Close Date Dialog */}
-            <Dialog open={closeDateDialogOpen} onOpenChange={setCloseDateDialogOpen}>
-              <DialogContent className="w-[90vw] sm:w-[70vw] lg:w-[50vw] max-w-none p-0 overflow-hidden backdrop-blur-2xl bg-background/80 border-border/50 shadow-2xl">
-                <div className="flex flex-col">
-                  <div className="flex items-center justify-between p-4 sm:p-5 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent">
-                    <div className="flex flex-col">
-                      <DialogTitle className="font-bold text-lg">Change Target Close Date</DialogTitle>
-                      <DialogDescription className="text-sm text-muted-foreground">
-                        Select a new target close date for this deal
-                      </DialogDescription>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-center p-6 sm:p-8">
-                    <CalendarComponent mode="single" selected={targetCloseDate ? new Date(targetCloseDate) : undefined} onSelect={handleCloseDateChange} disabled={date => date < new Date() || date > new Date("2035-12-31")} initialFocus className="p-3 pointer-events-auto bg-card/60 backdrop-blur-xl rounded-lg border border-border/30" />
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
-
-            <Card className="md:col-span-2 backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl cursor-pointer hover:shadow-2xl transition-shadow" onClick={() => setCoreTeamModalOpen(true)}>
-              <CardContent className="py-6">
-                <div className="flex items-center justify-center gap-8">
-                  <div className="relative w-24 h-24 flex-shrink-0">
-                    <svg className="w-24 h-24 transform -rotate-90">
-                      <circle cx="48" cy="48" r="40" stroke="currentColor" strokeWidth="8" fill="none" className="text-muted" />
-                      <circle cx="48" cy="48" r="40" stroke="currentColor" strokeWidth="8" fill="none" strokeDasharray={`${2 * Math.PI * 40}`} strokeDashoffset={`${2 * Math.PI * 40 * 0.25}`} className="text-accent transition-all duration-500" strokeLinecap="round" />
-                    </svg>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-2xl font-bold">
-                        {coreTeam.length + (dealParties.buyerName ? 1 : 0) + (dealParties.sellerName ? 1 : 0) + (dealParties.buyerLegalName ? 1 : 0) + (dealParties.sellerLegalName ? 1 : 0)}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-sm text-muted-foreground mb-1">Core <span className="text-red-500">Team</span></p>
-                    <Button variant="link" className="text-xs p-0 h-auto">
-                      View Details
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-xl cursor-pointer hover:shadow-2xl transition-shadow" onClick={() => setDocumentsModalOpen(true)}>
-              <CardContent className="flex items-center justify-center py-8">
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-primary mb-2 flex items-center justify-center gap-2">
-                    <FileText className="h-8 w-8" />
-                    {documentsCount}
-                  </div>
-                  <div className="text-sm text-muted-foreground">Documents</div>
-                  <Button variant="link" className="mt-2 text-xs">
-                    View & Upload
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+        {/* Header */}
+        <div className="glass-surface-strong p-6 mb-6">
+          <div className="flex flex-wrap items-start justify-between gap-6">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground mb-2">
+                {fundingWorkspace ? "Funding Workspace" : "Deal Workspace"}
+              </p>
+              <h1 className="font-display text-3xl sm:text-4xl tracking-tight">{dealName}</h1>
+              <div className="flex flex-wrap items-center gap-4 mt-3 text-xs text-muted-foreground">
+                <span>
+                  {categories.length} {fundingWorkspace ? "document sections" : "categories"}
+                </span>
+                <span>
+                  {targetCloseDate
+                    ? `Target close ${new Date(targetCloseDate).toLocaleDateString()}`
+                    : "No target close date"}
+                </span>
+                <Badge variant="outline" className={`rounded-full ${getProgressColors(readinessScore).text}`}>
+                  {getProgressColors(readinessScore).label}
+                </Badge>
+              </div>
+            </div>
+            <div className="min-w-[220px]">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Overall Completion</p>
+              <div className="flex items-center gap-3">
+                <Progress value={readinessScore} className="h-2" />
+                <span className="font-semibold tabular-nums">{readinessScore}%</span>
+              </div>
+              <p className="text-[11px] text-muted-foreground mt-2">
+                {completedTasks} of {totalTasks} items completed
+              </p>
+            </div>
           </div>
         </div>
+
+        {/* Summary cards */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+          {summaryCards.map((c) => (
+            <div
+              key={c.label}
+              onClick={c.onClick}
+              className={`glass-surface p-4 ${c.onClick ? "cursor-pointer lift-hover" : ""}`}
+            >
+              <GlassIcon icon={c.icon} tone="neutral" size="sm" />
+              <p className={`text-2xl font-semibold tabular-nums mt-3 ${c.tone ?? ""}`}>{c.value}</p>
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground mt-1">{c.label}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Close Date Dialog */}
+        <Dialog open={closeDateDialogOpen} onOpenChange={setCloseDateDialogOpen}>
+          <DialogContent className="w-[90vw] sm:w-[70vw] lg:w-[50vw] max-w-none p-0 overflow-hidden glass-surface-strong">
+            <div className="flex flex-col">
+              <div className="flex items-center justify-between p-4 sm:p-5 border-b border-border/50">
+                <div className="flex flex-col">
+                  <DialogTitle className="font-display text-xl">Change Target Close Date</DialogTitle>
+                  <DialogDescription className="text-sm text-muted-foreground">
+                    Select a new target close date for this deal
+                  </DialogDescription>
+                </div>
+              </div>
+              <div className="flex items-center justify-center p-6 sm:p-8">
+                <CalendarComponent mode="single" selected={targetCloseDate ? new Date(targetCloseDate) : undefined} onSelect={handleCloseDateChange} disabled={date => date < new Date() || date > new Date("2035-12-31")} initialFocus className="p-3 pointer-events-auto rounded-lg" />
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Documents Modal */}
         <DocumentsModal open={documentsModalOpen} onOpenChange={open => {
@@ -1224,89 +1184,142 @@ const DealDashboard = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Category Panels - Split into two cards */}
-        <div className="grid md:grid-cols-2 gap-4 sm:gap-6 items-start">
-          {/* First Half - Categories 1-7 */}
-          <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl overflow-hidden">
-            <CardHeader className="border-b border-border/50 px-3 sm:px-6">
-              <CardTitle className="text-base sm:text-xl font-bold">
-                {fundingWorkspace ? "Main Documents" : <>Due Diligence <span className="text-primary">Categories (1-7):</span></>}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6">
-              <div className="space-y-3 sm:space-y-4">
-                {(fundingWorkspace ? categories.filter(category => category.id === "G") : categories.slice(0, 7)).map(category => {
-                const completion = getCategoryCompletion(category);
-                const openTasksCount = getOpenTasksCount(category);
-                const completedTasksCount = category.tasks.filter(t => t.checked).length;
-                const colors = getProgressColors(completion);
-                return <Card key={category.id} className={`backdrop-blur-xl bg-background/40 border-2 ${colors.ring} cursor-pointer hover:bg-background/60 transition-all hover:shadow-lg overflow-hidden`} onClick={() => {
-                  setSelectedCategory(category);
-                  setCategoryModalOpen(true);
-                }}>
-                      <CardContent className="p-2.5 sm:p-4">
-                        <div className="flex items-center gap-2 sm:gap-3">
-                          <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full ${colors.bg} flex items-center justify-center flex-shrink-0`}>
-                            <span className={`font-bold text-xs sm:text-base ${colors.text}`}>{category.id}</span>
-                          </div>
-                          <div className="flex-1 min-w-0 overflow-hidden">
-                            <div className="font-semibold text-xs sm:text-sm truncate">{category.title}</div>
-                            <div className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
-                              {completedTasksCount}/{category.tasks.length} done · <span className={colors.text}>{colors.label}</span>
-                            </div>
-                          </div>
-                          <div className="flex-shrink-0 text-right pl-1">
-                            <div className={`text-xs sm:text-sm font-semibold whitespace-nowrap ${colors.text}`}>{completion}%</div>
-                            <Progress value={completion} indicatorClassName={colors.bar} className="w-10 sm:w-20 h-1.5 sm:h-2 mt-0.5" />
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>;
-              })}
-              </div>
-            </CardContent>
-          </Card>
+        {/* Sections + right rail */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-4">
+            <h2 className="font-display text-2xl">
+              {fundingWorkspace ? "Document Sections" : "Due Diligence Categories"}
+            </h2>
+            {categories.map((category) => {
+              const completion = getCategoryCompletion(category);
+              const openTasksCount = getOpenTasksCount(category);
+              const completedTasksCount = category.tasks.filter(t => t.checked).length;
+              const colors = getProgressColors(completion);
+              return (
+                <div key={category.id} className="glass-surface p-5">
+                  <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div className="flex items-start gap-4">
+                      <span className="glass-tile h-14 w-14 rounded-2xl flex items-center justify-center flex-shrink-0">
+                        <span className={`font-display text-xl ${colors.text}`}>{category.id}</span>
+                      </span>
+                      <div>
+                        <p className="font-display text-lg leading-tight">
+                          {category.id} — {category.title}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {completedTasksCount}/{category.tasks.length} complete · {plural(openTasksCount, "item")} outstanding
+                        </p>
+                      </div>
+                    </div>
+                    <Badge variant="outline" className={`rounded-full ${colors.text}`}>
+                      {colors.label}
+                    </Badge>
+                  </div>
 
-          {/* Second Half - Categories 8-14 */}
-          <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl overflow-hidden">
-            <CardHeader className="border-b border-border/50 px-3 sm:px-6">
-              <CardTitle className="text-base sm:text-xl font-bold">
-                {fundingWorkspace ? "Supporting Documents" : <>Due Diligence <span className="text-primary">Categories (8-14):</span></>}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6">
-              <div className="space-y-3 sm:space-y-4">
-                {(fundingWorkspace ? categories.filter(category => category.id === "H") : categories.slice(7)).map(category => {
-                const completion = getCategoryCompletion(category);
-                const openTasksCount = getOpenTasksCount(category);
-                const completedTasksCount = category.tasks.filter(t => t.checked).length;
-                const colors = getProgressColors(completion);
-                return <Card key={category.id} className={`backdrop-blur-xl bg-background/40 border-2 ${colors.ring} cursor-pointer hover:bg-background/60 transition-all hover:shadow-lg overflow-hidden`} onClick={() => {
-                  setSelectedCategory(category);
-                  setCategoryModalOpen(true);
-                }}>
-                      <CardContent className="p-2.5 sm:p-4">
-                        <div className="flex items-center gap-2 sm:gap-3">
-                          <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full ${colors.bg} flex items-center justify-center flex-shrink-0`}>
-                            <span className={`font-bold text-xs sm:text-base ${colors.text}`}>{category.id}</span>
-                          </div>
-                          <div className="flex-1 min-w-0 overflow-hidden">
-                            <div className="font-semibold text-xs sm:text-sm truncate">{category.title}</div>
-                            <div className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
-                              {completedTasksCount}/{category.tasks.length} done · <span className={colors.text}>{colors.label}</span>
-                            </div>
-                          </div>
-                          <div className="flex-shrink-0 text-right pl-1">
-                            <div className={`text-xs sm:text-sm font-semibold whitespace-nowrap ${colors.text}`}>{completion}%</div>
-                            <Progress value={completion} indicatorClassName={colors.bar} className="w-10 sm:w-20 h-1.5 sm:h-2 mt-0.5" />
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>;
-              })}
-              </div>
-            </CardContent>
-          </Card>
+                  <div className="flex items-center gap-3 mt-4">
+                    <Progress value={completion} className="h-1.5" />
+                    <span className={`text-xs font-semibold tabular-nums ${colors.text}`}>{completion}%</span>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="rounded-full gap-2"
+                      onClick={() => {
+                        setSelectedCategory(category);
+                        setCategoryModalOpen(true);
+                      }}
+                    >
+                      <ClipboardList className="h-4 w-4" /> View & Tick Items
+                    </Button>
+                    <Button variant="outline" size="sm" className="rounded-full gap-2" onClick={() => setDocumentsModalOpen(true)}>
+                      <Upload className="h-4 w-4" /> Upload Document
+                    </Button>
+                    <Button variant="outline" size="sm" className="rounded-full gap-2" onClick={() => setSpecialistsModalOpen(true)}>
+                      <User className="h-4 w-4" /> Specialists
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Right rail */}
+          <div className="space-y-6">
+            <div className="glass-surface p-5">
+              <h3 className="font-display text-xl mb-4">Next Steps</h3>
+              <Button variant="outline" className="w-full rounded-full gap-2 mb-3" onClick={() => setDocumentsModalOpen(true)}>
+                <FileText className="h-4 w-4" /> View & Upload Documents
+              </Button>
+              <Button variant="outline" className="w-full rounded-full gap-2 mb-3" onClick={() => setCoreTeamModalOpen(true)}>
+                <User className="h-4 w-4" /> Core Deal Team
+              </Button>
+              <Button variant="outline" className="w-full rounded-full gap-2 mb-3" onClick={() => setSpecialistsModalOpen(true)}>
+                <UserPlus className="h-4 w-4" /> Assign Specialists
+              </Button>
+              <Button variant="outline" className="w-full rounded-full gap-2" onClick={() => setCloseDateDialogOpen(true)}>
+                <Calendar className="h-4 w-4" /> Change Target Close Date
+              </Button>
+              <p className="text-xs text-muted-foreground mt-3">
+                Tick items inside a section to move completion forward. The workspace moves to Completed automatically at 100%.
+              </p>
+            </div>
+
+            <div className="glass-surface p-5">
+              <h3 className="font-display text-xl mb-4">Outstanding Items</h3>
+              {outstandingCategories.length === 0 ? (
+                <p className="text-sm text-muted-foreground">Nothing outstanding.</p>
+              ) : (
+                <ul className="space-y-3">
+                  {outstandingCategories.map((c) => (
+                    <li key={c.id} className="text-sm">
+                      <button
+                        className="text-left hover:text-primary transition-colors"
+                        onClick={() => {
+                          setSelectedCategory(c);
+                          setCategoryModalOpen(true);
+                        }}
+                      >
+                        <p className="font-medium">
+                          {c.id} — {c.title}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {plural(getOpenTasksCount(c), "item")} outstanding
+                        </p>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <div className="glass-surface p-5">
+              <h3 className="font-display text-xl mb-4">High Priority Flags</h3>
+              {highPriorityList.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No high-priority items outstanding.</p>
+              ) : (
+                <ul className="space-y-3">
+                  {highPriorityList.map(({ category, task }) => (
+                    <li key={task.id} className="text-sm">
+                      <button
+                        className="text-left hover:text-primary transition-colors"
+                        onClick={() => {
+                          setSelectedCategory(category);
+                          setCategoryModalOpen(true);
+                        }}
+                      >
+                        <p>{task.title}</p>
+                        <p className="text-[11px] text-muted-foreground">
+                          {category.id} · {task.code}
+                        </p>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1315,6 +1328,6 @@ const DealDashboard = () => {
       name: allTasks.find(t => t.id === selectedTaskForAssignment)!.assignedName,
       email: allTasks.find(t => t.id === selectedTaskForAssignment)!.assignedEmail
     } : undefined : undefined} />
-    </div>;
+    </PageShell>;
 };
 export default DealDashboard;
