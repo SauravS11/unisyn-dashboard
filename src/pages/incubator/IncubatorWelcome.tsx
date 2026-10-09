@@ -10,6 +10,7 @@ import unisynLogo from "@/assets/unisyn-logo.svg";
 import { FilePlus2, FolderOpen, Inbox, CheckCircle2, ArrowUpRight, Repeat } from "lucide-react";
 import { supabase } from "@/integrations/supabase/customClient";
 import { APPROVED_APPLICATION_STATUSES } from "@/lib/fundingWorkflows";
+import { FUNDING_SUMMARY_LINKS } from "@/lib/workspaceListNavigation";
 
 const IncubatorWelcome = () => {
   const navigate = useNavigate();
@@ -36,10 +37,10 @@ const IncubatorWelcome = () => {
   }, [navigate]);
 
   const metrics = [
-    { icon: Inbox, label: "Draft Applications", value: stats.drafts },
-    { icon: FolderOpen, label: "Applications In Progress", value: stats.active },
-    { icon: Repeat, label: "Awaiting Review", value: stats.review },
-    { icon: CheckCircle2, label: "Approved", value: stats.approved },
+    { icon: Inbox, label: "Draft Applications", value: stats.drafts, to: FUNDING_SUMMARY_LINKS.draft },
+    { icon: FolderOpen, label: "Applications In Progress", value: stats.active, to: FUNDING_SUMMARY_LINKS.live },
+    { icon: Repeat, label: "Awaiting Review", value: stats.review, to: FUNDING_SUMMARY_LINKS.review },
+    { icon: CheckCircle2, label: "Approved", value: stats.approved, to: FUNDING_SUMMARY_LINKS.approved },
   ];
 
   return (
@@ -108,13 +109,13 @@ const IncubatorWelcome = () => {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-5xl">
           {metrics.map((m) => (
-            <div key={m.label} className="glass-surface p-5 flex items-center gap-4">
+            <Button key={m.label} variant="ghost" onClick={() => navigate(m.to)} aria-label={m.label} className="glass-surface lift-hover p-5 h-auto flex items-center justify-start gap-4 whitespace-normal text-left">
               <GlassIcon icon={m.icon} tone="neutral" />
               <div>
                 <p className="text-2xl font-semibold tabular-nums leading-none">{m.value}</p>
                 <p className="text-[11px] uppercase tracking-wider text-muted-foreground mt-1">{m.label}</p>
               </div>
-            </div>
+            </Button>
           ))}
         </div>
       </div>
