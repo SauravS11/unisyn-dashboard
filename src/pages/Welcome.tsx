@@ -9,6 +9,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { PageShell } from "@/components/ui/page-shell";
 import { GlassIcon } from "@/components/ui/glass-icon";
 import { supabase } from "@/integrations/supabase/customClient";
+import { MNA_SUMMARY_LINKS } from "@/lib/workspaceListNavigation";
 
 const Welcome = () => {
   const navigate = useNavigate();
@@ -125,9 +126,9 @@ const Welcome = () => {
 
         {/* Lower widgets */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-5xl px-4 mt-6">
-          <WidgetCard icon={Inbox} label="Pending Client Intakes" value={stats.pendingIntakes} onClick={() => navigate("/deals")} />
-          <WidgetCard icon={FileCheck2} label="Awaiting Review" value={stats.awaitingReview} onClick={() => navigate("/deals")} />
-          <WidgetCard icon={Activity} label="Active Deals" value={stats.activeDeals} onClick={() => navigate("/deals")} />
+          <WidgetCard icon={Inbox} label="Pending Client Intakes" value={stats.pendingIntakes} onClick={() => navigate(MNA_SUMMARY_LINKS.pending)} />
+          <WidgetCard icon={FileCheck2} label="Awaiting Review" value={stats.awaitingReview} onClick={() => navigate(MNA_SUMMARY_LINKS.awaiting)} />
+          <WidgetCard icon={Activity} label="Active Deals" value={stats.activeDeals} onClick={() => navigate(MNA_SUMMARY_LINKS.active)} />
         </div>
 
         <p className="mt-16 text-xs text-muted-foreground/80 text-center px-4 tracking-wide">

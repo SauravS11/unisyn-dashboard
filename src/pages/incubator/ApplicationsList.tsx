@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { listTab } from "@/lib/workspaceListNavigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -37,7 +38,13 @@ const ApplicationsList = () => {
   const navigate = useNavigate();
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState("live");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const viewMode = listTab(searchParams, GROUPS.map(g => g.id), "live");
+  const setViewMode = (tab: string) => setSearchParams((previous) => {
+    const next = new URLSearchParams(previous);
+    next.set("tab", tab);
+    return next;
+  });
   const currentGroup = GROUPS.find((g) => g.id === viewMode) ?? GROUPS[1];
 
   useEffect(() => {
