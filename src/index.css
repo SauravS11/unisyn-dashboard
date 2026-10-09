@@ -9,13 +9,13 @@
 
 @layer base {
   :root {
-    --background: 0 0% 88.5%;
+    --background: 0 0% 85.5%;
     --foreground: 0 0% 8%;
 
-    --card: 0 0% 93.5%;
+    --card: 0 0% 90.5%;
     --card-foreground: 0 0% 8%;
 
-    --popover: 0 0% 93.5%;
+    --popover: 0 0% 90.5%;
     --popover-foreground: 0 0% 8%;
 
     --primary: 0 85% 56%;
@@ -23,10 +23,10 @@
     --primary-glow: 8 95% 64%;
     --primary-deep: 350 80% 42%;
 
-    --secondary: 0 0% 87%;
+    --secondary: 0 0% 83.5%;
     --secondary-foreground: 0 0% 10%;
 
-    --muted: 0 0% 87%;
+    --muted: 0 0% 83.5%;
     --muted-foreground: 0 0% 38%;
 
     --accent: 0 85% 56%;
@@ -44,45 +44,45 @@
     --warning: 32 95% 44%;
     --warning-foreground: 30 60% 12%;
 
-    --border: 0 0% 82%;
-    --input: 0 0% 72%;
+    --border: 0 0% 78%;
+    --input: 0 0% 68%;
     --ring: 0 85% 56%;
 
     /* Glass system */
-    --glass: 0 0% 93.5% / 0.55;
-    --glass-strong: 0 0% 93.5% / 0.75;
-    --glass-border: 0 0% 100% / 0.3;
-    --glass-highlight: 0 0% 100% / 0.45;
+    --glass: 0 0% 90.5% / 0.55;
+    --glass-strong: 0 0% 90.5% / 0.75;
+    --glass-border: 0 0% 100% / 0.25;
+    --glass-highlight: 0 0% 100% / 0.38;
     --glass-accent: 0 85% 60% / 0.08;
-    --glass-tile: 0 0% 93.5% / 0.6;
-    --glass-tile-border: 0 0% 100% / 0.35;
+    --glass-tile: 0 0% 90.5% / 0.6;
+    --glass-tile-border: 0 0% 100% / 0.28;
 
     /* Glow / shadow system */
     --glow: 0 85% 60% / 0.18;
     --glow-strong: 0 85% 60% / 0.32;
-    --shadow-glass: 0 10px 40px -10px hsl(0 0% 0% / 0.12), inset 0 1px 0 hsl(0 0% 100% / 0.4);
-    --shadow-glass-lg: 0 24px 60px -20px hsl(0 0% 0% / 0.18), inset 0 1px 0 hsl(0 0% 100% / 0.48);
+    --shadow-glass: 0 10px 40px -10px hsl(0 0% 0% / 0.14), inset 0 1px 0 hsl(0 0% 100% / 0.32);
+    --shadow-glass-lg: 0 24px 60px -20px hsl(0 0% 0% / 0.2), inset 0 1px 0 hsl(0 0% 100% / 0.4);
     --shadow-glow-primary: 0 8px 32px -8px hsl(var(--primary) / 0.35);
     --shadow-glow-primary-lg: 0 18px 50px -12px hsl(var(--primary) / 0.45);
 
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 100%);
     --gradient-brand: linear-gradient(135deg, hsl(0 85% 56%) 0%, hsl(15 90% 60%) 50%, hsl(350 80% 55%) 100%);
-    --gradient-mesh: radial-gradient(at 18% 22%, hsl(0 0% 100% / 0.18) 0px, transparent 50%),
-                     radial-gradient(at 82% 12%, hsl(0 0% 96% / 0.16) 0px, transparent 50%),
-                     radial-gradient(at 70% 78%, hsl(0 0% 98% / 0.12) 0px, transparent 50%),
-                     radial-gradient(at 22% 82%, hsl(0 0% 88.5%) 0px, transparent 55%);
+    --gradient-mesh: radial-gradient(at 18% 22%, hsl(0 0% 100% / 0.14) 0px, transparent 50%),
+                     radial-gradient(at 82% 12%, hsl(0 0% 96% / 0.12) 0px, transparent 50%),
+                     radial-gradient(at 70% 78%, hsl(0 0% 98% / 0.09) 0px, transparent 50%),
+                     radial-gradient(at 22% 82%, hsl(0 0% 85.5%) 0px, transparent 55%);
 
     --glass-blur: 28px;
     --radius: 1rem;
 
-    --sidebar-background: 0 0% 88.5%;
+    --sidebar-background: 0 0% 85.5%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
     --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 91%;
+    --sidebar-accent: 0 0% 88%;
     --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
+    --sidebar-border: 0 0% 80%;
     --sidebar-ring: 217.2 91.2% 59.8%;
 
     --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
