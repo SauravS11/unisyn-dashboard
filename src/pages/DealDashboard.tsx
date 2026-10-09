@@ -23,6 +23,7 @@ import { PageHeaderActions } from "@/components/PageHeaderActions";
 import { specialistSchema, validateInput } from "@/lib/validation";
 import { handleError, logDebug } from "@/lib/errorHandler";
 import { getProgressColors } from "@/lib/progressColors";
+import { isFundingWorkspace, workspaceCategories } from "@/lib/fundingChecklist";
 
 interface Task {
   id: string;
@@ -51,6 +52,7 @@ const DealDashboard = () => {
     toast
   } = useToast();
   const [dealName, setDealName] = useState<string>("Loading...");
+  const [fundingWorkspace, setFundingWorkspace] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [documentsCount, setDocumentsCount] = useState(0);
@@ -131,7 +133,7 @@ const DealDashboard = () => {
       const {
         data: dealData,
         error: dealError
-      } = await supabase.from('deals').select('name, target_close_date, buyer_name, buyer_email, seller_name, seller_email, buyer_legal_name, buyer_legal_email, seller_legal_name, seller_legal_email, source_intake_id').eq('id', dealId).single();
+      } = await supabase.from('deals').select('name, target_close_date, buyer_name, buyer_email, seller_name, seller_email, buyer_legal_name, buyer_legal_email, seller_legal_name, seller_legal_email, source_intake_id, client_type').eq('id', dealId).single();
       if (dealError) throw dealError;
       setDealName(dealData.name);
       setTargetCloseDate(dealData.target_close_date);
@@ -172,7 +174,11 @@ const DealDashboard = () => {
         }
       }
 
-      // Fetch tasks for all categories
+      const funding = isFundingWorkspace(dealData, categoriesData ?? []);
+      setFundingWorkspace(funding);
+      categoriesData = workspaceCategories(categoriesData ?? [], funding);
+
+      // Fetch tasks only for the current workspace categories.
       const categoryIds = (categoriesData ?? []).map(cat => cat.id);
       categoriesData = categoriesData ?? [];
       const {
@@ -1224,12 +1230,12 @@ const DealDashboard = () => {
           <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl overflow-hidden">
             <CardHeader className="border-b border-border/50 px-3 sm:px-6">
               <CardTitle className="text-base sm:text-xl font-bold">
-                Due Diligence <span className="text-primary">Categories (1-7):</span>
+                {fundingWorkspace ? "Main Documents" : <>Due Diligence <span className="text-primary">Categories (1-7):</span></>}
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6">
               <div className="space-y-3 sm:space-y-4">
-                {categories.slice(0, 7).map(category => {
+                {(fundingWorkspace ? categories.filter(category => category.id === "G") : categories.slice(0, 7)).map(category => {
                 const completion = getCategoryCompletion(category);
                 const openTasksCount = getOpenTasksCount(category);
                 const completedTasksCount = category.tasks.filter(t => t.checked).length;
@@ -1265,12 +1271,12 @@ const DealDashboard = () => {
           <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl overflow-hidden">
             <CardHeader className="border-b border-border/50 px-3 sm:px-6">
               <CardTitle className="text-base sm:text-xl font-bold">
-                Due Diligence <span className="text-primary">Categories (8-14):</span>
+                {fundingWorkspace ? "Supporting Documents" : <>Due Diligence <span className="text-primary">Categories (8-14):</span></>}
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6">
               <div className="space-y-3 sm:space-y-4">
-                {categories.slice(7).map(category => {
+                {(fundingWorkspace ? categories.filter(category => category.id === "H") : categories.slice(7)).map(category => {
                 const completion = getCategoryCompletion(category);
                 const openTasksCount = getOpenTasksCount(category);
                 const completedTasksCount = category.tasks.filter(t => t.checked).length;

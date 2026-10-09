@@ -19,6 +19,7 @@ import unisynLogo from "@/assets/unisyn-logo.svg";
 import { DocumentsModal } from "@/components/DocumentsModal";
 import { getProgressColors } from "@/lib/progressColors";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { isFundingWorkspace, workspaceCategories } from "@/lib/fundingChecklist";
 
 interface Task {
   id: string;
@@ -43,6 +44,7 @@ const ExternalDealDashboard = () => {
   const { dealId } = useParams<{ dealId: string }>();
   const navigate = useNavigate();
   const [dealName, setDealName] = useState<string>("Loading...");
+  const [fundingWorkspace, setFundingWorkspace] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
@@ -128,9 +130,11 @@ const ExternalDealDashboard = () => {
       setDealName(data.deal.name);
       setTargetCloseDate(data.deal.target_close_date);
 
-      const categoriesData = data.categories || [];
+      const funding = isFundingWorkspace(data.deal, data.categories || []);
+      setFundingWorkspace(funding);
+      const categoriesData = workspaceCategories<{ id: string; title: string; category_code: string; category_order: number }>(data.categories || [], funding);
       const tasksData = data.tasks || [];
-      const specialistsData = data.specialists || [];
+      const specialistsData = (data.specialists || []).filter((specialist: any) => categoriesData.some(category => category.id === specialist.category_id));
 
       // Map specialists with category names for display and sort by category order (A-N)
       const specialistsList = specialistsData.map((specialist: any) => {
@@ -634,12 +638,12 @@ const ExternalDealDashboard = () => {
           <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl overflow-hidden">
             <CardHeader className="border-b border-border/50 px-3 sm:px-6">
               <CardTitle className="text-base sm:text-xl font-bold">
-                Due Diligence <span className="text-primary">Categories (1-7)</span>
+                {fundingWorkspace ? "Main Documents" : <>Due Diligence <span className="text-primary">Categories (1-7)</span></>}
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6">
               <div className="space-y-3 sm:space-y-4">
-                {categories.slice(0, 7).map((category) => {
+                {(fundingWorkspace ? categories.filter(category => category.id === "G") : categories.slice(0, 7)).map((category) => {
                   const completion = getCategoryCompletion(category);
                   const openTasksCount = getOpenTasksCount(category);
                   const completedTasksCount = category.tasks.filter((t) => t.checked).length;
@@ -679,12 +683,12 @@ const ExternalDealDashboard = () => {
           <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl overflow-hidden">
             <CardHeader className="border-b border-border/50 px-3 sm:px-6">
               <CardTitle className="text-base sm:text-xl font-bold">
-                Due Diligence <span className="text-primary">Categories (8-14)</span>
+                {fundingWorkspace ? "Supporting Documents" : <>Due Diligence <span className="text-primary">Categories (8-14)</span></>}
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6">
               <div className="space-y-3 sm:space-y-4">
-                {categories.slice(7).map((category) => {
+                {(fundingWorkspace ? categories.filter(category => category.id === "H") : categories.slice(7)).map((category) => {
                   const completion = getCategoryCompletion(category);
                   const openTasksCount = getOpenTasksCount(category);
                   const completedTasksCount = category.tasks.filter((t) => t.checked).length;
