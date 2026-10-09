@@ -1283,7 +1283,7 @@ const DealDashboard = () => {
                           {c.id} — {c.title}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {getOpenTasksCount(c)} items outstanding
+                          {plural(getOpenTasksCount(c), "item")} outstanding
                         </p>
                       </button>
                     </li>
