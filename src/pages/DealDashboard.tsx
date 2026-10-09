@@ -24,6 +24,8 @@ import { specialistSchema, validateInput } from "@/lib/validation";
 import { handleError, logDebug } from "@/lib/errorHandler";
 import { getProgressColors } from "@/lib/progressColors";
 import { isFundingWorkspace, workspaceCategories } from "@/lib/fundingChecklist";
+import { PageShell } from "@/components/ui/page-shell";
+import { GlassIcon } from "@/components/ui/glass-icon";
 
 interface Task {
   id: string;
