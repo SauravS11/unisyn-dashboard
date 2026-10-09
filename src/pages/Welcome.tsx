@@ -25,7 +25,8 @@ const Welcome = () => {
           .in("status", ["draft", "request_sent", "awaiting_response", "in_progress"]),
         supabase.from("client_intakes").select("id", { count: "exact", head: true })
           .in("status", ["submitted_for_review", "changes_requested"]),
-        supabase.from("deals").select("id", { count: "exact", head: true }).eq("user_id", uid),
+        (supabase as any).from("deals").select("id", { count: "exact", head: true }).eq("user_id", uid)
+          .or("client_type.is.null,client_type.neq.funding").is("source_application_id", null),
       ]);
 
       setStats({
