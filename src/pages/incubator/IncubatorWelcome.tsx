@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import unisynLogo from "@/assets/unisyn-logo.svg";
 import { FilePlus2, FolderOpen, Inbox, CheckCircle2, ArrowUpRight, Repeat } from "lucide-react";
 import { supabase } from "@/integrations/supabase/customClient";
+import { APPROVED_APPLICATION_STATUSES } from "@/lib/fundingWorkflows";
 
 const IncubatorWelcome = () => {
   const navigate = useNavigate();
@@ -29,7 +30,7 @@ const IncubatorWelcome = () => {
         review: rows.filter((r: any) =>
           ["submitted_for_review", "in_review", "clarification_requested"].includes(r.status),
         ).length,
-        approved: rows.filter((r: any) => r.status === "approved").length,
+        approved: rows.filter((r: any) => APPROVED_APPLICATION_STATUSES.includes(r.status)).length,
       });
     })();
   }, [navigate]);

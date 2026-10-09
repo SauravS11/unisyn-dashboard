@@ -71,7 +71,7 @@ const ApplicationReview = () => {
       .maybeSingle();
     if (!a) return;
     // The applicant request (secure link + application code) must be sent before review starts.
-    if (!a.request_sent_at) {
+    if (!a.request_sent_at && !["approved", "converted_to_deal"].includes(a.status)) {
       navigate(`/incubator/applications/${applicationId}/send`, { replace: true });
       return;
     }
@@ -235,10 +235,11 @@ const ApplicationReview = () => {
         p_application_id: applicationId,
       });
       if (seedError) throw seedError;
-      await (supabase as any).from("applications").update({
+      const { error: linkError } = await (supabase as any).from("applications").update({
         status: "converted_to_deal",
         converted_deal_id: deal.id,
       }).eq("id", applicationId);
+      if (linkError) throw linkError;
       toast.success("Deal workspace created with application progress");
       navigate(`/deals/${deal.id}/dashboard`);
     } catch (e: any) {
