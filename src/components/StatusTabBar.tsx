@@ -1,4 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import type React from "react";
+import { useEffect } from "react";
+import { useDraggableTabs } from "@/hooks/useDraggableTabs";
 import { motion } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -82,68 +84,52 @@ interface StatusTabBarProps {
  * Used by the M&A deals list and the funding applications list so both animate identically.
  */
 export const StatusTabBar = ({ tabs, activeId, onChange, label = "Status" }: StatusTabBarProps) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const tabRefs = useRef(new Map<string, HTMLButtonElement>());
-  const [bar, setBar] = useState<{ left: number; width: number } | null>(null);
-
-  const measure = useCallback(() => {
-    const active = tabRefs.current.get(activeId);
-    const container = containerRef.current;
-    if (!active || !container) return;
-    const a = active.getBoundingClientRect();
-    const c = container.getBoundingClientRect();
-    setBar({ left: a.left - c.left, width: a.width });
-  }, [activeId]);
+  const { containerRef, setItemRef, bar, shownId, dragging, containerProps } = useDraggableTabs(activeId, onChange);
 
   useEffect(() => {
-    measure();
-    const raf = requestAnimationFrame(measure);
-    const timeout = window.setTimeout(measure, 300); // after fonts settle
-    window.addEventListener("resize", measure);
-    const active = tabRefs.current.get(activeId);
-    active?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
-    return () => {
-      cancelAnimationFrame(raf);
-      window.clearTimeout(timeout);
-      window.removeEventListener("resize", measure);
-    };
-  }, [measure, activeId]);
+    if (!containerRef.current) return;
+    containerRef.current
+      .querySelector<HTMLElement>(`[data-tab-id="${activeId}"]`)
+      ?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+  }, [activeId, containerRef]);
 
-  const activeTone = tabs.find((t) => t.id === activeId)?.tone ?? "red";
+  const activeTone = tabs.find((t) => t.id === shownId)?.tone ?? "red";
   const tone = TONE_STYLES[activeTone];
 
   return (
     <div
-      ref={containerRef}
+      ref={containerRef as React.RefObject<HTMLDivElement>}
+      {...containerProps}
       role="tablist"
       aria-label={label}
-      className="relative inline-flex max-w-full items-center gap-1 overflow-x-auto bg-background/60 backdrop-blur-xl border-2 border-border/50 rounded-3xl sm:rounded-full px-2 py-2 shadow-2xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="relative inline-flex max-w-full items-center gap-1 overflow-x-auto bg-background/60 backdrop-blur-xl border-2 border-border/50 rounded-3xl sm:rounded-full px-2 py-2 shadow-2xl select-none touch-pan-y [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
       {bar && (
         <motion.div
           aria-hidden="true"
-          className="absolute top-1 bottom-1 rounded-full border-2 pointer-events-none motion-safe"
+          className="absolute rounded-full border-2 pointer-events-none motion-safe"
           initial={false}
           animate={{
             left: bar.left,
+            top: bar.top,
             width: bar.width,
+            height: bar.height,
             backgroundColor: tone.background,
             borderColor: tone.borderColor,
             boxShadow: tone.boxShadow,
           }}
           transition={{ type: "spring", stiffness: 380, damping: 32 }}
+          data-dragging={dragging || undefined}
         />
       )}
       {tabs.map((tab) => {
-        const isActive = tab.id === activeId;
+        const isActive = tab.id === shownId;
         const tabTone = TONE_STYLES[tab.tone];
         return (
           <button
             key={tab.id}
-            ref={(el) => {
-              if (el) tabRefs.current.set(tab.id, el);
-              else tabRefs.current.delete(tab.id);
-            }}
+            ref={setItemRef(tab.id)}
+            data-tab-id={tab.id}
             type="button"
             role="tab"
             aria-selected={isActive}
