@@ -395,7 +395,7 @@ const DealsListPage = () => {
         <div className="relative flex flex-col items-center gap-4 mb-6 sm:mb-8">
           <div className="w-full max-w-2xl text-center">
             <h1 className="text-3xl sm:text-4xl font-bold mb-2">
-              Your <span className="text-primary">{currentHeading.title.split(" ")[0]}</span> {currentHeading.title.split(" ").slice(1).join(" ")}
+              Your <span className="text-primary">{currentHeading.title.split(" ")[0]}</span> {currentHeading.title.split(" ").slice(1).join(" ")}:
             </h1>
             <p className="text-sm sm:text-base text-muted-foreground">{currentHeading.subtitle}</p>
           </div>
