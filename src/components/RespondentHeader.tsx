@@ -9,9 +9,10 @@ interface Props {
   intakeCode?: string | null;
   companyName?: string | null;
   completion?: number;
+  showProgress?: boolean;
 }
 
-export const RespondentHeader = ({ intakeCode, companyName, completion = 0 }: Props) => {
+export const RespondentHeader = ({ intakeCode, companyName, completion = 0, showProgress = true }: Props) => {
   const navigate = useNavigate();
   const exit = () => {
     clearIntakeSession();
@@ -28,10 +29,10 @@ export const RespondentHeader = ({ intakeCode, companyName, completion = 0 }: Pr
           </div>
         </div>
         <div className="flex items-center gap-3 flex-shrink-0">
-          <div className="hidden md:flex items-center gap-2 w-48">
+          {showProgress && <div className="hidden md:flex items-center gap-2 w-48">
             <Progress value={completion} className="h-1.5" />
             <span className="text-xs font-semibold tabular-nums text-foreground">{Math.round(completion)}%</span>
-          </div>
+          </div>}
           <Button variant="ghost" size="sm" className="gap-1.5 rounded-full">
             <CircleHelp className="h-4 w-4" /> Help
           </Button>

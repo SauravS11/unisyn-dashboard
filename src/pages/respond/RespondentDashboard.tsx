@@ -6,7 +6,8 @@ import { portalSupabase as supabase } from "@/integrations/supabase/portalClient
 import { getIntakeSession, clearIntakeSession } from "@/lib/intakeClient";
 import { RespondentHeader } from "@/components/RespondentHeader";
 import { PageShell } from "@/components/ui/page-shell";
-import { ChevronRight, ClipboardList, FileText, ShieldCheck } from "lucide-react";
+import { ChevronRight, ClipboardList, FileText } from "lucide-react";
+import { ApplicantProgress } from "@/components/ApplicantProgress";
 import { GlassIcon } from "@/components/ui/glass-icon";
 import { Badge } from "@/components/ui/badge";
 import { getProgressColors } from "@/lib/progressColors";
@@ -108,7 +109,7 @@ export default function RespondentDashboard() {
 
   return (
     <PageShell>
-      <RespondentHeader intakeCode={intake?.intake_code} companyName={intake?.company_name} completion={overall} />
+      <RespondentHeader intakeCode={intake?.intake_code} companyName={intake?.company_name} showProgress={false} />
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
         {/* metrics */}
@@ -137,15 +138,7 @@ export default function RespondentDashboard() {
           <p className="text-muted-foreground mt-4">
             A simple, guided process: answer the written questions for each category, then upload the supporting documents.
           </p>
-          <div className="glass-surface p-5 mt-6 flex items-start gap-4">
-            <GlassIcon icon={ShieldCheck} size="lg" tone="success" />
-            <div>
-              <p className="font-semibold">Secure. Private. No sign-up required.</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                Your progress saves as you go — return anytime using your deal code.
-              </p>
-            </div>
-          </div>
+          <ApplicantProgress completion={overall} done={totalDone} total={totalAll} />
           <Button className="rounded-full mt-6 gap-2" size="lg" onClick={startFlow} disabled={!ctaTarget}>
             {totalDone > 0 ? ctaLabel : "Start the process"} <ChevronRight className="h-4 w-4" />
           </Button>
