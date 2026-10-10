@@ -10,6 +10,8 @@ import { PageShell } from "@/components/ui/page-shell";
 import { toast } from "sonner";
 import { ArrowLeft, ArrowRight, Save, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { ChecklistPageProgress } from "@/components/ChecklistPageProgress";
+import { checklistProgress, type ChecklistCount } from "@/lib/checklistProgress";
 
 interface Req {
   id: string;
@@ -29,6 +31,7 @@ export default function CategoryPart1() {
   const [loading, setLoading] = useState(true);
   const [order, setOrder] = useState<string[]>([]);
   const [focusIdx, setFocusIdx] = useState(0);
+  const [checklistCounts, setChecklistCounts] = useState<ChecklistCount[]>([]);
 
   useEffect(() => {
     const session = getIntakeSession();
@@ -61,6 +64,11 @@ export default function CategoryPart1() {
         };
       });
       setValues(v);
+      setChecklistCounts(((overview as any)?.categories ?? []).map((c: any) => ({
+        code: c.category_code, responseTotal: c.part1_total ?? 0, responsesDone: c.part1_done ?? 0,
+        documentTotal: c.part2_total ?? 0, documentsDone: c.part2_done ?? 0,
+      })));
+      setIntakeMeta((meta) => ({ ...meta, company_name: (overview as any)?.intake?.company_name }));
       setOrder(((overview as any)?.categories ?? []).map((c: any) => c.category_code));
       setFocusIdx(0);
       setLoading(false);
@@ -125,7 +133,11 @@ export default function CategoryPart1() {
 
   return (
     <PageShell>
-      <RespondentHeader intakeCode={intakeMeta.intake_code} companyName={intakeMeta.company_name} />
+      <RespondentHeader intakeCode={intakeMeta.intake_code} companyName={intakeMeta.company_name} showProgress={false} />
+      <ChecklistPageProgress
+        overall={checklistProgress(checklistCounts, { code: categoryCode ?? "", responsesDone: answeredCount }, true)}
+        current={{ completion: pct, done: answeredCount, total: reqs.length }}
+      />
 
       <div className="max-w-6xl mx-auto px-6 pt-8">
         <Button variant="ghost" size="sm" onClick={() => navigate(`/respond/${intakeId}`)} className="gap-1 -ml-3">
@@ -272,23 +284,9 @@ export default function CategoryPart1() {
         </section>
       </main>
 
-      {/* Sticky bottom progress bar */}
+      {/* Sticky bottom actions */}
       <div className="fixed bottom-0 inset-x-0 z-20 border-t border-border/40 bg-background/85 backdrop-blur-xl">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center gap-4">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-baseline justify-between mb-1.5">
-              <span className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">Category progress</span>
-              <span className="text-xs tabular-nums font-medium">{answeredCount} / {reqs.length}</span>
-            </div>
-            <div className="h-1 bg-border/40 rounded-full overflow-hidden">
-              <motion.div
-                className="h-full bg-destructive"
-                initial={false}
-                animate={{ width: `${pct}%` }}
-                transition={{ duration: 0.3 }}
-              />
-            </div>
-          </div>
+        <div className="max-w-6xl mx-auto px-6 py-4 flex flex-wrap justify-center items-center gap-4">
           <Button variant="outline" size="sm" className="gap-2" onClick={() => saveAll(false)} disabled={busy}>
             <Save className="h-4 w-4" /> Save
           </Button>

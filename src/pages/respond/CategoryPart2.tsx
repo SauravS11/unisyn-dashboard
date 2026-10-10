@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
+import { ChecklistPageProgress } from "@/components/ChecklistPageProgress";
+import { checklistProgress, type ChecklistCount } from "@/lib/checklistProgress";
 
 interface Req {
   id: string;
@@ -32,18 +34,27 @@ export default function CategoryPart2() {
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
   const [order, setOrder] = useState<string[]>([]);
+  const [checklistCounts, setChecklistCounts] = useState<ChecklistCount[]>([]);
   const [activeReqId, setActiveReqId] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const loadDetail = async () => {
     const session = getIntakeSession();
-    const { data, error } = await supabase.rpc("get_intake_category_detail", {
-      p_intake_id: intakeId,
-      p_token: session.accessToken,
-      p_category_code: categoryCode,
-    });
+    const [{ data, error }, { data: overview }] = await Promise.all([
+      supabase.rpc("get_intake_category_detail", {
+        p_intake_id: intakeId, p_token: session.accessToken, p_category_code: categoryCode,
+      }),
+      supabase.rpc("get_intake_overview", { p_intake_id: intakeId, p_token: session.accessToken }),
+    ]);
     if (error) throw error;
+    const categories = (overview as any)?.categories ?? [];
+    setOrder(categories.map((c: any) => c.category_code));
+    setChecklistCounts(categories.map((c: any) => ({
+      code: c.category_code, responseTotal: c.part1_total ?? 0, responsesDone: c.part1_done ?? 0,
+      documentTotal: c.part2_total ?? 0, documentsDone: c.part2_done ?? 0,
+    })));
+    setIntakeMeta((meta) => ({ ...meta, company_name: (overview as any)?.intake?.company_name }));
     const payload = data as any;
     setCategory(payload?.category);
     const allReqs: Req[] = payload?.requirements ?? [];
@@ -62,13 +73,6 @@ export default function CategoryPart2() {
     const session = getIntakeSession();
     if (!session.accessToken || session.intakeId !== intakeId) { navigate("/respond"); return; }
     setIntakeMeta({ intake_code: session.intakeCode ?? undefined });
-    (async () => {
-      const { data: overview } = await supabase.rpc("get_intake_overview", {
-        p_intake_id: intakeId,
-        p_token: session.accessToken,
-      });
-      setOrder(((overview as any)?.categories ?? []).map((c: any) => c.category_code));
-    })();
     loadDetail()
       .catch((e) => { toast.error(e.message ?? "Failed"); navigate(`/respond/${intakeId}`); })
       .finally(() => setLoading(false));
@@ -146,7 +150,11 @@ export default function CategoryPart2() {
 
   return (
     <PageShell>
-      <RespondentHeader intakeCode={intakeMeta.intake_code} companyName={intakeMeta.company_name} />
+      <RespondentHeader intakeCode={intakeMeta.intake_code} companyName={intakeMeta.company_name} showProgress={false} />
+      <ChecklistPageProgress
+        overall={checklistProgress(checklistCounts, { code: categoryCode ?? "", documentsDone: uploadedCount }, true)}
+        current={{ completion: reqs.length ? Math.round(uploadedCount / reqs.length * 100) : 100, done: uploadedCount, total: reqs.length }}
+      />
 
       {/* Console header strip */}
       <div className="border-b border-border/40 bg-card/30 backdrop-blur-xl">
