@@ -22,23 +22,48 @@ export function ChecklistPageProgress({ overall, current, label = "Category prog
           </div>
           <span className="shrink-0 text-3xl sm:text-4xl font-semibold tabular-nums text-foreground">{overall.completion}<span className="text-lg text-muted-foreground">%</span></span>
         </div>
-        <ol aria-label="Category milestones" className={cn("grid gap-x-5 gap-y-6 pt-5", milestones.length > 2 ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4" : "grid-cols-2")}>
-          {milestones.map((milestone) => {
-            const active = milestone.code === activeCode;
-            return (
-              <li key={milestone.code} aria-current={active ? "step" : undefined} aria-label={`${milestone.name}: ${milestone.complete ? "Complete" : `${milestone.done} of ${milestone.total} completed`}`} className="min-w-0">
-                <div className="flex items-center gap-3">
-                  <span className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 text-sm font-semibold transition-colors duration-500 motion-reduce:transition-none", milestone.complete ? "border-success bg-success text-success-foreground" : active ? "border-primary bg-primary/10 text-primary ring-4 ring-primary/10" : "border-border bg-muted text-muted-foreground")}>
-                    {milestone.complete ? <Check aria-hidden="true" className="h-5 w-5" strokeWidth={3} /> : milestone.code}
+        {milestones.length === 1 ? (() => {
+          const milestone = milestones[0];
+          const active = milestone.code === activeCode;
+          return (
+            <ol aria-label="Category milestones" className="max-w-md pt-5">
+              <li
+                aria-current={active ? "step" : undefined}
+                aria-label={`${milestone.name}: ${milestone.complete ? "Complete" : `${milestone.done} of ${milestone.total} completed`}`}
+                className="flex items-center gap-4"
+              >
+                <span className="flex items-center">
+                  <span className={cn("flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 text-sm font-semibold transition-colors duration-500 motion-reduce:transition-none", milestone.complete ? "border-success bg-success text-success-foreground" : active ? "border-primary bg-primary/10 text-primary ring-4 ring-primary/10" : "border-border bg-muted text-muted-foreground")}>
+                    {milestone.complete ? <Check aria-hidden="true" className="h-6 w-6" strokeWidth={3} /> : milestone.code}
                   </span>
-                  <span aria-hidden="true" className={cn("h-0.5 flex-1 rounded-full transition-colors duration-500 motion-reduce:transition-none", milestone.complete ? "bg-success/50" : "bg-border")} />
-                </div>
-                <p className={cn("mt-3 break-words text-sm font-semibold leading-snug", milestone.complete ? "text-success" : "text-foreground")}>{milestone.name}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{milestone.complete ? "Complete" : `${milestone.done} / ${milestone.total} completed`}</p>
+                  <span aria-hidden="true" className={cn("h-0.5 w-16 rounded-full transition-colors duration-500 motion-reduce:transition-none", milestone.complete ? "bg-success/50" : "bg-border")} />
+                </span>
+                <span className="min-w-0">
+                  <p className={cn("break-words text-base font-semibold leading-snug", milestone.complete ? "text-success" : "text-foreground")}>{milestone.name}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{milestone.complete ? "Complete" : `${milestone.done} / ${milestone.total} completed`}</p>
+                </span>
               </li>
-            );
-          })}
-        </ol>
+            </ol>
+          );
+        })() : (
+          <ol aria-label="Category milestones" className="grid gap-x-5 gap-y-6 pt-5 sm:grid-cols-2 lg:grid-cols-4">
+            {milestones.map((milestone) => {
+              const active = milestone.code === activeCode;
+              return (
+                <li key={milestone.code} aria-current={active ? "step" : undefined} aria-label={`${milestone.name}: ${milestone.complete ? "Complete" : `${milestone.done} of ${milestone.total} completed`}`} className="min-w-0">
+                  <div className="flex items-center gap-3">
+                    <span className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 text-sm font-semibold transition-colors duration-500 motion-reduce:transition-none", milestone.complete ? "border-success bg-success text-success-foreground" : active ? "border-primary bg-primary/10 text-primary ring-4 ring-primary/10" : "border-border bg-muted text-muted-foreground")}>
+                      {milestone.complete ? <Check aria-hidden="true" className="h-5 w-5" strokeWidth={3} /> : milestone.code}
+                    </span>
+                    <span aria-hidden="true" className={cn("h-0.5 flex-1 rounded-full transition-colors duration-500 motion-reduce:transition-none", milestone.complete ? "bg-success/50" : "bg-border")} />
+                  </div>
+                  <p className={cn("mt-3 break-words text-sm font-semibold leading-snug", milestone.complete ? "text-success" : "text-foreground")}>{milestone.name}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{milestone.complete ? "Complete" : `${milestone.done} / ${milestone.total} completed`}</p>
+                </li>
+              );
+            })}
+          </ol>
+        )}
       </div>
       <div className="mx-auto mt-8 max-w-2xl border-t border-border/60 pt-5 space-y-2.5">
         <div className="flex items-center justify-between gap-3 text-sm">
