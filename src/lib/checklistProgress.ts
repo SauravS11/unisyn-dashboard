@@ -1,9 +1,26 @@
 export interface ChecklistCount {
   code: string;
+  name?: string;
   responseTotal: number;
   responsesDone: number;
   documentTotal: number;
   documentsDone: number;
+}
+
+export function checklistMilestones(
+  counts: ChecklistCount[],
+  current?: { code: string; responsesDone?: number; documentsDone?: number },
+) {
+  return counts.map((count) => {
+    const updated = count.code === current?.code ? {
+      ...count,
+      responsesDone: current.responsesDone ?? count.responsesDone,
+      documentsDone: current.documentsDone ?? count.documentsDone,
+    } : count;
+    const total = updated.responseTotal + updated.documentTotal;
+    const done = updated.responsesDone + updated.documentsDone;
+    return { code: count.code, name: count.name ?? count.code, total, done, complete: total > 0 && done >= total };
+  });
 }
 
 export function checklistProgress(

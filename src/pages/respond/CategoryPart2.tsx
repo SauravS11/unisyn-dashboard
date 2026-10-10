@@ -14,7 +14,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { ChecklistPageProgress } from "@/components/ChecklistPageProgress";
-import { checklistProgress, type ChecklistCount } from "@/lib/checklistProgress";
+import { checklistProgress, checklistMilestones, type ChecklistCount } from "@/lib/checklistProgress";
 
 interface Req {
   id: string;
@@ -51,7 +51,7 @@ export default function CategoryPart2() {
     const categories = (overview as any)?.categories ?? [];
     setOrder(categories.map((c: any) => c.category_code));
     setChecklistCounts(categories.map((c: any) => ({
-      code: c.category_code, responseTotal: c.part1_total ?? 0, responsesDone: c.part1_done ?? 0,
+      code: c.category_code, name: c.category_name, responseTotal: c.part1_total ?? 0, responsesDone: c.part1_done ?? 0,
       documentTotal: c.part2_total ?? 0, documentsDone: c.part2_done ?? 0,
     })));
     setIntakeMeta((meta) => ({ ...meta, company_name: (overview as any)?.intake?.company_name }));
@@ -152,6 +152,8 @@ export default function CategoryPart2() {
     <PageShell>
       <RespondentHeader intakeCode={intakeMeta.intake_code} companyName={intakeMeta.company_name} showProgress={false} />
       <ChecklistPageProgress
+        milestones={checklistMilestones(checklistCounts, { code: categoryCode ?? "", documentsDone: uploadedCount })}
+        activeCode={categoryCode}
         overall={checklistProgress(checklistCounts, { code: categoryCode ?? "", documentsDone: uploadedCount }, true)}
         current={{ completion: reqs.length ? Math.round(uploadedCount / reqs.length * 100) : 100, done: uploadedCount, total: reqs.length }}
       />

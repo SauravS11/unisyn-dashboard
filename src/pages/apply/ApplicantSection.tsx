@@ -5,7 +5,7 @@ import { GlassIcon } from "@/components/ui/glass-icon";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ChecklistPageProgress } from "@/components/ChecklistPageProgress";
-import { checklistProgress, type ChecklistCount } from "@/lib/checklistProgress";
+import { checklistProgress, checklistMilestones, type ChecklistCount } from "@/lib/checklistProgress";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -40,7 +40,7 @@ const ApplicantSection = () => {
     try {
       const [d, overview] = await Promise.all([getApplicationSection(sectionCode), getApplicationOverview()]);
       setChecklistCounts((overview.sections ?? []).map((s: any) => ({
-        code: s.section_code, responseTotal: s.response_total ?? 0, responsesDone: s.responses_done ?? 0,
+        code: s.section_code, name: s.section_name, responseTotal: s.response_total ?? 0, responsesDone: s.responses_done ?? 0,
         documentTotal: s.document_total ?? 0, documentsDone: s.documents_done ?? 0,
       })));
       setData(d);
@@ -129,6 +129,12 @@ const ApplicantSection = () => {
         </Button>
 
         <ChecklistPageProgress
+          milestones={checklistMilestones(checklistCounts, {
+            code: sectionCode ?? "",
+            responsesDone: questions.filter((q) => (answers[q.id] ?? "").trim().length > 0).length,
+            documentsDone: docReqs.filter((r) => documents.some((d) => d.requirement_id === r.id)).length,
+          })}
+          activeCode={sectionCode}
           overall={checklistProgress(checklistCounts, {
             code: sectionCode ?? "",
             responsesDone: questions.filter((q) => (answers[q.id] ?? "").trim().length > 0).length,
