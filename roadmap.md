@@ -1,5 +1,5 @@
 # Funding checklist correction
-- [ ] Centre category/section progress at the top of seller/buyer and funding checklist pages, with overall response-and-document progress above it; verify updates and layout.
+- [x] Centre category/section progress at the top of seller/buyer and funding checklist pages, with overall response-and-document progress above it; verified sample answer/upload updates, all three layouts, and nine regression tests.
 - [x] Replace security messages with a large overall progress display on seller/buyer and funding applicant overviews; verified both screens with sample data.
 - [x] Centre both list headings and status navigation; match the Home/Deals navigation styling and verify both pages.
 - [x] Verify M&A and funding summaries open their matching list tabs and preserve selection on refresh and back navigation.
