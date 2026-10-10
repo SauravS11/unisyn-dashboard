@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { ArrowLeft, ArrowRight, Save, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChecklistPageProgress } from "@/components/ChecklistPageProgress";
-import { checklistProgress, type ChecklistCount } from "@/lib/checklistProgress";
+import { checklistProgress, checklistMilestones, type ChecklistCount } from "@/lib/checklistProgress";
 
 interface Req {
   id: string;
@@ -65,7 +65,7 @@ export default function CategoryPart1() {
       });
       setValues(v);
       setChecklistCounts(((overview as any)?.categories ?? []).map((c: any) => ({
-        code: c.category_code, responseTotal: c.part1_total ?? 0, responsesDone: c.part1_done ?? 0,
+        code: c.category_code, name: c.category_name, responseTotal: c.part1_total ?? 0, responsesDone: c.part1_done ?? 0,
         documentTotal: c.part2_total ?? 0, documentsDone: c.part2_done ?? 0,
       })));
       setIntakeMeta((meta) => ({ ...meta, company_name: (overview as any)?.intake?.company_name }));
@@ -135,6 +135,8 @@ export default function CategoryPart1() {
     <PageShell>
       <RespondentHeader intakeCode={intakeMeta.intake_code} companyName={intakeMeta.company_name} showProgress={false} />
       <ChecklistPageProgress
+        milestones={checklistMilestones(checklistCounts, { code: categoryCode ?? "", responsesDone: answeredCount })}
+        activeCode={categoryCode}
         overall={checklistProgress(checklistCounts, { code: categoryCode ?? "", responsesDone: answeredCount }, true)}
         current={{ completion: pct, done: answeredCount, total: reqs.length }}
       />
