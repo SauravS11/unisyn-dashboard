@@ -4,13 +4,15 @@ import { PageShell } from "@/components/ui/page-shell";
 import { GlassIcon } from "@/components/ui/glass-icon";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
+import { ChecklistPageProgress } from "@/components/ChecklistPageProgress";
+import { checklistProgress, type ChecklistCount } from "@/lib/checklistProgress";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, CheckCircle2, FileText, MessageSquareText, Radio, Upload } from "lucide-react";
 import {
   getApplicationSection,
+  getApplicationOverview,
   getApplicationSession,
   openApplicationDocument,
   saveApplicationResponse,
@@ -27,6 +29,7 @@ const ApplicantSection = () => {
   const [data, setData] = useState<any>(null);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
+  const [checklistCounts, setChecklistCounts] = useState<ChecklistCount[]>([]);
 
   const load = useCallback(async () => {
     if (!sectionCode) return;
@@ -35,7 +38,11 @@ const ApplicantSection = () => {
       return;
     }
     try {
-      const d = await getApplicationSection(sectionCode);
+      const [d, overview] = await Promise.all([getApplicationSection(sectionCode), getApplicationOverview()]);
+      setChecklistCounts((overview.sections ?? []).map((s: any) => ({
+        code: s.section_code, responseTotal: s.response_total ?? 0, responsesDone: s.responses_done ?? 0,
+        documentTotal: s.document_total ?? 0, documentsDone: s.documents_done ?? 0,
+      })));
       setData(d);
       const map: Record<string, string> = {};
       (d.responses ?? []).forEach((r: any) => (map[r.requirement_id] = r.response_value ?? ""));
@@ -121,6 +128,16 @@ const ApplicantSection = () => {
           <ArrowLeft className="h-4 w-4" /> Back to Application
         </Button>
 
+        <ChecklistPageProgress
+          overall={checklistProgress(checklistCounts, {
+            code: sectionCode ?? "",
+            responsesDone: questions.filter((q) => (answers[q.id] ?? "").trim().length > 0).length,
+            documentsDone: docReqs.filter((r) => documents.some((d) => d.requirement_id === r.id)).length,
+          })}
+          current={{ completion: pct, done, total }}
+          label="Section progress"
+        />
+
         <div className="glass-surface-strong p-6 mb-6">
           <div className="flex flex-wrap items-start justify-between gap-5">
             <div className="flex items-start gap-4">
@@ -132,13 +149,6 @@ const ApplicantSection = () => {
                 <p className="text-xs text-muted-foreground mt-2 inline-flex items-center gap-2">
                   <Radio className="h-3.5 w-3.5 text-green-600" /> Your answers are saved securely as you go
                 </p>
-              </div>
-            </div>
-            <div className="min-w-[180px]">
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Section Progress</p>
-              <div className="flex items-center gap-3">
-                <Progress value={pct} className="h-2" />
-                <span className="font-semibold tabular-nums text-sm">{pct}%</span>
               </div>
             </div>
           </div>
