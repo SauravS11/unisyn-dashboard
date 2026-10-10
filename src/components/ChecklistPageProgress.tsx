@@ -25,20 +25,21 @@ export function ChecklistPageProgress({ overall, current, label = "Category prog
         {milestones.length === 1 ? (() => {
           const milestone = milestones[0];
           const active = milestone.code === activeCode;
+          const pct = milestone.total ? Math.min(100, Math.round(milestone.done / milestone.total * 100)) : 0;
           return (
-            <ol aria-label="Category milestones" className="max-w-md pt-5">
+            <ol aria-label="Category milestones" className="w-full pt-5">
               <li
                 aria-current={active ? "step" : undefined}
                 aria-label={`${milestone.name}: ${milestone.complete ? "Complete" : `${milestone.done} of ${milestone.total} completed`}`}
-                className="flex items-center gap-4"
+                className="flex flex-wrap items-center gap-x-4 gap-y-2"
               >
-                <span className="flex items-center">
-                  <span className={cn("flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 text-sm font-semibold transition-colors duration-500 motion-reduce:transition-none", milestone.complete ? "border-success bg-success text-success-foreground" : active ? "border-primary bg-primary/10 text-primary ring-4 ring-primary/10" : "border-border bg-muted text-muted-foreground")}>
-                    {milestone.complete ? <Check aria-hidden="true" className="h-6 w-6" strokeWidth={3} /> : milestone.code}
-                  </span>
-                  <span aria-hidden="true" className={cn("h-0.5 w-16 rounded-full transition-colors duration-500 motion-reduce:transition-none", milestone.complete ? "bg-success/50" : "bg-border")} />
+                <span className={cn("flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 text-sm font-semibold transition-colors duration-500 motion-reduce:transition-none", milestone.complete ? "border-success bg-success text-success-foreground" : active ? "border-primary bg-primary/10 text-primary ring-4 ring-primary/10" : "border-border bg-muted text-muted-foreground")}>
+                  {milestone.complete ? <Check aria-hidden="true" className="h-6 w-6" strokeWidth={3} /> : milestone.code}
                 </span>
-                <span className="min-w-0">
+                <span aria-hidden="true" className="relative h-1.5 min-w-[6rem] flex-1 overflow-hidden rounded-full bg-border">
+                  <span className={cn("absolute inset-y-0 left-0 rounded-full transition-[width] duration-500 motion-reduce:transition-none", milestone.complete ? "bg-success" : "bg-primary")} style={{ width: `${pct}%` }} />
+                </span>
+                <span className="ml-auto shrink-0 text-right">
                   <p className={cn("break-words text-base font-semibold leading-snug", milestone.complete ? "text-success" : "text-foreground")}>{milestone.name}</p>
                   <p className="mt-1 text-sm text-muted-foreground">{milestone.complete ? "Complete" : `${milestone.done} / ${milestone.total} completed`}</p>
                 </span>
