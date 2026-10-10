@@ -47,7 +47,7 @@ export function ChecklistPageProgress({ overall, current, label = "Category prog
             </ol>
           );
         })() : (
-          <ol aria-label="Category milestones" className="grid gap-x-5 gap-y-6 pt-5 sm:grid-cols-2 lg:grid-cols-4">
+          <ol aria-label="Category milestones" className={cn("grid gap-x-5 gap-y-6 pt-5 sm:grid-cols-2", milestones.length === 2 ? "lg:grid-cols-2" : milestones.length === 3 ? "lg:grid-cols-3" : "lg:grid-cols-4")}>
             {milestones.map((milestone) => {
               const active = milestone.code === activeCode;
               return (
