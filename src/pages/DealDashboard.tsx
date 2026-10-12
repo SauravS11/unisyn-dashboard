@@ -56,6 +56,7 @@ const DealDashboard = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [documentsCount, setDocumentsCount] = useState(0);
+  const [sourceApplicationId, setSourceApplicationId] = useState<string | null>(null);
   const [documentsModalOpen, setDocumentsModalOpen] = useState(false);
   const [specialists, setSpecialists] = useState<Array<{
     id?: string;
@@ -176,6 +177,7 @@ const DealDashboard = () => {
 
       const funding = isFundingWorkspace(dealData, categoriesData ?? []);
       setFundingWorkspace(funding);
+      setSourceApplicationId(funding ? ((dealData as any).source_application_id ?? null) : null);
       categoriesData = workspaceCategories(categoriesData ?? [], funding);
 
       // Fetch tasks only for the current workspace categories.
@@ -782,7 +784,7 @@ const DealDashboard = () => {
           // Refresh documents count when modal closes
           fetchDealData();
         }
-      }} dealId={dealId!} />
+      }} dealId={dealId!} funding={fundingWorkspace} fundingApplicationId={fundingWorkspace ? sourceApplicationId : null} />
 
         {/* Core Team Modal */}
         <Dialog open={coreTeamModalOpen} onOpenChange={setCoreTeamModalOpen}>
