@@ -42,3 +42,35 @@ test("funding milestones independently track main and supporting documents", () 
 test("empty categories do not show a completed milestone", () => {
   assert.equal(checklistMilestones([{ code: "A", responseTotal: 0, responsesDone: 0, documentTotal: 0, documentsDone: 0 }])[0].complete, false);
 });
+
+test("written milestones earn a tick before any documents are uploaded", () => {
+  const counts = [{ code: "A", responseTotal: 2, responsesDone: 0, documentTotal: 1, documentsDone: 0 }];
+  assert.equal(checklistMilestones(counts, undefined, "responses")[0].complete, false);
+  assert.equal(checklistMilestones(counts, { code: "A", responsesDone: 2 }, "responses")[0].complete, true);
+  assert.deepEqual(checklistProgress(counts, { code: "A", responsesDone: 2 }, true, "responses"), { done: 2, total: 2, completion: 100 });
+  assert.equal(checklistMilestones(counts, { code: "A", responsesDone: 2 }, "documents")[0].complete, false);
+});
+
+test("document milestones earn a tick independently of written answers", () => {
+  const counts = [{ code: "A", responseTotal: 2, responsesDone: 0, documentTotal: 1, documentsDone: 0 }];
+  assert.equal(checklistMilestones(counts, { code: "A", documentsDone: 1 }, "documents")[0].complete, true);
+  assert.deepEqual(checklistProgress(counts, { code: "A", documentsDone: 1 }, true, "documents"), { done: 1, total: 1, completion: 100 });
+});
+
+test("phase milestones omit categories without requirements in that phase", () => {
+  const counts = [
+    { code: "A", responseTotal: 1, responsesDone: 1, documentTotal: 0, documentsDone: 0 },
+    { code: "B", responseTotal: 0, responsesDone: 0, documentTotal: 1, documentsDone: 0 },
+  ];
+  assert.deepEqual(checklistMilestones(counts, undefined, "responses").map(m => m.code), ["A"]);
+  assert.deepEqual(checklistMilestones(counts, undefined, "documents").map(m => m.code), ["B"]);
+});
+
+test("funding document ticks ignore legacy response requirements", () => {
+  const counts = [
+    { code: "G", responseTotal: 2, responsesDone: 0, documentTotal: 2, documentsDone: 2 },
+    { code: "H", responseTotal: 0, responsesDone: 0, documentTotal: 6, documentsDone: 5 },
+  ];
+  assert.deepEqual(checklistMilestones(counts, undefined, "documents").map(m => m.complete), [true, false]);
+  assert.deepEqual(checklistProgress(counts, { code: "H", documentsDone: 6 }, false, "documents"), { done: 8, total: 8, completion: 100 });
+});

@@ -9,15 +9,16 @@ interface Props {
   label?: string;
   milestones: ReturnType<typeof checklistMilestones>;
   activeCode?: string;
+  phase?: "responses" | "documents";
 }
 
-export function ChecklistPageProgress({ overall, current, label = "Category progress", milestones, activeCode }: Props) {
+export function ChecklistPageProgress({ overall, current, label = "Category progress", milestones, activeCode, phase }: Props) {
   return (
     <section aria-label="Checklist progress" className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 sm:py-10">
       <div className="space-y-3">
         <div className="flex items-end justify-between gap-4">
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-foreground">Overall checklist progress</p>
+            <p className="text-sm font-semibold text-foreground">{phase === "responses" ? "Overall written-response progress" : phase === "documents" ? "Overall document progress" : "Overall checklist progress"}</p>
             <p className="mt-1 text-xs sm:text-sm text-muted-foreground">{overall.done} of {overall.total} requirements completed</p>
           </div>
           <span className="shrink-0 text-3xl sm:text-4xl font-semibold tabular-nums text-foreground">{overall.completion}<span className="text-lg text-muted-foreground">%</span></span>
