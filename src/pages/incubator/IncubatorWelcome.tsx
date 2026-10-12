@@ -17,7 +17,7 @@ const IncubatorWelcome = () => {
   const [stats, setStats] = useState({ drafts: 0, active: 0, review: 0, approved: 0 });
 
   useEffect(() => {
-    (async () => {
+    const load = async () => {
       const { data: u } = await supabase.auth.getUser();
       if (!u?.user) {
         navigate("/auth");
@@ -27,13 +27,26 @@ const IncubatorWelcome = () => {
       const rows = data ?? [];
       setStats({
         drafts: rows.filter((r: any) => r.status === "draft").length,
-        active: rows.filter((r: any) => ["request_sent", "in_progress"].includes(r.status)).length,
-        review: rows.filter((r: any) =>
-          ["submitted_for_review", "in_review", "clarification_requested"].includes(r.status),
-        ).length,
+        active: rows.filter((r: any) => ["request_sent", "in_progress", "clarification_requested"].includes(r.status)).length,
+        review: rows.filter((r: any) => ["submitted_for_review", "in_review"].includes(r.status)).length,
         approved: rows.filter((r: any) => APPROVED_APPLICATION_STATUSES.includes(r.status)).length,
       });
-    })();
+    };
+    load();
+    const channel = supabase
+      .channel("incubator-welcome-stats")
+      .on("postgres_changes", { event: "*", schema: "public", table: "applications" }, load)
+      .subscribe();
+    const onFocus = () => load();
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onFocus);
+    const timer = window.setInterval(load, 15000);
+    return () => {
+      supabase.removeChannel(channel);
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onFocus);
+      window.clearInterval(timer);
+    };
   }, [navigate]);
 
   const metrics = [
