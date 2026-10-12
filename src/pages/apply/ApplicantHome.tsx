@@ -51,8 +51,16 @@ const ApplicantHome = () => {
       .channel(`applicant-${applicationId}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "application_clarifications" }, load)
       .on("postgres_changes", { event: "*", schema: "public", table: "application_documents" }, load)
+      .on("postgres_changes", { event: "*", schema: "public", table: "application_sections" }, load)
+      .on("postgres_changes", { event: "*", schema: "public", table: "applications" }, load)
       .subscribe();
+    // Backup refresh: live events can be withheld from code-based sessions.
+    const poll = window.setInterval(() => { if (!document.hidden) load(); }, 5000);
+    const onVisible = () => { if (!document.hidden) load(); };
+    document.addEventListener("visibilitychange", onVisible);
     return () => {
+      window.clearInterval(poll);
+      document.removeEventListener("visibilitychange", onVisible);
       supabase.removeChannel(channel);
     };
   }, [load, navigate]);
