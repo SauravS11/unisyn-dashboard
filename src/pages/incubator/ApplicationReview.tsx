@@ -28,7 +28,7 @@ import {
 import { supabase } from "@/integrations/supabase/customClient";
 import { fetchWorkflowChecklist, type WorkflowSection } from "@/lib/incubatorClient";
 import { APPLICATION_STATUS_LABELS, SECTION_STATUS_LABELS } from "@/lib/fundingWorkflows";
-import { getProgressColors } from "@/lib/progressColors";
+import { getProgressColors, progressBarTone } from "@/lib/progressColors";
 import { toast } from "sonner";
 
 const REQUESTED_ACTIONS = [
@@ -301,8 +301,8 @@ const ApplicationReview = () => {
             <div className="min-w-[220px]">
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Overall Completion</p>
               <div className="flex items-center gap-3">
-                <Progress value={stats.pct} className="h-2" />
-                <span className="font-semibold tabular-nums">{stats.pct}%</span>
+                <Progress value={stats.pct} indicatorClassName={progressBarTone(stats.pct).bar} className="h-2" />
+                <span className={`font-semibold tabular-nums ${progressBarTone(stats.pct).text}`}>{stats.pct}%</span>
               </div>
               <p className="text-[11px] text-muted-foreground mt-2">
                 Real-time updates from applicant · {stats.done} of {stats.total} required items complete
@@ -350,8 +350,8 @@ const ApplicationReview = () => {
                   </div>
 
                   <div className="flex items-center gap-3 mt-4">
-                    <Progress value={st.pct} className="h-1.5" />
-                    <span className={`text-xs font-semibold tabular-nums ${colors.text}`}>{st.pct}%</span>
+                    <Progress value={st.pct} indicatorClassName={progressBarTone(st.pct).bar} className="h-1.5" />
+                    <span className={`text-xs font-semibold tabular-nums ${progressBarTone(st.pct).text}`}>{st.pct}%</span>
                   </div>
 
                   <div className="flex flex-wrap gap-2 mt-4">
