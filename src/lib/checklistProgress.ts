@@ -7,18 +7,28 @@ export interface ChecklistCount {
   documentsDone: number;
 }
 
+export type ChecklistPhase = "responses" | "documents";
+
+function phaseCounts(counts: ChecklistCount[], phase?: ChecklistPhase): ChecklistCount[] {
+  if (!phase) return counts;
+  return counts.map((count) => phase === "responses"
+    ? { ...count, documentTotal: 0, documentsDone: 0 }
+    : { ...count, responseTotal: 0, responsesDone: 0 })
+    .filter((count) => count.responseTotal + count.documentTotal > 0);
+}
+
 export function checklistMilestones(
   counts: ChecklistCount[],
   current?: { code: string; responsesDone?: number; documentsDone?: number },
+  phase?: ChecklistPhase,
 ) {
-  return counts.map((count) => {
-    const updated = count.code === current?.code ? {
-      ...count,
-      responsesDone: current.responsesDone ?? count.responsesDone,
-      documentsDone: current.documentsDone ?? count.documentsDone,
-    } : count;
-    const total = updated.responseTotal + updated.documentTotal;
-    const done = updated.responsesDone + updated.documentsDone;
+  return phaseCounts(counts.map((count) => count.code === current?.code ? {
+    ...count,
+    responsesDone: current.responsesDone ?? count.responsesDone,
+    documentsDone: current.documentsDone ?? count.documentsDone,
+  } : count), phase).map((count) => {
+    const total = count.responseTotal + count.documentTotal;
+    const done = count.responsesDone + count.documentsDone;
     return { code: count.code, name: count.name ?? count.code, total, done, complete: total > 0 && done >= total };
   });
 }
@@ -27,12 +37,13 @@ export function checklistProgress(
   counts: ChecklistCount[],
   current?: { code: string; responsesDone?: number; documentsDone?: number },
   averageCategories = false,
+  phase?: ChecklistPhase,
 ) {
-  const updated = counts.map((count) => count.code === current?.code ? {
+  const updated = phaseCounts(counts.map((count) => count.code === current?.code ? {
     ...count,
     responsesDone: current.responsesDone ?? count.responsesDone,
     documentsDone: current.documentsDone ?? count.documentsDone,
-  } : count);
+  } : count), phase);
   const total = updated.reduce((sum, count) => sum + count.responseTotal + count.documentTotal, 0);
   const done = updated.reduce((sum, count) => sum + count.responsesDone + count.documentsDone, 0);
   const completion = averageCategories

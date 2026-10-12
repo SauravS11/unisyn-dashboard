@@ -152,9 +152,11 @@ export default function CategoryPart2() {
     <PageShell>
       <RespondentHeader intakeCode={intakeMeta.intake_code} companyName={intakeMeta.company_name} showProgress={false} />
       <ChecklistPageProgress
-        milestones={checklistMilestones(checklistCounts, { code: categoryCode ?? "", documentsDone: uploadedCount })}
+        phase="documents"
+        label="Category document progress"
+        milestones={checklistMilestones(checklistCounts, { code: categoryCode ?? "", documentsDone: uploadedCount }, "documents")}
         activeCode={categoryCode}
-        overall={checklistProgress(checklistCounts, { code: categoryCode ?? "", documentsDone: uploadedCount }, true)}
+        overall={checklistProgress(checklistCounts, { code: categoryCode ?? "", documentsDone: uploadedCount }, true, "documents")}
         current={{ completion: reqs.length ? Math.round(uploadedCount / reqs.length * 100) : 100, done: uploadedCount, total: reqs.length }}
       />
 

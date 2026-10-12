@@ -129,19 +129,20 @@ const ApplicantSection = () => {
         </Button>
 
         <ChecklistPageProgress
+          phase="documents"
           milestones={checklistMilestones(checklistCounts, {
             code: sectionCode ?? "",
             responsesDone: questions.filter((q) => (answers[q.id] ?? "").trim().length > 0).length,
             documentsDone: docReqs.filter((r) => documents.some((d) => d.requirement_id === r.id)).length,
-          })}
+          }, "documents")}
           activeCode={sectionCode}
           overall={checklistProgress(checklistCounts, {
             code: sectionCode ?? "",
             responsesDone: questions.filter((q) => (answers[q.id] ?? "").trim().length > 0).length,
             documentsDone: docReqs.filter((r) => documents.some((d) => d.requirement_id === r.id)).length,
-          })}
+          }, false, "documents")}
           current={{ completion: pct, done, total }}
-          label="Section progress"
+          label="Section document progress"
         />
 
         <div className="glass-surface-strong p-6 mb-6">
