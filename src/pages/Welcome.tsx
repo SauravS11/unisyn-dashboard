@@ -16,17 +16,20 @@ const Welcome = () => {
   const [stats, setStats] = useState({ pendingIntakes: 0, awaitingReview: 0, activeDeals: 0 });
 
   useEffect(() => {
-    (async () => {
+    const load = async () => {
       const { data: userData } = await supabase.auth.getUser();
       const uid = userData?.user?.id;
       if (!uid) return;
 
+      // Same groupings as the Deals list tabs so the home counts always match.
       const [pending, review, deals] = await Promise.all([
         supabase.from("client_intakes").select("id", { count: "exact", head: true })
-          .in("status", ["draft", "request_sent", "awaiting_response", "in_progress"]),
+          .eq("created_by", uid).eq("status", "draft"),
         supabase.from("client_intakes").select("id", { count: "exact", head: true })
-          .in("status", ["submitted_for_review", "changes_requested"]),
+          .eq("created_by", uid)
+          .in("status", ["request_sent", "awaiting_response", "in_progress", "submitted_for_review", "changes_requested", "approved"]),
         (supabase as any).from("deals").select("id", { count: "exact", head: true }).eq("user_id", uid)
+          .in("status", ["active", "in_progress"])
           .or("client_type.is.null,client_type.neq.funding").is("source_application_id", null),
       ]);
 
@@ -35,7 +38,23 @@ const Welcome = () => {
         awaitingReview: review.count ?? 0,
         activeDeals: deals.count ?? 0,
       });
-    })();
+    };
+    load();
+    const channel = supabase
+      .channel("welcome-stats")
+      .on("postgres_changes", { event: "*", schema: "public", table: "client_intakes" }, load)
+      .on("postgres_changes", { event: "*", schema: "public", table: "deals" }, load)
+      .subscribe();
+    const onFocus = () => load();
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onFocus);
+    const timer = window.setInterval(load, 15000);
+    return () => {
+      supabase.removeChannel(channel);
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onFocus);
+      window.clearInterval(timer);
+    };
   }, []);
 
   return (
@@ -127,7 +146,7 @@ const Welcome = () => {
         {/* Lower widgets */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-5xl px-4 mt-6">
           <WidgetCard icon={Inbox} label="Pending Client Intakes" value={stats.pendingIntakes} onClick={() => navigate(MNA_SUMMARY_LINKS.pending)} />
-          <WidgetCard icon={FileCheck2} label="Awaiting Review" value={stats.awaitingReview} onClick={() => navigate(MNA_SUMMARY_LINKS.awaiting)} />
+          <WidgetCard icon={FileCheck2} label="Awaiting" value={stats.awaitingReview} onClick={() => navigate(MNA_SUMMARY_LINKS.awaiting)} />
           <WidgetCard icon={Activity} label="Active Deals" value={stats.activeDeals} onClick={() => navigate(MNA_SUMMARY_LINKS.active)} />
         </div>
 
