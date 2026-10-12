@@ -25,9 +25,20 @@ interface DocumentsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   dealId: string;
+  fundingApplicationId?: string | null;
 }
 
-const categories = [
+const FUNDING_CATEGORIES = [
+  { code: "G", name: "Main Documents" },
+  { code: "H", name: "Supporting Documents" },
+];
+
+const PROFILE_DOCS = [
+  { key: "summarised_balance_sheet", label: "Summarised Balance Sheet" },
+  { key: "personal_balance_sheet", label: "Personal Balance Sheet" },
+];
+
+const MA_CATEGORIES = [
   { code: "A", name: "Legal Entity & Structure" },
   { code: "B", name: "Financial Statements & Tax" },
   { code: "C", name: "Operations & Contracts" },
@@ -44,8 +55,27 @@ const categories = [
   { code: "N", name: "Integration Planning" },
 ];
 
-export const DocumentsModal = ({ open, onOpenChange, dealId }: DocumentsModalProps) => {
+export const DocumentsModal = ({ open, onOpenChange, dealId, fundingApplicationId }: DocumentsModalProps) => {
   const { toast } = useToast();
+  const categories = fundingApplicationId ? FUNDING_CATEGORIES : MA_CATEGORIES;
+  const [profileDocs, setProfileDocs] = useState<{ label: string; path: string; name: string }[]>([]);
+
+  useEffect(() => {
+    if (!open || !fundingApplicationId) { setProfileDocs([]); return; }
+    supabase.from("applications").select("specific_fields").eq("id", fundingApplicationId).maybeSingle()
+      .then(({ data }) => {
+        const f = ((data as any)?.specific_fields ?? {}) as Record<string, string>;
+        setProfileDocs(PROFILE_DOCS.filter(d => f[d.key]).map(d => ({
+          label: d.label, path: f[d.key], name: f[`${d.key}_name`] || f[d.key].split("/").pop() || d.label,
+        })));
+      });
+  }, [open, fundingApplicationId]);
+
+  const openProfileDoc = async (path: string) => {
+    const { data, error } = await supabase.storage.from("application-documents").createSignedUrl(path, 300);
+    if (error || !data?.signedUrl) { toast({ title: "Could not open document", variant: "destructive" }); return; }
+    window.open(data.signedUrl, "_blank", "noopener");
+  };
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
@@ -374,6 +404,27 @@ export const DocumentsModal = ({ open, onOpenChange, dealId }: DocumentsModalPro
             </div>
           ) : (
             <div className="space-y-4">
+              {profileDocs.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="text-sm font-bold text-destructive">Applicant Profile</h4>
+                  {profileDocs.map((d) => (
+                    <Card key={d.path} className="backdrop-blur-xl bg-card/40 border-border/40">
+                      <CardContent className="p-4 flex items-center justify-between gap-4">
+                        <div className="flex items-start gap-3 min-w-0">
+                          <FileText className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                          <div className="min-w-0">
+                            <div className="font-medium text-sm truncate">{d.name}</div>
+                            <div className="text-xs text-muted-foreground mt-1">{d.label}</div>
+                          </div>
+                        </div>
+                        <Button size="sm" variant="ghost" onClick={() => openProfileDoc(d.path)}>
+                          <Download className="h-4 w-4" />
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
               {categories.map((cat) => {
                 const categoryDocs = documents.filter(doc => 
                   doc.category?.startsWith(cat.code)
