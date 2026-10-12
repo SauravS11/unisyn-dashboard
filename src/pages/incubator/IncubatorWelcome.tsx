@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import unisynLogo from "@/assets/unisyn-logo.svg";
 import { FilePlus2, FolderOpen, Inbox, CheckCircle2, ArrowUpRight, Repeat } from "lucide-react";
 import { supabase } from "@/integrations/supabase/customClient";
-import { APPROVED_APPLICATION_STATUSES } from "@/lib/fundingWorkflows";
+import { fundingListGroup } from "@/lib/fundingWorkflows";
 import { FUNDING_SUMMARY_LINKS } from "@/lib/workspaceListNavigation";
 
 const IncubatorWelcome = () => {
@@ -23,13 +23,17 @@ const IncubatorWelcome = () => {
         navigate("/auth");
         return;
       }
-      const { data } = await supabase.from("applications").select("status");
-      const rows = data ?? [];
+      const { data } = await supabase.from("applications").select("status, converted_deal_id");
+      const apps = (data ?? []) as any[];
+      const dealIds = apps.map((r) => r.converted_deal_id).filter(Boolean);
+      const { data: deals } = dealIds.length ? await supabase.from("deals").select("id, status").in("id", dealIds) : { data: [] as any[] };
+      const byId = new Map((deals ?? []).map((d: any) => [d.id, d.status]));
+      const rows = apps.map((r) => ({ g: fundingListGroup(r.status, r.converted_deal_id ? byId.get(r.converted_deal_id) : null) }));
       setStats({
-        drafts: rows.filter((r: any) => r.status === "draft").length,
-        active: rows.filter((r: any) => ["request_sent", "in_progress", "clarification_requested"].includes(r.status)).length,
-        review: rows.filter((r: any) => ["submitted_for_review", "in_review"].includes(r.status)).length,
-        approved: rows.filter((r: any) => APPROVED_APPLICATION_STATUSES.includes(r.status)).length,
+        drafts: rows.filter((r) => r.g === "draft").length,
+        active: rows.filter((r) => r.g === "live").length,
+        review: rows.filter((r) => r.g === "review").length,
+        approved: rows.filter((r) => r.g === "approved").length,
       });
     };
     load();

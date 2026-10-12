@@ -13,7 +13,7 @@ import { PageHeaderActions } from "@/components/PageHeaderActions";
 import { NotificationButton } from "@/components/NotificationButton";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/customClient";
-import { APPLICATION_STATUS_LABELS, APPROVED_APPLICATION_STATUSES } from "@/lib/fundingWorkflows";
+import { APPLICATION_STATUS_LABELS, fundingListGroup } from "@/lib/fundingWorkflows";
 import { toast } from "sonner";
 
 interface Row {
@@ -25,14 +25,16 @@ interface Row {
   updated_at: string;
   created_at: string;
   request_sent_at: string | null;
+  converted_deal_id: string | null;
+  deal_status?: string | null;
   funding_workflows: { name: string; slug: string } | null;
 }
 
 const GROUPS = [
   { id: "draft", label: "Drafts", title: "Draft", icon: Inbox, tone: "red" as const, statuses: ["draft"], subtitle: "Funding applications you've started but not yet sent" },
   { id: "live", label: "Awaiting Applicant", title: "Awaiting", icon: Hourglass, tone: "yellow" as const, statuses: ["request_sent", "in_progress", "clarification_requested"], subtitle: "Applications sent to applicants and awaiting their documents" },
-  { id: "review", label: "In Review", title: "In Review", icon: Briefcase, tone: "blue" as const, statuses: ["submitted_for_review", "in_review"], subtitle: "Funding applications submitted for review" },
-  { id: "approved", label: "Approved", title: "Approved", icon: CheckCircle2, tone: "green" as const, statuses: APPROVED_APPLICATION_STATUSES, subtitle: "Approved funding applications and their workspaces" },
+  { id: "review", label: "In Review", title: "In Review", icon: Briefcase, tone: "blue" as const, statuses: [], subtitle: "Applications under review, including workspaces still in progress" },
+  { id: "approved", label: "Approved", title: "Approved", icon: CheckCircle2, tone: "green" as const, statuses: [], subtitle: "Funding deals whose workspace is 100% complete" },
 ];
 
 const ApplicationsList = () => {
@@ -52,16 +54,24 @@ const ApplicationsList = () => {
     (async () => {
       const { data, error } = await supabase
         .from("applications")
-        .select("id, application_code, business_name, status, due_date, created_at, updated_at, request_sent_at, funding_workflows(name, slug)")
+        .select("id, application_code, business_name, status, due_date, created_at, updated_at, request_sent_at, converted_deal_id, funding_workflows(name, slug)")
         .order("updated_at", { ascending: false });
       if (error) toast.error(error.message);
-      setRows((data ?? []) as any);
+      const list = (data ?? []) as any[];
+      const dealIds = list.map((r) => r.converted_deal_id).filter(Boolean);
+      if (dealIds.length) {
+        const { data: deals } = await supabase.from("deals").select("id, status").in("id", dealIds);
+        const byId = new Map((deals ?? []).map((d: any) => [d.id, d.status]));
+        list.forEach((r) => { r.deal_status = r.converted_deal_id ? byId.get(r.converted_deal_id) ?? null : null; });
+      }
+      setRows(list as any);
       setLoading(false);
     })();
   }, []);
 
   const open = (r: Row) => {
-    if (APPROVED_APPLICATION_STATUSES.includes(r.status)) return navigate(`/incubator/applications/${r.id}/review`);
+    // Once the deal workspace exists, its dashboard is the only (final) screen.
+    if (r.converted_deal_id) return navigate(`/deals/${r.converted_deal_id}/dashboard`);
     // Nothing goes to the review dashboard until the applicant request (link + code) has been sent.
     if (r.status === "draft") return navigate(`/incubator/applications/${r.id}/checklist`);
     if (!r.request_sent_at) return navigate(`/incubator/applications/${r.id}/send`);
@@ -155,13 +165,13 @@ const ApplicationsList = () => {
           <div className="flex justify-center mb-8">
             <StatusTabBar
               label="Application status"
-              tabs={GROUPS.map((g) => ({ id: g.id, label: g.label, icon: g.icon, tone: g.tone, count: rows.filter((r) => g.statuses.includes(r.status)).length }))}
+              tabs={GROUPS.map((g) => ({ id: g.id, label: g.label, icon: g.icon, tone: g.tone, count: rows.filter((r) => fundingListGroup(r.status, r.deal_status) === g.id).length }))}
               activeId={viewMode}
               onChange={setViewMode}
             />
           </div>
           {GROUPS.map((g) => {
-            const list = rows.filter((r) => g.statuses.includes(r.status));
+            const list = rows.filter((r) => fundingListGroup(r.status, r.deal_status) === g.id);
             return (
               <TabsContent key={g.id} value={g.id}>
                 {loading ? (
