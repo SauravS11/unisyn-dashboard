@@ -398,7 +398,7 @@ export const DocumentsModal = ({ open, onOpenChange, dealId, fundingApplicationI
             <div className="text-center py-8 text-muted-foreground">
               Loading documents...
             </div>
-          ) : documents.length === 0 ? (
+          ) : documents.length === 0 && profileDocs.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               No documents uploaded yet
             </div>
