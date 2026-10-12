@@ -53,6 +53,7 @@ const ApplicationReview = () => {
   const [activity, setActivity] = useState<any[]>([]);
 
   const [reviewSection, setReviewSection] = useState<WorkflowSection | null>(null);
+  const [sectionBusyId, setSectionBusyId] = useState<string | null>(null);
   const [clarSection, setClarSection] = useState<WorkflowSection | null>(null);
   const [clarForm, setClarForm] = useState({
     title: "",
@@ -146,15 +147,20 @@ const ApplicationReview = () => {
   };
 
   const setSectionStatus = async (sectionId: string, status: string, label: string) => {
-    const { error } = await (supabase.rpc as any)("manager_set_section_status", {
-      p_application_id: applicationId,
-      p_section_id: sectionId,
-      p_status: status,
-      p_label: label,
-    });
-    if (error) return toast.error(error.message);
-    toast.success(label);
-    load();
+    setSectionBusyId(sectionId);
+    try {
+      const { error } = await (supabase.rpc as any)("manager_set_section_status", {
+        p_application_id: applicationId,
+        p_section_id: sectionId,
+        p_status: status,
+        p_label: label,
+      });
+      if (error) return toast.error(error.message);
+      toast.success(label);
+      load();
+    } finally {
+      setSectionBusyId(null);
+    }
   };
 
   const sendClarification = async () => {
@@ -358,6 +364,7 @@ const ApplicationReview = () => {
                     <Button
                       size="sm"
                       className="rounded-full gap-2 bg-gradient-success text-success-foreground"
+                      disabled={sectionBusyId === s.id}
                       onClick={() => setSectionStatus(s.id, "approved", `Approved ${s.section_code} — ${s.section_name}`)}
                     >
                       <CheckCircle2 className="h-4 w-4" /> Approve Section
