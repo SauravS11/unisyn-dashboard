@@ -23,6 +23,7 @@ import {
 } from "@/lib/incubatorClient";
 import { SECTION_STATUS_LABELS } from "@/lib/fundingWorkflows";
 import { getProgressColors } from "@/lib/progressColors";
+import { statusBadgeTone } from "@/lib/statusTones";
 import { portalSupabase as supabase } from "@/integrations/supabase/portalClient";
 import { toast } from "sonner";
 
@@ -186,7 +187,7 @@ const ApplicantHome = () => {
                     <span className={`text-xs font-semibold tabular-nums ${colors.text}`}>{pct}%</span>
                   </div>
                 </div>
-                <Badge variant="outline" className="rounded-full shrink-0">
+                <Badge variant="outline" className={`rounded-full shrink-0 ${statusBadgeTone(s.status)}`}>
                   {SECTION_STATUS_LABELS[s.status] ?? s.status}
                 </Badge>
                 <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0" />

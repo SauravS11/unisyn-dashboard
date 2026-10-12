@@ -11,6 +11,7 @@ import { ApplicantProgress } from "@/components/ApplicantProgress";
 import { GlassIcon } from "@/components/ui/glass-icon";
 import { Badge } from "@/components/ui/badge";
 import { getProgressColors } from "@/lib/progressColors";
+import { statusBadgeTone } from "@/lib/statusTones";
 import { toast } from "sonner";
 
 interface CategoryRow {
@@ -172,7 +173,7 @@ export default function RespondentDashboard() {
                       <span className={`text-xs font-semibold tabular-nums ${colors.text}`}>{pct}%</span>
                     </div>
                   </div>
-                  <Badge variant="outline" className="rounded-full shrink-0">
+                  <Badge variant="outline" className={`rounded-full shrink-0 ${statusBadgeTone(c.status)}`}>
                     {STATUS_LABELS[c.status] ?? c.status}
                   </Badge>
                   <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0" />
