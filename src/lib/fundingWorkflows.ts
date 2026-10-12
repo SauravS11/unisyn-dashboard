@@ -226,6 +226,17 @@ export const WORKFLOW_FIELDS: Record<string, FieldConfig[]> = {
 
 export const APPROVED_APPLICATION_STATUSES = ["approved", "converted_to_deal", "completed"];
 
+/**
+ * Which list group a funding application belongs to. An application only reaches
+ * "approved" once its deal workspace is 100% complete; until then it stays in review.
+ */
+export function fundingListGroup(status: string, dealStatus?: string | null): "draft" | "live" | "review" | "approved" {
+  if (status === "draft") return "draft";
+  if (["request_sent", "in_progress", "clarification_requested"].includes(status)) return "live";
+  if (status === "completed" || dealStatus === "completed") return "approved";
+  return "review";
+}
+
 export const APPLICATION_STATUS_LABELS: Record<string, string> = {
   draft: "Draft",
   request_sent: "Request Sent",
