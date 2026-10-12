@@ -13,10 +13,18 @@ interface Props {
 }
 
 export function ChecklistPageProgress({ overall, current, label = "Category progress", milestones, activeCode, phase }: Props) {
+  const progressTone = current.completion >= 100
+    ? { text: "text-success", bar: "bg-success" }
+    : current.completion >= 50
+      ? { text: "text-info", bar: "bg-info" }
+      : current.completion > 0
+        ? { text: "text-warning", bar: "bg-warning" }
+        : { text: "text-primary", bar: "bg-primary" };
+
   return (
     <section aria-label="Checklist progress" className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 sm:py-10">
       <div className="space-y-3">
-        <div className="flex items-end justify-between gap-4">
+        <div className="flex flex-col items-center gap-3 text-center">
           <div className="min-w-0">
             <p className="text-sm font-semibold text-foreground">{phase === "responses" ? "Overall written-response progress" : phase === "documents" ? "Overall document progress" : "Overall checklist progress"}</p>
             <p className="mt-1 text-xs sm:text-sm text-muted-foreground">{overall.done} of {overall.total} requirements completed</p>
@@ -70,9 +78,9 @@ export function ChecklistPageProgress({ overall, current, label = "Category prog
       <div className="mx-auto mt-8 max-w-2xl border-t border-border/60 pt-5 space-y-2.5">
         <div className="flex items-center justify-between gap-3 text-sm">
           <p className="font-medium text-foreground">{label}</p>
-          <span className="shrink-0 font-semibold tabular-nums text-primary">{current.completion}%</span>
+          <span className={cn("shrink-0 font-semibold tabular-nums transition-colors duration-500 motion-reduce:transition-none", progressTone.text)}>{current.completion}%</span>
         </div>
-        <Progress value={current.completion} aria-label={label} className="h-3 border border-border/50 bg-muted" indicatorClassName="rounded-full bg-primary duration-500 motion-reduce:transition-none" />
+        <Progress value={current.completion} aria-label={label} className="h-3 border border-border/50 bg-muted" indicatorClassName={cn("rounded-full transition-[transform,background-color] duration-500 motion-reduce:transition-none", progressTone.bar)} />
         <p className="text-center text-xs text-muted-foreground">{current.done} of {current.total} completed</p>
       </div>
     </section>
