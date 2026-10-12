@@ -333,8 +333,8 @@ export default function IntakeReview() {
               </CardHeader>
               <CardContent className="space-y-2">
                 <div className="flex items-center gap-3">
-                  <Progress value={overall} className="h-2 flex-1" />
-                  <span className="text-sm font-semibold tabular-nums text-primary">{overall}%</span>
+                  <Progress value={overall} indicatorClassName={progressBarTone(overall).bar} className="h-2 flex-1" />
+                  <span className={`text-sm font-semibold tabular-nums ${progressBarTone(overall).text}`}>{overall}%</span>
                 </div>
                 <p className="text-xs text-muted-foreground">Overall completion across selected categories</p>
               </CardContent>
@@ -367,8 +367,8 @@ export default function IntakeReview() {
                         </Badge>
                       </div>
                       <div className="mt-3 flex items-center gap-3">
-                        <Progress value={pct} className="h-1.5 flex-1" />
-                        <span className="text-xs tabular-nums text-muted-foreground">{pct}%</span>
+                        <Progress value={pct} indicatorClassName={progressBarTone(pct).bar} className="h-1.5 flex-1" />
+                        <span className={`text-xs tabular-nums font-medium ${progressBarTone(pct).text}`}>{pct}%</span>
                       </div>
                       <div className="mt-2 grid grid-cols-3 gap-2 text-xs text-muted-foreground">
                         <span>{r.responses} responses</span>
