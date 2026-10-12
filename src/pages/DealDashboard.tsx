@@ -756,6 +756,7 @@ const DealDashboard = () => {
                 </div>
               </CardContent>
             </Card>
+            )}
 
             <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-xl cursor-pointer hover:shadow-2xl transition-shadow" onClick={() => setDocumentsModalOpen(true)}>
               <CardContent className="flex items-center justify-center py-8">
