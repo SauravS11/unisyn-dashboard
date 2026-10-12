@@ -293,7 +293,7 @@ const ApplicationReview = () => {
                 <Badge variant="outline" className="rounded-full">
                   {APPLICATION_STATUS_LABELS[app?.status] ?? app?.status}
                 </Badge>
-                <span className="inline-flex items-center gap-1.5 text-green-600">
+                <span className="inline-flex items-center gap-1.5 text-success">
                   <Radio className="h-3.5 w-3.5" /> Live sync active
                 </span>
               </div>
@@ -344,7 +344,7 @@ const ApplicationReview = () => {
                         </p>
                       </div>
                     </div>
-                    <Badge variant="outline" className={`rounded-full ${colors.text}`}>
+                    <Badge variant="outline" className={`rounded-full ${st.status === "approved" ? "bg-success-soft" : colors.text}`}>
                       {SECTION_STATUS_LABELS[st.status] ?? st.status}
                     </Badge>
                   </div>
@@ -361,14 +361,20 @@ const ApplicationReview = () => {
                     <Button variant="outline" size="sm" className="rounded-full gap-2" onClick={() => setClarSection(s)}>
                       <MessageSquareText className="h-4 w-4" /> Request Clarification
                     </Button>
-                    <Button
-                      size="sm"
-                      className="rounded-full gap-2 bg-gradient-success text-success-foreground"
-                      disabled={sectionBusyId === s.id}
-                      onClick={() => setSectionStatus(s.id, "approved", `Approved ${s.section_code} — ${s.section_name}`)}
-                    >
-                      <CheckCircle2 className="h-4 w-4" /> Approve Section
-                    </Button>
+                    {st.status === "approved" ? (
+                      <Button variant="outline" size="sm" className="rounded-full gap-2 bg-success-soft pointer-events-none">
+                        <CheckCircle2 className="h-4 w-4" /> Section Approved
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        className="rounded-full gap-2 bg-gradient-success text-success-foreground"
+                        disabled={sectionBusyId === s.id}
+                        onClick={() => setSectionStatus(s.id, "approved", `Approved ${s.section_code} — ${s.section_name}`)}
+                      >
+                        <CheckCircle2 className="h-4 w-4" /> Approve Section
+                      </Button>
+                    )}
                   </div>
                 </div>
               );
@@ -472,11 +478,13 @@ const ApplicationReview = () => {
               const tone =
                 status === "Missing"
                   ? "text-destructive"
-                  : status === "Approved" || status === "Uploaded"
-                    ? "text-green-600"
-                    : status === "Needs Clarification"
-                      ? "text-amber-600"
-                      : "text-blue-600";
+                  : status === "Approved"
+                    ? "text-success border-success/35 bg-success/10"
+                    : status === "Uploaded"
+                      ? "text-success"
+                      : status === "Needs Clarification"
+                        ? "text-amber-600"
+                        : "text-blue-600";
               return (
                 <div key={r.id} className="glass-surface p-4">
                   <div className="flex items-start justify-between gap-3">
@@ -517,13 +525,23 @@ const ApplicationReview = () => {
                           >
                             Request Upload
                           </Button>
-                          <Button
-                            size="sm"
-                            className="rounded-full h-7 text-[11px] bg-gradient-success text-success-foreground"
-                            onClick={() => approveDocument(d.id, true)}
-                          >
-                            Approve
-                          </Button>
+                          {d.status === "approved" ? (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="rounded-full h-7 text-[11px] bg-success-soft pointer-events-none"
+                            >
+                              <CheckCircle2 className="h-3 w-3" /> Approved
+                            </Button>
+                          ) : (
+                            <Button
+                              size="sm"
+                              className="rounded-full h-7 text-[11px] bg-gradient-success text-success-foreground"
+                              onClick={() => approveDocument(d.id, true)}
+                            >
+                              Approve
+                            </Button>
+                          )}
                         </div>
                       ))}
                     </div>

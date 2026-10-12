@@ -397,14 +397,21 @@ export default function IntakeReview() {
                           <GlassIcon icon={MessageSquare} size="sm" tone="neutral" className="h-7 w-7 rounded-lg" />
                           Request clarification
                         </button>
-                        <button
-                          disabled={approvingId === r.id || r.status === "approved"}
-                          onClick={() => approveCategory(r.id)}
-                          className="group glass-surface lift-hover flex items-center gap-2 pl-1.5 pr-3 py-1.5 text-xs font-semibold text-success hover:border-success/60 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
-                        >
-                          <GlassIcon icon={CheckCircle2} size="sm" tone="success" className="h-7 w-7 rounded-lg" />
-                          Approve category
-                        </button>
+                        {r.status === "approved" ? (
+                          <span className="bg-success-soft border flex items-center gap-2 pl-1.5 pr-3 py-1.5 text-xs font-semibold rounded-full">
+                            <GlassIcon icon={CheckCircle2} size="sm" tone="success" className="h-7 w-7 rounded-lg" />
+                            Category Approved
+                          </span>
+                        ) : (
+                          <button
+                            disabled={approvingId === r.id}
+                            onClick={() => approveCategory(r.id)}
+                            className="group glass-surface lift-hover flex items-center gap-2 pl-1.5 pr-3 py-1.5 text-xs font-semibold text-success hover:border-success/60 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                          >
+                            <GlassIcon icon={CheckCircle2} size="sm" tone="success" className="h-7 w-7 rounded-lg" />
+                            Approve category
+                          </button>
+                        )}
                       </div>
                     </div>
                   );
@@ -513,9 +520,15 @@ export default function IntakeReview() {
                             <Button size="sm" variant="outline" className="gap-1" onClick={() => openDoc(d.file_url)}>
                               <ExternalLink className="h-3.5 w-3.5" /> View
                             </Button>
-                            <Button size="sm" variant="default" className="gap-1 bg-gradient-success hover:opacity-90 transition-opacity text-white" disabled={d.status === "approved"} onClick={() => approveDoc(d.id)}>
-                              <ThumbsUp className="h-3.5 w-3.5" /> Approve
-                            </Button>
+                            {d.status === "approved" ? (
+                              <Button size="sm" variant="outline" className="gap-1 bg-success-soft pointer-events-none">
+                                <ThumbsUp className="h-3.5 w-3.5" /> Approved
+                              </Button>
+                            ) : (
+                              <Button size="sm" variant="default" className="gap-1 bg-gradient-success hover:opacity-90 transition-opacity text-success-foreground" onClick={() => approveDoc(d.id)}>
+                                <ThumbsUp className="h-3.5 w-3.5" /> Approve
+                              </Button>
+                            )}
                             <Button size="sm" variant="destructive" className="gap-1" disabled={d.status === "rejected"} onClick={() => { setDenyDoc(d); setDenyReason(""); }}>
                               <ThumbsDown className="h-3.5 w-3.5" /> Deny
                             </Button>
