@@ -141,7 +141,11 @@ const ApplicantSection = () => {
             responsesDone: questions.filter((q) => (answers[q.id] ?? "").trim().length > 0).length,
             documentsDone: docReqs.filter((r) => documents.some((d) => d.requirement_id === r.id)).length,
           }, false, "documents")}
-          current={{ completion: pct, done, total }}
+          current={{
+            completion: docReqs.length ? Math.round(docReqs.filter((r) => documents.some((d) => d.requirement_id === r.id)).length / docReqs.length * 100) : 0,
+            done: docReqs.filter((r) => documents.some((d) => d.requirement_id === r.id)).length,
+            total: docReqs.length,
+          }}
           label="Section document progress"
         />
 
