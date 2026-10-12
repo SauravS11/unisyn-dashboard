@@ -1,6 +1,16 @@
 // Color tokens for progress / status awareness across the app.
 // Green = 100% complete only. Below 100% uses amber/orange/red scale.
 
+// Semantic bar tone that rises with completion: red -> amber -> blue -> green.
+// Mirrors the checklist page scale so all progress bars feel like real progress.
+export const progressBarTone = (pct: number): { text: string; bar: string } => {
+  if (pct >= 100) return { text: "text-success", bar: "bg-success" };
+  if (pct >= 50) return { text: "text-info", bar: "bg-info" };
+  if (pct > 0) return { text: "text-warning", bar: "bg-warning" };
+  return { text: "text-primary", bar: "bg-primary" };
+};
+
+
 export const getProgressColors = (pct: number) => {
   if (pct >= 100) return {
     text: "text-green-600 dark:text-green-500",
