@@ -621,7 +621,7 @@ const DealDashboard = () => {
         {/* Top Summary Section */}
         <div className="flex flex-col gap-4 sm:gap-6 mb-6 sm:mb-8">
           {/* First Row - Readiness Score + Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 sm:gap-6">
+          <div className={`grid grid-cols-1 sm:grid-cols-2 ${fundingWorkspace ? "md:grid-cols-4" : "md:grid-cols-5"} gap-4 sm:gap-6`}>
             {/* Readiness Score Card */}
             <Card className={`sm:col-span-2 backdrop-blur-xl bg-card/60 border-2 ${getProgressColors(readinessScore).ring} shadow-2xl`}>
               <CardContent className="py-4 sm:py-6">
@@ -665,6 +665,7 @@ const DealDashboard = () => {
               </CardContent>
             </Card>
 
+            {!fundingWorkspace && (
             <Card className={`backdrop-blur-xl bg-card/60 border-2 ${specialistsAssigned > 0 ? 'border-blue-500/40' : 'border-orange-500/40'} shadow-xl cursor-pointer hover:shadow-2xl transition-shadow`} onClick={() => setSpecialistsModalOpen(true)}>
               <CardContent className="flex items-center justify-center py-8">
                 <div className="text-center">
