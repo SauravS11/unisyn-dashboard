@@ -677,10 +677,12 @@ const DealDashboard = () => {
                 </div>
               </CardContent>
             </Card>
+            )}
           </div>
 
+
           {/* Second Row - Days Until Close + Core Team + Documents */}
-          <div className="grid md:grid-cols-5 gap-6">
+          <div className={`grid ${fundingWorkspace ? "md:grid-cols-3" : "md:grid-cols-5"} gap-6`}>
             {/* Days Until Close Card */}
             <Card className="md:col-span-2 backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl cursor-pointer hover:shadow-2xl transition-shadow" onClick={() => setCloseDateDialogOpen(true)}>
               <CardContent className="py-6">
@@ -730,6 +732,7 @@ const DealDashboard = () => {
               </DialogContent>
             </Dialog>
 
+            {!fundingWorkspace && (
             <Card className="md:col-span-2 backdrop-blur-xl bg-card/60 border-border/50 shadow-2xl cursor-pointer hover:shadow-2xl transition-shadow" onClick={() => setCoreTeamModalOpen(true)}>
               <CardContent className="py-6">
                 <div className="flex items-center justify-center gap-8">
