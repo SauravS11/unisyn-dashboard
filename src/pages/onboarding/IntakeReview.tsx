@@ -38,6 +38,7 @@ export default function IntakeReview() {
   const [rows, setRows] = useState<CatRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [approvingId, setApprovingId] = useState<string | null>(null);
   const [reviewCat, setReviewCat] = useState<CatRow | null>(null);
   const [reviewData, setReviewData] = useState<{ requirements: any[]; responses: any[]; documents: any[] } | null>(null);
   const [reviewLoading, setReviewLoading] = useState(false);
@@ -224,12 +225,12 @@ export default function IntakeReview() {
   }, [rows]);
 
   const approveCategory = async (id: string) => {
-    setBusy(true);
+    setApprovingId(id);
     try {
       await (supabase as any).from("client_intake_categories").update({ status: "approved" }).eq("id", id);
       toast.success("Category approved");
       load();
-    } finally { setBusy(false); }
+    } finally { setApprovingId(null); }
   };
 
   const requestClarification = async (categoryId: string) => {
@@ -396,7 +397,7 @@ export default function IntakeReview() {
                           Request clarification
                         </button>
                         <button
-                          disabled={busy || r.status === "approved"}
+                          disabled={approvingId === r.id || r.status === "approved"}
                           onClick={() => approveCategory(r.id)}
                           className="group glass-surface lift-hover flex items-center gap-2 pl-1.5 pr-3 py-1.5 text-xs font-semibold text-success hover:border-success/60 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                         >
