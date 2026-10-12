@@ -71,6 +71,11 @@ const ApplicationReview = () => {
       .eq("id", applicationId)
       .maybeSingle();
     if (!a) return;
+    // Once the deal workspace exists, its dashboard is the final and only screen.
+    if ((a as any).converted_deal_id) {
+      navigate(`/deals/${(a as any).converted_deal_id}/dashboard`, { replace: true });
+      return;
+    }
     // The applicant request (secure link + application code) must be sent before review starts.
     if (!a.request_sent_at && !["approved", "converted_to_deal"].includes(a.status)) {
       navigate(`/incubator/applications/${applicationId}/send`, { replace: true });
