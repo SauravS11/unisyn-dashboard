@@ -141,16 +141,18 @@ const ApplicantHome = () => {
           </div>
         )}
 
-        <div className="mb-10 max-w-2xl">
+        <div className="mb-10 max-w-2xl mx-auto flex flex-col items-center text-center">
           <p className="text-[11px] uppercase tracking-[0.3em] text-muted-foreground mb-3">Welcome to your application</p>
           <h1 className="font-display text-4xl sm:text-5xl tracking-tight leading-tight">
             Let’s complete your <span className="text-gradient-brand">{data?.workflow?.name ?? "funding"}</span>{" "}
             application.
           </h1>
-          <p className="text-muted-foreground mt-4">
+          <p className="text-muted-foreground mt-4 max-w-xl">
             A simple, guided process to help you provide the information needed to assess your funding request.
           </p>
-          <ApplicantProgress completion={overall} done={totals.done} total={totals.total} />
+          <div className="w-full">
+            <ApplicantProgress completion={overall} done={totals.done} total={totals.total} />
+          </div>
           <Button
             className="rounded-full mt-6 gap-2"
             size="lg"

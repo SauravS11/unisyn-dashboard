@@ -130,15 +130,17 @@ export default function RespondentDashboard() {
           ))}
         </div>
 
-        <div className="mb-10 max-w-2xl">
+        <div className="mb-10 max-w-2xl mx-auto flex flex-col items-center text-center">
           <p className="text-[11px] uppercase tracking-[0.3em] text-muted-foreground mb-3">Welcome to your pre-due diligence</p>
           <h1 className="font-display text-4xl sm:text-5xl tracking-tight leading-tight">
             Let’s complete the <span className="text-gradient-brand">{intake?.company_name ?? "deal"}</span> intake.
           </h1>
-          <p className="text-muted-foreground mt-4">
+          <p className="text-muted-foreground mt-4 max-w-xl">
             A simple, guided process: answer the written questions for each category, then upload the supporting documents.
           </p>
-          <ApplicantProgress completion={overall} done={totalDone} total={totalAll} />
+          <div className="w-full">
+            <ApplicantProgress completion={overall} done={totalDone} total={totalAll} />
+          </div>
           <Button className="rounded-full mt-6 gap-2" size="lg" onClick={startFlow} disabled={!ctaTarget}>
             {totalDone > 0 ? ctaLabel : "Start the process"} <ChevronRight className="h-4 w-4" />
           </Button>
