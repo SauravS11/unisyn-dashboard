@@ -784,7 +784,7 @@ const DealDashboard = () => {
           // Refresh documents count when modal closes
           fetchDealData();
         }
-      }} dealId={dealId!} fundingApplicationId={fundingWorkspace ? (sourceApplicationId ?? "") || null : null} />
+      }} dealId={dealId!} funding={fundingWorkspace} fundingApplicationId={fundingWorkspace ? sourceApplicationId : null} />
 
         {/* Core Team Modal */}
         <Dialog open={coreTeamModalOpen} onOpenChange={setCoreTeamModalOpen}>

@@ -26,6 +26,7 @@ interface DocumentsModalProps {
   onOpenChange: (open: boolean) => void;
   dealId: string;
   fundingApplicationId?: string | null;
+  funding?: boolean;
 }
 
 const FUNDING_CATEGORIES = [
@@ -55,9 +56,9 @@ const MA_CATEGORIES = [
   { code: "N", name: "Integration Planning" },
 ];
 
-export const DocumentsModal = ({ open, onOpenChange, dealId, fundingApplicationId }: DocumentsModalProps) => {
+export const DocumentsModal = ({ open, onOpenChange, dealId, fundingApplicationId, funding }: DocumentsModalProps) => {
   const { toast } = useToast();
-  const categories = fundingApplicationId ? FUNDING_CATEGORIES : MA_CATEGORIES;
+  const categories = funding || fundingApplicationId ? FUNDING_CATEGORIES : MA_CATEGORIES;
   const [profileDocs, setProfileDocs] = useState<{ label: string; path: string; name: string }[]>([]);
 
   useEffect(() => {
