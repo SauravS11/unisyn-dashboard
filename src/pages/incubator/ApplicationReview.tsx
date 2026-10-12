@@ -350,8 +350,8 @@ const ApplicationReview = () => {
                   </div>
 
                   <div className="flex items-center gap-3 mt-4">
-                    <Progress value={st.pct} className="h-1.5" />
-                    <span className={`text-xs font-semibold tabular-nums ${colors.text}`}>{st.pct}%</span>
+                    <Progress value={st.pct} indicatorClassName={progressBarTone(st.pct).bar} className="h-1.5" />
+                    <span className={`text-xs font-semibold tabular-nums ${progressBarTone(st.pct).text}`}>{st.pct}%</span>
                   </div>
 
                   <div className="flex flex-wrap gap-2 mt-4">
