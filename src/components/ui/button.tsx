@@ -3,6 +3,7 @@ import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
+import { ChromaticButton } from "./chromatic/chromatic-button";
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
@@ -37,9 +38,42 @@ export interface ButtonProps
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+  ({ className, variant, size, asChild = false, children, ...props }, ref) => {
+    const mergedClassName = cn(buttonVariants({ variant, size }), className);
+    const customBackground = (className ?? "").split(/\s+/).some((token) => {
+      if (!token.startsWith("bg-")) return false;
+      return !(
+        token === "bg-primary" ||
+        token.startsWith("bg-primary/") ||
+        token === "bg-gradient-primary" ||
+        token === "bg-gradient-brand"
+      );
+    });
+    const useChromatic =
+      !asChild &&
+      (variant ?? "default") === "default" &&
+      (size ?? "default") !== "icon" &&
+      !customBackground;
+
+    if (useChromatic) {
+      return (
+        <ChromaticButton
+          {...props}
+          ref={ref}
+          useShader={(size ?? "default") !== "sm"}
+          className={cn(mergedClassName, "!bg-transparent hover:!bg-transparent")}
+        >
+          {children}
+        </ChromaticButton>
+      );
+    }
+
     const Comp = asChild ? Slot : "button";
-    return <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />;
+    return (
+      <Comp className={mergedClassName} ref={ref} {...props}>
+        {children}
+      </Comp>
+    );
   },
 );
 Button.displayName = "Button";

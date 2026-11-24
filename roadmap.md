@@ -13,3 +13,4 @@
 - [x] Live document lists already match the matrix (87 documents); no database row correction needed. Legacy questionnaire records remain for history, excluded from current checklists and totals.
 - [x] Verify code access and document screens, and run checklist-rule tests.
 - [ ] Apply document-only checklist rules in the database serving the funding portal. Blocked: the connected database tools target a different database than the portal's configured client; reconnect the portal's database before applying changes.
+- [x] Add the supplied Chromatic Button treatment to primary actions across the app while preserving native button behavior, reduced-motion support, tab visibility pausing, and a CSS fallback; verified the opening-to-sign-in flow, mobile layout, WebGL rendering, and reduced-motion behavior.

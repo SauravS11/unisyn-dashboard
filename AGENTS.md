@@ -7,3 +7,4 @@
 - Workspace summary navigation uses shared destination links and validated URL tab selection so clicks, refreshes, and browser history preserve the intended list group.
 - Workspace list status tabs use the shared StatusTabBar (spring-animated sliding indicator, per-tab tone colours: red → yellow → blue → green) on both M&A and funding lists; keep its pill sizing consistent with PageNavigation, and list cards adopt their tab's tone via the shared STATUS_CARD_TONES map.
 - Form controls fill with the semantic `field` token instead of the card surface, so input boxes stay readable when page surfaces are darkened for eye comfort.
+- The shared Button renders the Chromatic treatment for default primary actions; semantic success/destructive fills opt out, and compact buttons use CSS-only rendering to preserve status colors and limit WebGL contexts.
