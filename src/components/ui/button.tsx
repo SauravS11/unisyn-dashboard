@@ -43,25 +43,24 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const customBackground = (className ?? "").split(/\s+/).some((token) => {
       if (!token.startsWith("bg-")) return false;
       return !(
-        token === "bg-primary" ||
-        token.startsWith("bg-primary/") ||
+        /^(bg-(transparent|background|card|muted|accent|field|popover|secondary|sidebar|primary))(\/|$)/.test(token) ||
         token === "bg-gradient-primary" ||
         token === "bg-gradient-brand"
       );
     });
-    const useChromatic =
-      !asChild &&
-      (variant ?? "default") === "default" &&
-      (size ?? "default") !== "icon" &&
-      !customBackground;
+    const useChromatic = !asChild && variant !== "destructive" && !customBackground;
 
     if (useChromatic) {
       return (
         <ChromaticButton
           {...props}
           ref={ref}
-          useShader={(size ?? "default") !== "sm"}
-          className={cn(mergedClassName, "!bg-transparent hover:!bg-transparent")}
+          useShader={(size ?? "default") !== "sm" && (size ?? "default") !== "icon"}
+          borderRadius={size === "icon" ? 50 : undefined}
+          className={cn(
+            mergedClassName,
+            "!border-transparent !bg-transparent !text-primary-foreground hover:!bg-transparent",
+          )}
         >
           {children}
         </ChromaticButton>
